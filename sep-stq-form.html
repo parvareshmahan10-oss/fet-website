@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEP-STQ Assessment — FET</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #06080f; --surface: #0d1220;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --text: #e8e4dc; --muted: #6a7080;
+  --ne: #4a9eff; --da: #ff7a3d; --ach: #3ddb8a; --accent: #c8a96e;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Outfit', sans-serif; font-weight: 300;
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(74,158,255,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(255,122,61,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(200,169,110,0.03) 0%, transparent 60%),
+    var(--bg);
+}
+
+/* ===== LANGUAGE MODAL ===== */
+.lang-overlay {
+  position: fixed; inset: 0; background: rgba(6,8,15,0.95);
+  backdrop-filter: blur(20px); z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.lang-modal {
+  text-align: center; max-width: 480px; padding: 3rem;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  animation: fadeUp 0.5s ease;
+}
+.lang-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 300; margin-bottom: 0.5rem;
+}
+.lang-title em { font-style: italic; color: var(--accent); }
+.lang-subtitle { font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; color: #8a94a4; margin-bottom: 3rem; }
+.lang-options { display: flex; flex-direction: column; gap: 0.8rem; }
+.lang-btn {
+  padding: 1.1rem 2rem; border: 1px solid var(--border);
+  background: transparent; color: var(--text);
+  font-family: 'Outfit', sans-serif; font-size: 1.1rem;
+  cursor: pointer; transition: all 0.3s; text-align: center;
+  letter-spacing: 0.05em;
+}
+.lang-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.04); }
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar-wrap {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 3px; background: rgba(255,255,255,0.05);
+}
+.progress-bar-fill {
+  height: 100%; background: var(--accent);
+  transition: width 0.4s ease; width: 0%;
+}
+.progress-info {
+  position: fixed; top: 10px; right: 1.5rem; z-index: 100;
+  font-size: 0.7rem; letter-spacing: 0.15em; color: #8a94a4;
+  text-transform: uppercase;
+}
+
+/* ===== FORM CONTAINER ===== */
+.form-container {
+  display: none; min-height: 100vh;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 4rem 2rem;
+}
+.form-container.active { display: flex; }
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+  text-align: center; margin-bottom: 3rem;
+  max-width: 600px; width: 100%;
+}
+.section-badge {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1rem;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 300; line-height: 1.1;
+}
+.section-title em { font-style: italic; color: var(--accent); }
+
+/* ===== DEMOGRAPHICS FORM ===== */
+.demo-form { width: 100%; max-width: 600px; }
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
+.demo-field { display: flex; flex-direction: column; gap: 0.5rem; }
+.demo-field.full { grid-column: 1 / -1; }
+.demo-label {
+  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: #8a94a4;
+}
+.demo-input, .demo-select {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text); padding: 0.8rem 1rem;
+  font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 300;
+  outline: none; transition: border-color 0.3s;
+  width: 100%;
+}
+.demo-input:focus, .demo-select:focus { border-color: var(--accent); }
+.demo-select option { background: var(--bg); }
+.demo-radio-group { display: flex; gap: 1rem; }
+.demo-radio {
+  flex: 1; padding: 0.8rem; border: 1px solid var(--border);
+  text-align: center; cursor: pointer; transition: all 0.3s;
+  font-size: 0.85rem; color: #8a94a4;
+}
+.demo-radio:hover { border-color: var(--accent); color: var(--text); }
+.demo-radio.selected { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.05); }
+
+/* ===== QUESTION CARD ===== */
+.question-card {
+  width: 100%; max-width: 680px;
+  animation: fadeUp 0.4s ease;
+}
+.q-section-label {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.q-section-label::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+
+.q-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 300;
+  line-height: 1.5; margin-bottom: 3rem; color: #f0ece4;
+}
+[dir="rtl"] .q-text { 
+  font-family: 'Outfit', sans-serif; 
+  font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.8;
+}
+
+/* ===== RATING SCALE ===== */
+.rating-wrap { margin-bottom: 2.5rem; }
+.rating-labels {
+  display: flex; justify-content: space-between;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #8a94a4; margin-bottom: 1rem;
+}
+.rating-buttons {
+  display: flex; gap: 0.5rem;
+}
+.r-btn {
+  flex: 1; aspect-ratio: 1; border: 1px solid var(--border);
+  background: transparent; color: #8a94a4;
+  font-family: 'Outfit', sans-serif; font-size: 0.85rem;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.r-btn:hover { border-color: var(--accent); color: var(--text); }
+.r-btn.selected { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+
+/* ===== NAV BUTTONS ===== */
+.q-nav {
+  display: flex; gap: 1rem; justify-content: space-between; align-items: center;
+}
+.nav-btn {
+  padding: 0.9rem 2rem; border: 1px solid var(--border);
+  background: transparent; color: #8a94a4;
+  font-family: 'Outfit', sans-serif; font-size: 0.78rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.3s;
+}
+.nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+.nav-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.nav-btn.primary:hover { background: var(--text); border-color: var(--text); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.skip-note { font-size: 0.72rem; color: #8a94a4; text-align: center; margin-top: 1rem; }
+
+/* ===== THANK YOU SCREEN ===== */
+.thankyou {
+  display: none; min-height: 100vh;
+  flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 4rem 2rem;
+}
+.thankyou.active { display: flex; }
+.ty-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem,6vw,5rem); font-weight: 300; margin-bottom: 1.5rem; }
+.ty-title em { font-style: italic; color: var(--accent); }
+.ty-body { font-size: 0.95rem; line-height: 1.9; color: #8a94a4; max-width: 500px; margin-bottom: 3rem; }
+.ty-btn {
+  padding: 1rem 2.5rem; border: 1px solid var(--accent);
+  background: var(--accent); color: var(--bg);
+  font-family: 'Outfit', sans-serif; font-size: 0.82rem;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.3s;
+}
+.ty-btn:hover { background: var(--text); border-color: var(--text); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)} }
+
+.demo-section-title {
+  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--accent); margin: 2rem 0 1rem;
+  display: flex; align-items: center; gap: 0.8rem;
+}
+.demo-section-title::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+.demo-input[rows] { padding: 0.8rem 1rem; font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 300; color: var(--text); }
+.concerns-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem;
+}
+.concern-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.8rem; border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s; font-size: 0.78rem; color: #8a94a4;
+}
+.concern-item:hover { border-color: var(--accent); color: var(--text); }
+.concern-item.checked { border-color: var(--accent); color: var(--accent); background: rgba(200,169,110,0.05); }
+.concern-check { width: 12px; height: 12px; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+.concern-item.checked .concern-check { background: var(--accent); border-color: var(--accent); }
+@media (max-width: 600px) { .concerns-grid { grid-template-columns: 1fr 1fr; } }
+
+/* RTL support *//* RTL support */
+[dir="rtl"] body { font-family: 'Outfit', sans-serif; }
+[dir="rtl"] .q-section-label::before { display: none; }
+[dir="rtl"] .q-section-label::after { content: ''; width: 20px; height: 1px; background: var(--accent); }
+[lang="fa"] * { word-break: keep-all; overflow-wrap: anywhere; }
+[lang="ar"] * { word-break: keep-all; overflow-wrap: anywhere; }
+[lang="fa"] .q-text, [lang="ar"] .q-text { 
+  font-size: clamp(1.2rem, 4vw, 1.6rem) !important;
+  line-height: 2 !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 600px) {
+  .demo-grid { grid-template-columns: 1fr; }
+  .r-btn { font-size: 0.82rem; min-height: 44px; }
+  .rating-buttons { gap: 0.3rem; }
+  .q-text { font-size: 1.3rem !important; }
+  .lang-modal { padding: 2rem 1.5rem; margin: 1rem; }
+  .form-container { padding: 2rem 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressFill"></div>
+</div>
+<div class="progress-info" id="progressInfo"></div>
+
+<!-- LANGUAGE SELECTOR -->
+<div class="lang-overlay" id="langOverlay">
+  <div class="lang-modal">
+    <h1 class="lang-title">SEP-<em>STQ</em></h1>
+    <p class="lang-subtitle">Select your language — اختر لغتك — زبان خود را انتخاب کنید</p>
+    <div class="lang-options">
+      <button class="lang-btn" onclick="startForm('en')">English</button>
+      <button class="lang-btn" onclick="startForm('ar')">العربية</button>
+      <button class="lang-btn" onclick="startForm('fa')">فارسی</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEMOGRAPHICS FORM -->
+<div class="form-container" id="demoContainer">
+  <div class="section-header">
+    <div class="section-badge" id="demoBadge">Participant Information</div>
+    <h2 class="section-title" id="demoTitle">Before we begin, <em>tell us about yourself</em></h2>
+  </div>
+  <div class="demo-form">
+
+    <div class="demo-section-title" id="demo-sec1">Personal Information</div>
+    <div class="demo-grid">
+      <div class="demo-field"><label class="demo-label" id="lbl-fname">First Name</label><input class="demo-input" id="inp-fname" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-lname">Last Name</label><input class="demo-input" id="inp-lname" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-age">Age</label><input class="demo-input" id="inp-age" type="number" min="16" max="99"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-dob">Date of Birth</label><input class="demo-input" id="inp-dob" type="date"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-gender">Gender</label><div class="demo-radio-group"><div class="demo-radio" id="gender-m" onclick="selectRadio('gender','m')">M</div><div class="demo-radio" id="gender-f" onclick="selectRadio('gender','f')">F</div></div></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-hand">Dominant Hand</label><div class="demo-radio-group"><div class="demo-radio" id="hand-r" onclick="selectRadio('hand','r')">Right</div><div class="demo-radio" id="hand-l" onclick="selectRadio('hand','l')">Left</div></div></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-pob">Place of Birth</label><input class="demo-input" id="inp-pob" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-nationality">Nationality</label><input class="demo-input" id="inp-nationality" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-address">Address</label><input class="demo-input" id="inp-address" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-postalCode">Postal Code</label><input class="demo-input" id="inp-postalCode" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-langs">Languages Spoken</label><input class="demo-input" id="inp-langs" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-telDay">Tel. (daytime)</label><input class="demo-input" id="inp-telDay" type="tel"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-telEve">Tel. (evening)</label><input class="demo-input" id="inp-telEve" type="tel"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-immigrated">Immigrated? (when / from where / at what age)</label><input class="demo-input" id="inp-immigrated" type="text"></div>
+    </div>
+
+    <div class="demo-section-title" id="demo-sec2">Family Background</div>
+    <div class="demo-grid">
+      <div class="demo-field"><label class="demo-label" id="lbl-parentsAge">Parents' ages at your birth (Father / Mother)</label><input class="demo-input" id="inp-parentsAge" type="text" placeholder="e.g. 30 / 27"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-birthOrder">Birth order (# out of how many children)</label><input class="demo-input" id="inp-birthOrder" type="text" placeholder="e.g. 2 of 4"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-siblingDiff">Age difference between you and your siblings</label><input class="demo-input" id="inp-siblingDiff" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-parentProf">Parents' professions (Father / Mother / Siblings)</label><input class="demo-input" id="inp-parentProf" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-relParents">Childhood relationship — between parents</label><input class="demo-input" id="inp-relParents" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-relParentsYou">Childhood relationship — parents and you</label><input class="demo-input" id="inp-relParentsYou" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-relParentsSib">Childhood relationship — parents and siblings</label><input class="demo-input" id="inp-relParentsSib" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-relSibYou">Childhood relationship — siblings and you</label><input class="demo-input" id="inp-relSibYou" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-marital">Marital status</label><select class="demo-select" id="inp-marital"><option value="">Select...</option><option value="single">Single</option><option value="married">Married</option><option value="common_law">Common Law</option><option value="separated">Separated</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option></select></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-maritalHow">If married/common law — duration & partner's age/occupation</label><input class="demo-input" id="inp-maritalHow" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-children">Children (ages and gender)</label><input class="demo-input" id="inp-children" type="text" placeholder="e.g. boy 5, girl 8"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-pets">Pets?</label><input class="demo-input" id="inp-pets" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-living">Living arrangements</label><select class="demo-select" id="inp-living"><option value="">Select...</option><option value="with_parents">Live with parents</option><option value="rent">Rent</option><option value="own_apt">Own an apartment</option><option value="own_house">Own a house</option></select></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-edu">Education completed (when, program)</label><input class="demo-input" id="inp-edu" type="text" placeholder="e.g. Pharm.D. 2025"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-hobbyPre">Hobby before age 16</label><input class="demo-input" id="inp-hobbyPre" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-hobbyNow">Hobby now</label><input class="demo-input" id="inp-hobbyNow" type="text"></div>
+    </div>
+
+    <div class="demo-section-title" id="demo-sec3">Health Information</div>
+    <div class="demo-grid">
+      <div class="demo-field"><label class="demo-label" id="lbl-weight">Weight</label><input class="demo-input" id="inp-weight" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-height">Height</label><input class="demo-input" id="inp-height" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-bloodType">Blood type</label><input class="demo-input" id="inp-bloodType" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-exercise">Hours/week on exercise</label><input class="demo-input" id="inp-exercise" type="number" min="0" max="40"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-traumas">Traumas/accidents in the past (what year)</label><input class="demo-input" id="inp-traumas" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-surgeries">Past surgeries</label><input class="demo-input" id="inp-surgeries" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-healthHist">Health history (conditions & when started)</label><textarea class="demo-input" id="inp-healthHist" rows="3" style="resize:vertical"></textarea></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-alcohol">Alcohol use (how long & how much)</label><input class="demo-input" id="inp-alcohol" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-smoking">Smoking</label><input class="demo-input" id="inp-smoking" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-drugs">Other drugs (what, when, how much)</label><input class="demo-input" id="inp-drugs" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-medication">Medication and dosage (present time)</label><input class="demo-input" id="inp-medication" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-diet">Diet restrictions</label><input class="demo-input" id="inp-diet" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-meals">Meal times — circle largest (breakfast / lunch / dinner)</label><input class="demo-input" id="inp-meals" type="text" placeholder="e.g. 8am / 1pm / 7pm — largest: dinner"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-sleepPat">Sleep pattern (preferred & actual wake/bed times; time to fall asleep; hours)</label><input class="demo-input" id="inp-sleepPat" type="text" placeholder="e.g. wake 7am/8am; bed 11pm/12am; 15min; 7h/6h"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-consciousness">Lost consciousness? If yes, when and what happened</label><input class="demo-input" id="inp-consciousness" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-psychEpisodes">Episodes requiring psychologist/psychiatrist help (why and when)</label><input class="demo-input" id="inp-psychEpisodes" type="text"></div>
+    </div>
+
+    <div class="demo-section-title" id="demo-sec4">Family Medical History</div>
+    <div class="demo-grid">
+      <div class="demo-field"><label class="demo-label" id="lbl-famFather">Father</label><input class="demo-input" id="inp-famFather" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-famMother">Mother</label><input class="demo-input" id="inp-famMother" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-famGrand">Grandparents</label><input class="demo-input" id="inp-famGrand" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-famSib">Brother/Sister</label><input class="demo-input" id="inp-famSib" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-famChild">Children</label><input class="demo-input" id="inp-famChild" type="text"></div>
+    </div>
+
+    <div class="demo-section-title" id="demo-sec5">Work History</div>
+    <div class="demo-grid">
+      <div class="demo-field"><label class="demo-label" id="lbl-workPos">Current work position</label><input class="demo-input" id="inp-workPos" type="text"></div>
+      <div class="demo-field"><label class="demo-label" id="lbl-workStart">Started this work (when)</label><input class="demo-input" id="inp-workStart" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-workTasks">Tasks and responsibilities</label><input class="demo-input" id="inp-workTasks" type="text"></div>
+      <div class="demo-field full"><label class="demo-label" id="lbl-workPrev">Previous jobs (what and when)</label><input class="demo-input" id="inp-workPrev" type="text"></div>
+    </div>
+
+    <div class="demo-section-title" id="demo-sec6">Psychological Concerns</div>
+    <div class="concerns-grid" id="concernsGrid"></div>
+
+    <button class="nav-btn primary" style="width:100%;margin-top:2rem" onclick="startQuestions()">
+      Begin Assessment →
+    </button>
+  </div>
+</div>
+
+<!-- QUESTION CONTAINER -->
+<div class="form-container" id="qContainer">
+  <div class="question-card">
+    <div class="q-section-label" id="qSectionLabel"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="rating-wrap">
+      <div class="rating-labels">
+        <span id="ratingLabelLeft">Completely Disagree</span>
+        <span id="ratingLabelRight">Completely Agree</span>
+      </div>
+      <div class="rating-buttons" id="ratingButtons"></div>
+    </div>
+    <div class="q-nav">
+      <button class="nav-btn" id="btnBack" onclick="goBack()">← Back</button>
+      <button class="nav-btn primary" id="btnNext" onclick="goNext()">Next →</button>
+    </div>
+    <p class="skip-note" id="skipNote">Press Enter to continue</p>
+  </div>
+</div>
+
+<!-- THANK YOU -->
+<div class="thankyou" id="thankYou">
+  <h1 class="ty-title">Thank<br><em>You</em></h1>
+  <p class="ty-body" id="tyBody">Your responses have been recorded and will contribute to ongoing research at McMaster University. Thank you for your time and participation.</p>
+  <button class="ty-btn" onclick="downloadCSV()">Download My Responses (CSV)</button>
+</div>
+
+<script>
+// ===== TRANSLATIONS =====
+const T = {
+  en: {
+    dir: 'ltr',
+    demoBadge: 'Participant Information',
+    demoTitle: 'Before we begin, tell us about yourself',
+    genderM: 'M', genderF: 'F', handR: 'Right', handL: 'Left',
+    beginBtn: 'Begin Assessment →',
+    labels: {
+      sec1:'Personal Information', sec2:'Family Background', sec3:'Health Information', sec4:'Family Medical History', sec5:'Work History', sec6:'Psychological Concerns',
+      fname:'First Name(s)', lname:'Last Name', hand:'Dominant Hand', gender:'Gender',
+      address:'Address', postalCode:'Postal Code', telDay:'Tel. (daytime)', telEve:'Tel. (evening)',
+      langs:'Languages spoken', dob:'Date of Birth', age:'Age', pob:'Place of Birth', nationality:'Nationality',
+      immigrated:'Immigrated? (when / from where / at what age)',
+      parentsAge:'Parents\' ages when you were born (Father / Mother)',
+      birthOrder:'Birth order: # out of how many children in family',
+      siblingDiff:'Age difference between you and your siblings',
+      parentProf:'Parents\' professions (Father / Mother / Siblings)',
+      relParents:'Childhood relationship — between parents',
+      relParentsYou:'Childhood relationship — parents and you',
+      relParentsSib:'Childhood relationship — parents and siblings',
+      relSibYou:'Childhood relationship — siblings and you',
+      marital:'Marital status', maritalHow:'If married/common law — for how long & partner\'s age/occupation',
+      children:'Children (ages and gender)', pets:'Pets?',
+      living:'Living arrangements',
+      edu:'Education completed (when, program)',
+      hobbyPre:'Hobby before age 16', hobbyNow:'Hobby now',
+      weight:'Weight', height:'Height', bloodType:'Blood type',
+      traumas:'Traumas and/or accidents in the past (what year)',
+      surgeries:'Past surgeries',
+      healthHist:'Health history (conditions & when started): sinus infections, asthma, diabetes, epilepsy, migraine, hearing/vision, heart, blood pressure, psychiatric, thyroid, sleep problems, etc.',
+      alcohol:'Use of alcohol (how long & how much)', smoking:'Smoking',
+      drugs:'Other drugs (what, when, how much)',
+      medication:'Medication and dosage at present time',
+      diet:'Diet restrictions (Vegetarian? Religious? Financial?)',
+      meals:'Meal times — circle largest meal (breakfast / lunch / dinner)',
+      exercise:'Hours/week on hiking and physical exercise',
+      sleepPat:'Sleep pattern — waking preferred/actual; going to bed preferred/actual; time to fall asleep; hours preferred/actual',
+      consciousness:'Did you ever lose consciousness? If yes, when and what happened',
+      psychEpisodes:'Episodes requiring help of a psychologist or psychiatrist (why and when)',
+      famFather:'Family medical history — Father',
+      famMother:'Family medical history — Mother',
+      famGrand:'Family medical history — Grandparents',
+      famSib:'Family medical history — Brother/Sister',
+      famChild:'Family medical history — Children',
+      workPos:'Work position', workStart:'Started this work (when)',
+      workTasks:'Tasks and responsibilities',
+      workPrev:'Previous jobs (what and when)',
+      concerns:'Psychological concerns (mark all that apply)',
+      maritalOptions:['Select...','Single','Married','Common Law','Separated','Divorced','Widowed'],
+      livingOptions:['Select...','Live with parent(s)','Rent','Own an apartment','Own a house'],
+      concernsList:['Anger','Mood alterations','Stress','Depression / low interest','Self-esteem issues','General anxiety','Nightmares','Fear of driving/as passenger','Other specific fears','Concentration problems','Memory problems','Academic problems','Decision making problems','Self-organization problems','Obsessive thoughts','Suicidal thoughts','Other disturbing thoughts','Confusion','Marital tension','Problems at work','Problems at school','Fear of public/social settings','Difficulties communicating','Social withdrawal','Irritability','Conflict with parents','Conflict with children','Concern about children','Grief','Pain','Sleep problems','Dizziness','Headaches','Fatigue','Sexual difficulties','Eating disorder','Substance abuse','Mobility problems','Physical or sexual abuse'],
+    },
+    ratingLeft: 'Completely Disagree', ratingRight: 'Completely Agree',
+    btnBack: '← Back', btnNext: 'Next →',
+    skipNote: 'Press Enter to continue',
+    tyTitle: 'Thank You',
+    tyBody: 'Your responses have been recorded and will contribute to ongoing research at McMaster University. Thank you for your time and participation.',
+    downloadBtn: 'Download My Responses (CSV)',
+    sections: {
+      moving: 'When choosing a place to move to, how much will these affect your choice?\n(1 = not a problem, 10 = definitely avoid)',
+      space: 'When space permits, do you have (or prefer to have) the following in your personal space?',
+      tv: 'What are your favourite TV or online programs?',
+      work: 'What aspects of your current work do you like (or would like to have)?',
+      childhood: 'What did you do for fun as a kid?',
+      grades: 'Your school grades were (1-10):',
+      problems: 'Did you have following life problems? (1 = never, 10 = few times)',
+      adult: 'As an adult, what do you do in your free time?',
+      partner: 'To what degree does this describe the partner you had for the longest time?',
+      radio: 'On a long drive, what radio station do you prefer?'
+    }
+  },
+  ar: {
+    dir: 'rtl',
+    demoBadge: 'معلومات المشارك',
+    demoTitle: 'قبل البدء، أخبرنا عن نفسك',
+    genderM: 'ذكر', genderF: 'أنثى', handR: 'يمنى', handL: 'يسرى',
+    beginBtn: 'ابدأ التقييم →',
+    labels: {
+      sec1:'المعلومات الشخصية', sec2:'الخلفية العائلية', sec3:'المعلومات الصحية', sec4:'التاريخ الطبي للعائلة', sec5:'السيرة المهنية', sec6:'المخاوف النفسية',
+      fname:'الاسم الأول', lname:'اسم العائلة', hand:'اليد المسيطرة', gender:'الجنس',
+      address:'العنوان', postalCode:'الرمز البريدي', telDay:'رقم الهاتف (نهاراً)', telEve:'رقم الهاتف (مساءً)',
+      langs:'اللغات التي تتحدثها', dob:'تاريخ الميلاد', age:'العمر', pob:'مكان الولادة', nationality:'الجنسية',
+      immigrated:'هل هاجرت؟ (متى / من أين / في أي عمر)',
+      parentsAge:'عمر والديك عند ولادتك (الأب / الأم)',
+      birthOrder:'ترتيبك في الأسرة: رقم _____ من _____ أطفال',
+      siblingDiff:'فارق السن بينك وبين إخوتك وأخواتك',
+      parentProf:'مهنة الوالدين (الأب / الأم / الإخوة)',
+      relParents:'العلاقة في الطفولة — بين الوالدين',
+      relParentsYou:'العلاقة في الطفولة — الوالدان وأنت',
+      relParentsSib:'العلاقة في الطفولة — الوالدان والإخوة',
+      relSibYou:'العلاقة في الطفولة — الإخوة وأنت',
+      marital:'الحالة الاجتماعية', maritalHow:'إذا متزوج/ة أو مقترن/ة — منذ متى وعمر الشريك/ة ومهنته/ها',
+      children:'الأطفال (الأعمار والجنس)', pets:'الحيوانات الأليفة؟',
+      living:'ترتيبات السكن',
+      edu:'التعليم المكتمل (متى، البرنامج)',
+      hobbyPre:'الهواية قبل سن 16', hobbyNow:'الهواية حالياً',
+      weight:'الوزن', height:'الطول', bloodType:'فصيلة الدم',
+      traumas:'الصدمات و/أو الحوادث في الماضي (السنة)',
+      surgeries:'العمليات الجراحية السابقة',
+      healthHist:'التاريخ الصحي (الأمراض ومتى بدأت): التهابات الجيوب الأنفية، الربو، السكري، الصرع، الصداع النصفي، السمع/البصر، القلب، ضغط الدم، المشاكل النفسية، الغدة الدرقية، اضطرابات النوم، إلخ.',
+      alcohol:'استخدام الكحول (منذ متى وكم)', smoking:'التدخين',
+      drugs:'مواد أخرى (ما هي، متى، كم)',
+      medication:'الأدوية والجرعات في الوقت الحالي',
+      diet:'القيود الغذائية (نباتي؟ ديني؟ مادي؟)',
+      meals:'أوقات الوجبات — حدد أكبر وجبة (الإفطار / الغداء / العشاء)',
+      exercise:'ساعات المشي والتمرين البدني أسبوعياً',
+      sleepPat:'نمط النوم — وقت الاستيقاظ المفضل/الفعلي؛ وقت النوم المفضل/الفعلي؛ الوقت للنوم؛ ساعات النوم المفضلة/الفعلية',
+      consciousness:'هل فقدت الوعي؟ إذا نعم، متى وماذا حدث',
+      psychEpisodes:'حالات تطلبت مساعدة طبيب نفسي أو أخصائي (لماذا ومتى)',
+      famFather:'التاريخ الطبي للعائلة — الأب',
+      famMother:'التاريخ الطبي للعائلة — الأم',
+      famGrand:'التاريخ الطبي للعائلة — الأجداد',
+      famSib:'التاريخ الطبي للعائلة — الأخ/الأخت',
+      famChild:'التاريخ الطبي للعائلة — الأطفال',
+      workPos:'المنصب الوظيفي الحالي', workStart:'بداية هذا العمل (متى)',
+      workTasks:'المهام والمسؤوليات',
+      workPrev:'الوظائف السابقة (ما هي ومتى)',
+      concerns:'المخاوف النفسية المستمرة (ضع علامة على ما ينطبق)',
+      maritalOptions:['اختر...','أعزب/عزباء','متزوج/ة','مقترن/ة','منفصل/ة','مطلق/ة','أرمل/ة'],
+      livingOptions:['اختر...','مع الوالدين','إيجار','امتلاك شقة','امتلاك منزل'],
+      concernsList:['الغضب','تغيرات المزاج','التوتر','الاكتئاب / فقدان الاهتمام','مشاكل احترام الذات','القلق العام','الكوابيس','الخوف من القيادة','مخاوف محددة أخرى','مشاكل التركيز','مشاكل الذاكرة','مشاكل أكاديمية','مشاكل اتخاذ القرار','مشاكل التنظيم الذاتي','الأفكار الوسواسية','الأفكار الانتحارية','أفكار مزعجة أخرى','الارتباك','توتر زوجي','مشاكل في العمل','مشاكل في المدرسة','الخوف من الأماكن العامة','صعوبات في التواصل','الانعزال الاجتماعي','التهيج','صراع مع الوالدين','صراع مع الأطفال','القلق بشأن الأطفال','الحزن','الألم','مشاكل النوم','الدوار','الصداع','التعب','صعوبات جنسية','اضطرابات الأكل','تعاطي المواد المخدرة','مشاكل الحركة','الاعتداء الجسدي أو الجنسي'],
+    },
+    ratingLeft: 'لا أوافق تمامًا', ratingRight: 'أوافق تمامًا',
+    btnBack: '→ رجوع', btnNext: 'التالي ←',
+    skipNote: 'اضغط Enter للمتابعة',
+    tyTitle: 'شكراً لك',
+    tyBody: 'تم تسجيل إجاباتك وستساهم في البحث الجاري في جامعة ماكماستر. شكراً لوقتك ومشاركتك.',
+    downloadBtn: 'تحميل إجاباتي (CSV)',
+    sections: {
+      moving: 'عند اختيار مكان للانتقال إليه، إلى أي مدى ستؤثر العوامل التالية في قرارك؟\n(1 = ليس مشكلة، 10 = سأمتنع بالتأكيد)',
+      space: 'عندما تسمح المساحة، هل لديك (أو تفضل أن يكون لديك) ما يلي في مساحتك الشخصية؟',
+      tv: 'ما هي برامج التلفزيون أو الإنترنت المفضلة لديك؟',
+      work: 'ما الجوانب في عملك الحالي التي تحبها أو تود أن تمتلكها؟',
+      childhood: 'ماذا كنت تفعل للمتعة في طفولتك؟',
+      grades: 'كانت درجاتك المدرسية (1-10):',
+      problems: 'هل واجهت المشكلات التالية في حياتك؟ (1 = لم يحدث أبدًا، 10 = مرات قليلة)',
+      adult: 'كبالغ، ماذا تفعل في وقت فراغك؟',
+      partner: 'إلى أي مدى تصف الصفات التالية الشريك الذي كنت معه أطول فترة؟',
+      radio: 'إذا كنت في رحلة قيادة طويلة، أي نوع من محطات الراديو تفضل؟'
+    }
+  },
+  fa: {
+    dir: 'rtl',
+    demoBadge: 'اطلاعات شرکت‌کننده',
+    demoTitle: 'قبل از شروع، درباره خودتان بگویید',
+    genderM: 'مرد', genderF: 'زن', handR: 'راست', handL: 'چپ',
+    beginBtn: 'شروع ارزیابی →',
+    labels: {
+      sec1:'اطلاعات شخصی', sec2:'پیشینه خانوادگی', sec3:'اطلاعات سلامت', sec4:'سابقه پزشکی خانوادگی', sec5:'سابقه کاری', sec6:'نگرانی‌های روان‌شناختی',
+      fname:'نام', lname:'نام خانوادگی', hand:'دست غالب', gender:'جنسیت',
+      address:'آدرس', postalCode:'کد پستی', telDay:'تلفن (روز)', telEve:'تلفن (شب)',
+      langs:'زبان‌هایی که صحبت می‌کنید', dob:'تاریخ تولد', age:'سن', pob:'محل تولد', nationality:'ملیت',
+      immigrated:'آیا مهاجرت کرده‌اید؟ (چه زمانی / از کجا / در چه سنی)',
+      parentsAge:'سن والدین هنگام تولد شما (پدر / مادر)',
+      birthOrder:'ترتیب تولد: فرزند شماره ___ از ___ فرزند',
+      siblingDiff:'اختلاف سنی بین شما و برادر/خواهرانتان',
+      parentProf:'شغل والدین (پدر / مادر / خواهر و برادر)',
+      relParents:'رابطه در کودکی — بین والدین',
+      relParentsYou:'رابطه در کودکی — والدین و شما',
+      relParentsSib:'رابطه در کودکی — والدین و خواهر/برادران',
+      relSibYou:'رابطه در کودکی — خواهر/برادران و شما',
+      marital:'وضعیت تأهل', maritalHow:'اگر متأهل/همزیستی — چه مدت و سن و شغل شریک',
+      children:'فرزندان (سن و جنسیت)', pets:'حیوان خانگی؟',
+      living:'وضعیت سکونت',
+      edu:'تحصیلات تکمیل‌شده (چه زمانی، چه رشته‌ای)',
+      hobbyPre:'سرگرمی قبل از ۱۶ سالگی', hobbyNow:'سرگرمی فعلی',
+      weight:'وزن', height:'قد', bloodType:'گروه خونی',
+      traumas:'تروما یا حوادث در گذشته (چه سالی)',
+      surgeries:'عمل‌های جراحی قبلی',
+      healthHist:'سابقه بیماری (و از چه زمانی شروع شد): عفونت‌های سینوس، آسم، دیابت، صرع، میگرن، مشکلات شنوایی/بینایی، قلب، فشار خون، مشکلات روان‌پزشکی، تیروئید، اختلالات خواب و غیره',
+      alcohol:'مصرف الکل (از چه زمانی و چقدر)', smoking:'سیگار',
+      drugs:'مواد دیگر (چه چیزی، چه زمانی، چقدر)',
+      medication:'داروهای فعلی و دوز آن‌ها',
+      diet:'محدودیت‌های غذایی (گیاه‌خوار؟ مذهبی؟ مالی؟)',
+      meals:'زمان وعده‌های غذایی — بزرگ‌ترین وعده را مشخص کنید (صبحانه / ناهار / شام)',
+      exercise:'ساعات کوه‌پیمایی و ورزش در هفته',
+      sleepPat:'الگوی خواب — ساعت بیداری ترجیحی/واقعی؛ ساعت خواب ترجیحی/واقعی؛ زمان به خواب رفتن؛ ساعات خواب ترجیحی/واقعی',
+      consciousness:'آیا تا به حال بیهوش شده‌اید؟ اگر بله، چه زمانی و چه اتفاقی افتاد',
+      psychEpisodes:'موارد نیاز به کمک روان‌پزشک یا روان‌شناس (چرا و چه زمانی)',
+      famFather:'سابقه پزشکی خانوادگی — پدر',
+      famMother:'سابقه پزشکی خانوادگی — مادر',
+      famGrand:'سابقه پزشکی خانوادگی — پدربزرگ/مادربزرگ',
+      famSib:'سابقه پزشکی خانوادگی — برادر/خواهر',
+      famChild:'سابقه پزشکی خانوادگی — فرزندان',
+      workPos:'سمت شغلی فعلی', workStart:'شروع این کار (چه زمانی)',
+      workTasks:'وظایف و مسئولیت‌ها',
+      workPrev:'مشاغل قبلی (چه کاری و چه زمانی)',
+      concerns:'نگرانی‌های روان‌شناختی مستمر (همه موارد مرتبط را علامت بزنید)',
+      maritalOptions:['انتخاب کنید...','مجرد','متأهل','همزیستی','جدا شده','مطلقه','بیوه'],
+      livingOptions:['انتخاب کنید...','با والدین','اجاره','مالک آپارتمان','مالک خانه'],
+      concernsList:['خشم','تغییرات خلق','استرس','افسردگی / کم‌علاقگی','مشکلات عزت نفس','اضطراب عمومی','کابوس','ترس از رانندگی','ترس‌های خاص دیگر','مشکلات تمرکز','مشکلات حافظه','مشکلات تحصیلی','مشکلات تصمیم‌گیری','مشکلات خودسازماندهی','افکار وسواسی','افکار خودکشی','افکار آزاردهنده دیگر','سردرگمی','تنش زناشویی','مشکلات در کار','مشکلات در مدرسه','ترس از مکان‌های عمومی','مشکلات ارتباطی','انزوای اجتماعی','تحریک‌پذیری','تعارض با والدین','تعارض با فرزندان','نگرانی درباره فرزندان','غم و اندوه','درد','مشکلات خواب','سرگیجه','سردرد','خستگی','مشکلات جنسی','اختلال خوردن','سوء مصرف مواد','مشکلات حرکتی','آزار جسمی یا جنسی'],
+    },
+    ratingLeft: 'کاملاً مخالفم', ratingRight: 'کاملاً موافقم',
+    btnBack: '→ بازگشت', btnNext: 'بعدی ←',
+    skipNote: 'برای ادامه Enter را فشار دهید',
+    tyTitle: 'ممنون',
+    tyBody: 'پاسخ‌های شما ثبت شد و به تحقیقات دانشگاه مک‌مستر کمک خواهد کرد. از وقت و مشارکت شما متشکریم.',
+    downloadBtn: 'دانلود پاسخ‌های من (CSV)',
+    sections: {
+      moving: 'هنگام انتخاب محل سکونت جدید، موارد زیر تا چه حد بر تصمیم شما تأثیر می‌گذارند؟\n(۱ = اصلاً مشکلی نیست، ۱۰ = قطعاً اجتناب می‌کنم)',
+      space: 'در صورت داشتن فضای کافی، آیا موارد زیر را در فضای شخصی (خانه یا کار) دارید یا ترجیح می‌دهید داشته باشید؟',
+      tv: 'برنامه‌های تلویزیونی یا آنلاین مورد علاقه‌تان چیست؟',
+      work: 'چه جنبه‌هایی از کار فعلی‌تان را دوست دارید (یا دوست دارید داشته باشید)؟',
+      childhood: 'در کودکی چه کارهایی برای سرگرمی انجام می‌دادید؟',
+      grades: 'نمرات مدرسه‌تان (۱-۱۰):',
+      problems: 'آیا با مشکلات زیر در زندگی‌تان روبرو شده‌اید؟ (۱ = هرگز، ۱۰ = چند بار)',
+      adult: 'در بزرگسالی، اوقات فراغتتان را چطور می‌گذرانید؟',
+      partner: 'تا چه حد صفات زیر شریکی را که بیشترین مدت با او بوده‌اید توصیف می‌کند؟',
+      radio: 'در یک سفر طولانی با ماشین، چه نوع رادیویی ترجیح می‌دهید؟'
+    }
+  }
+};
+
+// ===== QUESTIONS =====
+const QUESTIONS = {
+  en: [
+    // Moving (1-19)
+    {s:'moving', q:'I will avoid areas with problems in finding a job'},
+    {s:'moving', q:'High cost of living'},
+    {s:'moving', q:'The name of the place is not famous/well-known'},
+    {s:'moving', q:'Visually-boring, not very attractive housing'},
+    {s:'moving', q:'No easy access to fast food, take-out or restaurants'},
+    {s:'moving', q:'No easy access to public transport, banks and other city services unless I own a car'},
+    {s:'moving', q:'No easy access to theaters and cultural sites'},
+    {s:'moving', q:'No easy access to my friends and/or family members'},
+    {s:'moving', q:'The place is socially or politically controversial'},
+    {s:'moving', q:'Limited infrastructure to raise children (daycare, places for kids to play, after-school programs)'},
+    {s:'moving', q:'Too tight space to accommodate my office stuff'},
+    {s:'moving', q:'Too tight space to accommodate my instruments/tools'},
+    {s:'moving', q:'Absence of my personal, historic or emotional ties to it'},
+    {s:'moving', q:"I'd avoid noisy environment, such as in a city or near transport lines"},
+    {s:'moving', q:"I'd avoid quiet environment, such as in small towns or the countryside"},
+    {s:'moving', q:'The place requires manual work (cutting grass, snow and weeds removal)'},
+    {s:'moving', q:'Limited access to my professional or hobby community in person (with availability of the Internet)'},
+    {s:'moving', q:'Limited ability to use bicycles or regular long walks/jogging'},
+    {s:'moving', q:'Not technologically advanced in terms of transport, banking or deliveries of purchases'},
+    // Item 20 — special
+    {s:'moving', q:'How close do you live now to the area where you lived in childhood? (1 = on another continent, 10 = within 50 km)', special: true},
+    // TV (21-33)
+    {s:'tv', q:'Sports broadcasts'},
+    {s:'tv', q:'Action movies or survival shows'},
+    {s:'tv', q:'Entertainment industry news'},
+    {s:'tv', q:'Courts or Crime & Punishment shows'},
+    {s:'tv', q:'Romance-like programs or movies'},
+    {s:'tv', q:'Horror'},
+    {s:'tv', q:'Family matters shows'},
+    {s:'tv', q:'Political news'},
+    {s:'tv', q:'Local news'},
+    {s:'tv', q:'Shows on health matters'},
+    {s:'tv', q:'Documentary and/or opinions/lectures'},
+    {s:'tv', q:'Comedy'},
+    {s:'tv', q:'Know-how shows (e.g. cooking; home remodelling/decor)'},
+    // Space (34-53)
+    {s:'space', q:'A religious image'},
+    {s:'space', q:'Photo of myself with friends'},
+    {s:'space', q:'Mementos/gifts from friends/family'},
+    {s:'space', q:'Photo of family members'},
+    {s:'space', q:'My own artwork around'},
+    {s:'space', q:'Informative books (encyclopedias, handbooks)'},
+    {s:'space', q:'Weights or other athletic equipment'},
+    {s:'space', q:'Map or globe'},
+    {s:'space', q:'Sports-related poster'},
+    {s:'space', q:'Whimsical items (e.g. fairy lights, jokey things)'},
+    {s:'space', q:'My diplomas, certificates'},
+    {s:'space', q:'A funny sarcastic quote'},
+    {s:'space', q:'Calendar/schedule'},
+    {s:'space', q:'Alarms'},
+    {s:'space', q:'Item related to my favourite real person (dead or alive)'},
+    {s:'space', q:'Materials for gift-wrapping or art-work'},
+    {s:'space', q:'Instruments to fix things by myself'},
+    {s:'space', q:'A poster or mementos related to a celebrity or social group that I share'},
+    {s:'space', q:'Practical and minimal furniture, not much decor'},
+    {s:'space', q:'Computer, printer and other office equipment'},
+    // Work (54-71)
+    {s:'work', q:'I like (or would like) how my work is — unpredictable'},
+    {s:'work', q:'Has frequent changes in schedules or tasks'},
+    {s:'work', q:'I am responsible only for my tasks, and not for the whole company'},
+    {s:'work', q:'It has kind supportive collaboration/assistance on the tasks between various associates/departments'},
+    {s:'work', q:'Has tasks multiplicity'},
+    {s:'work', q:'This work is socially important'},
+    {s:'work', q:'Is not risky'},
+    {s:'work', q:'It is guaranteed that I will not lose it'},
+    {s:'work', q:'Involves me listening to people'},
+    {s:'work', q:'People listen and learn from me'},
+    {s:'work', q:'Requires fast exchange of information/discussions'},
+    {s:'work', q:'Importance of details in complex tasks'},
+    {s:'work', q:'Has freedom in tasks/schedule that I sometimes need'},
+    {s:'work', q:'My office is a quiet and private environment'},
+    {s:'work', q:'Has established, prescribed routines and environment'},
+    {s:'work', q:'Is within influential or famous company'},
+    {s:'work', q:'I physically see the outcomes of my work right away'},
+    {s:'work', q:'The office is located in attractive settings or building'},
+    // Childhood (72-94)
+    {s:'childhood', q:'I did play-fighting/simulated combat'},
+    {s:'childhood', q:'I read popular science'},
+    {s:'childhood', q:'I watched documentary or science programs'},
+    {s:'childhood', q:'I put on plays or performances'},
+    {s:'childhood', q:'I saved animals / cared for pets'},
+    {s:'childhood', q:'I went on adventures'},
+    {s:'childhood', q:'I observed people'},
+    {s:'childhood', q:'I read stories about kids, animals or romance'},
+    {s:'childhood', q:'I attended regular athletic classes (e.g. judo, swimming, gymnastics)'},
+    {s:'childhood', q:'I gardened or helped in farming'},
+    {s:'childhood', q:'I played board or card games of strategy'},
+    {s:'childhood', q:'I played make-believe (role-play) games'},
+    {s:'childhood', q:'I played highly risky physical games (e.g. climbing trees, jumping off high things)'},
+    {s:'childhood', q:'I played verbal games involving social choices (truth/dare)'},
+    {s:'childhood', q:'I built things (e.g. Lego, Jenga, trains, forts)'},
+    {s:'childhood', q:'I was a dare-devil (tried out not recommended actions)'},
+    {s:'childhood', q:'I gossiped or made up stories with friends'},
+    {s:'childhood', q:'I solved intellectual puzzles'},
+    {s:'childhood', q:'I emotionally confided with friends'},
+    {s:'childhood', q:'I ran away from home for many days without my parents knowing where I was'},
+    {s:'childhood', q:'I patiently saved my pennies to buy what I wanted later'},
+    {s:'childhood', q:'I decorated and prepared presents for my relatives'},
+    {s:'childhood', q:'I started many projects on my own initiative'},
+    // Grades (95-97)
+    {s:'grades', q:'Your grades on athletic activities were'},
+    {s:'grades', q:'Your grades in math & science subjects were'},
+    {s:'grades', q:'Your grades on social-language activities were'},
+    // Problems (98-107)
+    {s:'problems', q:'I dropped school or year(s) in my college/university education at some point, not due to maternity leave (put 7-8 if dropped more than one class)'},
+    {s:'problems', q:'Please count times when you had infections or food poisoning requiring antibiotics in your first 20 years of life (put 10 if more than 10)'},
+    {s:'problems', q:'I had long-term (more than a month) conflicts with my parents/guardians when I was a kid'},
+    {s:'problems', q:'I often missed deadlines, even for my own projects'},
+    {s:'problems', q:'I had problems with the law at some point'},
+    {s:'problems', q:'In winter time, shorter daylight and darkness affect me'},
+    {s:'problems', q:'It is hard for me to find an intimate partner (either no partner or mostly superficial fast encounters)'},
+    {s:'problems', q:'My partner or the father/mother of my children has a problem with drinking or the law'},
+    {s:'problems', q:'I have no time to organize and fully clean my place so it is hard to find things there'},
+    {s:'problems', q:'I have/had parent(s) controlling all aspects of my life (education, relationships, work, vacation planning)'},
+    // Adult free time (108-133)
+    {s:'adult', q:'Hiking, climbing and/or camping in adult company'},
+    {s:'adult', q:'Travelling solo to explore nature'},
+    {s:'adult', q:'Camping with family'},
+    {s:'adult', q:'Adventure travel (skydiving, parasailing)'},
+    {s:'adult', q:'Social activism'},
+    {s:'adult', q:"Going to friends' parties"},
+    {s:'adult', q:'Organizing your own party, inviting visitors'},
+    {s:'adult', q:'Staying home with a good book'},
+    {s:'adult', q:'Attending cultural events: films, plays, concerts'},
+    {s:'adult', q:'Gardening'},
+    {s:'adult', q:'Catching up on sleep'},
+    {s:'adult', q:'Attending conferences/lectures, taking courses'},
+    {s:'adult', q:'Using alcohol or something to alter my moods'},
+    {s:'adult', q:'Relaxing on a beach or in a park'},
+    {s:'adult', q:'Solving/doing puzzles'},
+    {s:'adult', q:'Listening to YouTube videos/podcasts'},
+    {s:'adult', q:'Participating in physical sports'},
+    {s:'adult', q:'Meditating/mindfulness practice'},
+    {s:'adult', q:'Building and/or fixing things'},
+    {s:'adult', q:'Creative arts (drawing, making music)'},
+    {s:'adult', q:'Socializing'},
+    {s:'adult', q:'Cooking'},
+    {s:'adult', q:'Confiding with friends in each other'},
+    {s:'adult', q:'Volunteer work'},
+    {s:'adult', q:'Shopping'},
+    {s:'adult', q:'Discussing ideas (politics, book clubs)'},
+    // Partner (134-139)
+    {s:'partner', q:'My partner is more "to do" than "to talk" person'},
+    {s:'partner', q:'Helps to keep the place we live in ordered and clean'},
+    {s:'partner', q:"Doesn't bother me with long emotional talks"},
+    {s:'partner', q:'Takes us to operas, ballet, museums'},
+    {s:'partner', q:'Is devoted to me and family, not cheating in relationships'},
+    {s:'partner', q:'Has university education'},
+    // Radio (140-144)
+    {s:'radio', q:'World news'},
+    {s:'radio', q:'Local news'},
+    {s:'radio', q:'Opinions, podcasts and/or lectures'},
+    {s:'radio', q:'Audio-coverage of sport events'},
+    {s:'radio', q:'Just music'},
+  ],
+  ar: [
+    {s:'moving', q:'سأتجنب المناطق التي يصعب فيها العثور على عمل'},
+    {s:'moving', q:'ارتفاع تكلفة المعيشة'},
+    {s:'moving', q:'عدم شهرة اسم المكان'},
+    {s:'moving', q:'مساكن غير جذابة بصريًا أو تفتقر إلى الجاذبية'},
+    {s:'moving', q:'عدم سهولة الوصول إلى الوجبات السريعة أو المطاعم'},
+    {s:'moving', q:'عدم سهولة الوصول إلى وسائل النقل العام والبنوك والخدمات الحضرية'},
+    {s:'moving', q:'عدم سهولة الوصول إلى المسارح والمعالم الثقافية'},
+    {s:'moving', q:'عدم سهولة الوصول إلى أصدقائي و/أو أفراد عائلتي'},
+    {s:'moving', q:'المكان مثير للجدل اجتماعيًا أو سياسيًا'},
+    {s:'moving', q:'محدودية البنية التحتية لتنشئة الأطفال (دور رعاية أطفال، أماكن للعب، برامج ما بعد المدرسة)'},
+    {s:'moving', q:'ضيق المساحة لاستيعاب أدوات المكتب الخاصة بي'},
+    {s:'moving', q:'ضيق المساحة لاستيعاب أدواتي أو معداتي'},
+    {s:'moving', q:'غياب الروابط الشخصية أو التاريخية أو العاطفية التي تربطني بالمكان'},
+    {s:'moving', q:'سأبتعد عن البيئة الصاخبة مثل المدينة أو بالقرب من خطوط النقل'},
+    {s:'moving', q:'سأبتعد عن البيئة الهادئة مثل البلدات الصغيرة أو الريف'},
+    {s:'moving', q:'المكان يتطلب أعمال صيانة يدوية (قص العشب، إزالة الثلوج والأعشاب الضارة)'},
+    {s:'moving', q:'محدودية الوصول إلى مجتمعي المهني أو هواياتي شخصيًا (مع توفر الإنترنت)'},
+    {s:'moving', q:'محدودية القدرة على استخدام الدراجات أو المشي/الركض لمسافات طويلة'},
+    {s:'moving', q:'غير متقدم تكنولوجيًا في مجالات النقل والبنوك وخدمات توصيل المشتريات'},
+    {s:'moving', q:'ما مدى قرب مكان إقامتك الحالي من المنطقة التي عشت فيها طفولتك؟ (1 = في قارة أخرى، 10 = ضمن 50 كم)', special:true},
+    {s:'tv', q:'البث الرياضي'},
+    {s:'tv', q:'أفلام الحركة أو برامج البقاء على قيد الحياة'},
+    {s:'tv', q:'أخبار صناعة الترفيه'},
+    {s:'tv', q:'برامج المحاكم أو الجرائم والعقاب'},
+    {s:'tv', q:'برامج أو أفلام رومانسية'},
+    {s:'tv', q:'الرعب'},
+    {s:'tv', q:'برامج تتناول الشؤون العائلية'},
+    {s:'tv', q:'الأخبار السياسية'},
+    {s:'tv', q:'الأخبار المحلية'},
+    {s:'tv', q:'برامج متعلقة بالصحة'},
+    {s:'tv', q:'البرامج الوثائقية و/أو الآراء والمحاضرات'},
+    {s:'tv', q:'الكوميديا'},
+    {s:'tv', q:'برامج إرشادية عملية (مثل الطبخ، تجديد المنزل)'},
+    {s:'space', q:'صورة أو رمز ديني'},
+    {s:'space', q:'صورة لي مع الأصدقاء'},
+    {s:'space', q:'تذكارات أو هدايا من الأصدقاء أو العائلة'},
+    {s:'space', q:'صورة لأفراد العائلة'},
+    {s:'space', q:'عرض أعمالي الفنية الخاصة'},
+    {s:'space', q:'كتب مرجعية أو تثقيفية (موسوعات أو أدلة)'},
+    {s:'space', q:'أثقال أو معدات رياضية أخرى'},
+    {s:'space', q:'خريطة أو كرة أرضية'},
+    {s:'space', q:'ملصق متعلق بالرياضة'},
+    {s:'space', q:'عناصر زخرفية مرِحة أو طريفة (مثل أضواء زينة، أشياء فكاهية)'},
+    {s:'space', q:'شهاداتي الدراسية أو المهنية'},
+    {s:'space', q:'عبارة ساخرة أو طريفة'},
+    {s:'space', q:'تقويم / جدول مواعيد'},
+    {s:'space', q:'منبهات'},
+    {s:'space', q:'غرض مرتبط بشخصية حقيقية مفضلة لدي (حي أو متوفى)'},
+    {s:'space', q:'مواد لتغليف الهدايا أو للأعمال الفنية'},
+    {s:'space', q:'أدوات لإصلاح الأشياء بنفسي'},
+    {s:'space', q:'ملصق أو تذكارات تتعلق بمشاهير أو مجموعة اجتماعية'},
+    {s:'space', q:'أثاث عملي بسيط بطابع حد أدنى من الزينة'},
+    {s:'space', q:'حاسوب وطابعة ومعدات مكتبية أخرى'},
+    {s:'work', q:'أحب (أو أود) أن يكون عملي غير متوقع'},
+    {s:'work', q:'يحتوي على تغييرات متكررة في المواعيد أو المهام'},
+    {s:'work', q:'أنا مسؤول فقط عن مهامي وليس عن الشركة بأكملها'},
+    {s:'work', q:'يوجد تعاون داعم وإيجابي بين الزملاء أو الإدارات'},
+    {s:'work', q:'تعدد المهام'},
+    {s:'work', q:'هذا العمل ذو قيمة أو أهمية مجتمعية'},
+    {s:'work', q:'غير محفوف بالمخاطر'},
+    {s:'work', q:'يضمن استقرارًا وظيفيًا وعدم فقدان الوظيفة'},
+    {s:'work', q:'يتطلب الاستماع إلى الآخرين'},
+    {s:'work', q:'يستمع الآخرون إليّ ويتعلمون مني'},
+    {s:'work', q:'يتطلب تبادلًا سريعًا للمعلومات والمناقشات'},
+    {s:'work', q:'أهمية التفاصيل في المهام المعقدة'},
+    {s:'work', q:'يتيح قدرًا من الحرية في المهام أو المواعيد حسب الحاجة'},
+    {s:'work', q:'مكتبي بيئة هادئة وخاصة'},
+    {s:'work', q:'يحتوي على روتين وبيئة محددة ومعتمدة'},
+    {s:'work', q:'ضمن شركة ذات تأثير أو شهرة'},
+    {s:'work', q:'أرى نتائج عملي بشكل ملموس وفوري'},
+    {s:'work', q:'يقع في موقع أو مبنى جذاب'},
+    {s:'childhood', q:'ألعب القتال التمثيلي أو القتال المحاكى'},
+    {s:'childhood', q:'أقرأ كتب العلوم الشعبية'},
+    {s:'childhood', q:'أشاهد برامج وثائقية أو علمية'},
+    {s:'childhood', q:'أشارك في عروض أو مسرحيات تمثيلية'},
+    {s:'childhood', q:'أنقذ الحيوانات وأعتني بالحيوانات الأليفة'},
+    {s:'childhood', q:'أذهب في مغامرات'},
+    {s:'childhood', q:'أراقب الناس'},
+    {s:'childhood', q:'أقرأ قصصًا عن الأطفال أو الحيوانات أو الرومانسية'},
+    {s:'childhood', q:'أحضر دروسًا رياضية منتظمة (جودو، سباحة، جمباز)'},
+    {s:'childhood', q:'أمارس البستنة أو أساعد في الزراعة'},
+    {s:'childhood', q:'ألعب ألعاب الطاولة أو الورق الاستراتيجية'},
+    {s:'childhood', q:'ألعب ألعاب التخيل أو لعب الأدوار'},
+    {s:'childhood', q:'ألعب ألعاب بدنية محفوفة بالمخاطر (تسلق الأشجار، القفز)'},
+    {s:'childhood', q:'ألعب ألعاب كلامية تعتمد على اختيارات اجتماعية (الصراحة أو التحدي)'},
+    {s:'childhood', q:'أبني أشياء (ليجو، جنغا، قطارات، حصون)'},
+    {s:'childhood', q:'كنت متهورًا وأجرب أفعالًا غير موصى بها'},
+    {s:'childhood', q:'أتبادل النميمة أو أخترع قصصًا مع الأصدقاء'},
+    {s:'childhood', q:'أحل الألغاز الذهنية'},
+    {s:'childhood', q:'أتشاطر مشاعري مع الأصدقاء'},
+    {s:'childhood', q:'أهرب من المنزل لأيام عديدة دون علم والديّ بمكاني'},
+    {s:'childhood', q:'أوفر مصروفي بعناية لشراء ما أريد لاحقًا'},
+    {s:'childhood', q:'أزين وأجهز الهدايا لأقاربي'},
+    {s:'childhood', q:'أبدأ مشاريع عديدة بمبادرتي الخاصة'},
+    {s:'grades', q:'تقييمك للأنشطة الرياضية كان'},
+    {s:'grades', q:'تقييمك في مواد الرياضيات والعلوم كان'},
+    {s:'grades', q:'تقييمك في الأنشطة الاجتماعية واللغوية كان'},
+    {s:'problems', q:'تركت الدراسة أو سنوات في تعليمي الجامعي في مرحلة ما (7-8 إذا تركت أكثر من فصل)'},
+    {s:'problems', q:'عدد مرات إصابتك بعدوى أو تسمم غذائي تطلّب مضادات حيوية خلال أول 20 سنة (10 إذا أكثر من 10)'},
+    {s:'problems', q:'واجهت نزاعات طويلة الأمد (أكثر من شهر) مع والديّ عندما كنت طفلاً'},
+    {s:'problems', q:'غالبًا ما أفوّت المواعيد النهائية حتى لمشاريعي الخاصة'},
+    {s:'problems', q:'واجهت مشاكل مع القانون في مرحلة ما'},
+    {s:'problems', q:'في فصل الشتاء يؤثر عليّ قصر النهار وطول الظلام'},
+    {s:'problems', q:'صعوبة في إيجاد شريك حميم'},
+    {s:'problems', q:'شريكي أو والد أطفالي لديه مشكلة مع شرب الكحول أو مع القانون'},
+    {s:'problems', q:'لا أملك الوقت لتنظيم مكاني بشكل كامل فيصعب العثور على الأشياء'},
+    {s:'problems', q:'لديّ والدان يفرضان سيطرة على جميع جوانب حياتي'},
+    {s:'adult', q:'التنزه والتسلق و/أو التخييم بصحبة بالغين'},
+    {s:'adult', q:'السفر بمفردي لاستكشاف الطبيعة'},
+    {s:'adult', q:'التخييم مع العائلة'},
+    {s:'adult', q:'رحلات المغامرة (القفز بالمظلات، الطيران الشراعي)'},
+    {s:'adult', q:'النشاط المجتمعي أو العمل الناشط اجتماعيًا وسياسيًا'},
+    {s:'adult', q:'حضور حفلات الأصدقاء'},
+    {s:'adult', q:'تنظيم حفلة خاصة بك ودعوة الزوار'},
+    {s:'adult', q:'البقاء في المنزل لقراءة كتاب ممتع'},
+    {s:'adult', q:'حضور الفعاليات الثقافية: مشاهدة الأفلام والمسرحيات والحفلات الموسيقية'},
+    {s:'adult', q:'ممارسة البستنة'},
+    {s:'adult', q:'تعويض قلة النوم أو النوم لفترة أطول'},
+    {s:'adult', q:'حضور المؤتمرات والمحاضرات أو الالتحاق بدورات تعليمية'},
+    {s:'adult', q:'استخدام الكحول أو وسائل أخرى للتأثير في المزاج'},
+    {s:'adult', q:'الاسترخاء على الشاطئ أو في المنتزه'},
+    {s:'adult', q:'حل الألغاز وألعاب الذكاء'},
+    {s:'adult', q:'الاستماع إلى محتوى يوتيوب أو البودكاست'},
+    {s:'adult', q:'المشاركة في الرياضات البدنية'},
+    {s:'adult', q:'التأمل وممارسة اليقظة الذهنية'},
+    {s:'adult', q:'بناء الأشياء و/أو إصلاحها'},
+    {s:'adult', q:'ممارسة الفنون الإبداعية (الرسم، تأليف أو أداء الموسيقى)'},
+    {s:'adult', q:'الاختلاط الاجتماعي'},
+    {s:'adult', q:'الطبخ'},
+    {s:'adult', q:'التحدث بصراحة ومشاركة المشاعر مع الأصدقاء'},
+    {s:'adult', q:'العمل التطوعي'},
+    {s:'adult', q:'التسوق'},
+    {s:'adult', q:'مناقشة الأفكار (السياسة، نوادي الكتاب)'},
+    {s:'partner', q:'شريكي شخص عملي أكثر منه كلامي'},
+    {s:'partner', q:'يساعد في الحفاظ على ترتيب ونظافة المكان الذي نعيش فيه'},
+    {s:'partner', q:'لا يزعجني بالمحادثات العاطفية الطويلة'},
+    {s:'partner', q:'يصحبني إلى الأوبرا والباليه والمتاحف'},
+    {s:'partner', q:'مخلص لي وللعائلة وغير خائن'},
+    {s:'partner', q:'حاصل على شهادة جامعية'},
+    {s:'radio', q:'الأخبار العالمية'},
+    {s:'radio', q:'الأخبار المحلية'},
+    {s:'radio', q:'الآراء والبودكاست و/أو المحاضرات'},
+    {s:'radio', q:'النقل الإذاعي للأحداث الرياضية'},
+    {s:'radio', q:'الموسيقى فقط'},
+  ],
+  fa: [
+    {s:'moving', q:'از مناطقی که یافتن شغل در آن‌ها دشوار است اجتناب می‌کنم'},
+    {s:'moving', q:'هزینه بالای زندگی'},
+    {s:'moving', q:'نام محل مشهور/شناخته‌شده نیست'},
+    {s:'moving', q:'خانه‌های از نظر بصری کسل‌کننده و نه‌چندان جذاب'},
+    {s:'moving', q:'دسترسی آسان به فست‌فود، غذای بیرون‌بر یا رستوران وجود ندارد'},
+    {s:'moving', q:'دسترسی آسان به حمل‌ونقل عمومی، بانک‌ها و خدمات شهری وجود ندارد مگر با ماشین'},
+    {s:'moving', q:'دسترسی آسان به تئاتر و مراکز فرهنگی وجود ندارد'},
+    {s:'moving', q:'دسترسی آسان به دوستان و/یا اعضای خانواده‌ام وجود ندارد'},
+    {s:'moving', q:'محل از نظر اجتماعی یا سیاسی بحث‌برانگیز است'},
+    {s:'moving', q:'زیرساخت محدود برای بزرگ کردن فرزندان (مهدکودک، فضای بازی، برنامه‌های بعد از مدرسه)'},
+    {s:'moving', q:'فضا برای وسایل اداری/کاری من خیلی تنگ است'},
+    {s:'moving', q:'فضا برای ابزارها/لوازم تخصصی من خیلی تنگ است'},
+    {s:'moving', q:'نبود پیوندهای شخصی، تاریخی یا عاطفی‌ام با آن محل'},
+    {s:'moving', q:'از محیط پرسروصدا مثل شهر یا نزدیک خطوط حمل‌ونقل اجتناب می‌کنم'},
+    {s:'moving', q:'از محیط ساکت مثل شهرهای کوچک یا روستا اجتناب می‌کنم'},
+    {s:'moving', q:'این محل نیاز به کار دستی دارد (چیدن چمن، پاک کردن برف و علف‌های هرز)'},
+    {s:'moving', q:'دسترسی محدود به جامعه حرفه‌ای یا علایقم به صورت حضوری (با وجود اینترنت)'},
+    {s:'moving', q:'امکان محدود استفاده از دوچرخه یا پیاده‌روی طولانی/دویدن'},
+    {s:'moving', q:'از نظر حمل‌ونقل، بانکداری یا تحویل خریدها فناورانه پیشرفته نیست'},
+    {s:'moving', q:'چقدر نزدیک به منطقه‌ای زندگی می‌کنید که در کودکی در آن بودید؟ (۱ = قاره دیگری، ۱۰ = در شعاع ۵۰ کیلومتری)', special:true},
+    {s:'tv', q:'پخش ورزشی'},
+    {s:'tv', q:'فیلم‌های اکشن یا برنامه‌های بقا'},
+    {s:'tv', q:'اخبار صنعت سرگرمی'},
+    {s:'tv', q:'برنامه‌های دادگاه یا جنایت و مجازات'},
+    {s:'tv', q:'برنامه‌ها یا فیلم‌های رمانتیک'},
+    {s:'tv', q:'ترسناک'},
+    {s:'tv', q:'برنامه‌های مربوط به امور خانوادگی'},
+    {s:'tv', q:'اخبار سیاسی'},
+    {s:'tv', q:'اخبار محلی'},
+    {s:'tv', q:'برنامه‌های مربوط به بهداشت و سلامت'},
+    {s:'tv', q:'مستند و/یا نظرات و سخنرانی‌ها'},
+    {s:'tv', q:'کمدی'},
+    {s:'tv', q:'برنامه‌های آموزشی عملی (مثل آشپزی، بازسازی خانه)'},
+    {s:'space', q:'تصویر مذهبی'},
+    {s:'space', q:'عکس خودم با دوستان'},
+    {s:'space', q:'یادگاری/هدیه از دوستان/خانواده'},
+    {s:'space', q:'عکس اعضای خانواده'},
+    {s:'space', q:'آثار هنری خودم در اطراف'},
+    {s:'space', q:'کتاب‌های اطلاعاتی (دانشنامه، کتب مرجع)'},
+    {s:'space', q:'وزنه یا تجهیزات ورزشی'},
+    {s:'space', q:'نقشه یا کره جغرافیایی'},
+    {s:'space', q:'پوستر مرتبط با ورزش'},
+    {s:'space', q:'اشیاء فانتزی/بامزه (مثل چراغ‌های تزئینی، لوازم طنزآمیز)'},
+    {s:'space', q:'دیپلم‌ها و گواهینامه‌هایم'},
+    {s:'space', q:'نقل‌قول طنزآمیز یا کنایی'},
+    {s:'space', q:'تقویم/برنامه زمانی'},
+    {s:'space', q:'زنگ هشدار/آلارم'},
+    {s:'space', q:'چیزی مرتبط با شخص واقعی مورد علاقه‌ام (زنده یا درگذشته)'},
+    {s:'space', q:'مواد بسته‌بندی هدیه یا لوازم هنری'},
+    {s:'space', q:'ابزارهایی برای تعمیر چیزها توسط خودم'},
+    {s:'space', q:'پوستر یا یادگاری مرتبط با یک سلبریتی یا گروه اجتماعی که با آن همذات‌پنداری می‌کنم'},
+    {s:'space', q:'مبلمان ساده و کاربردی، دکوراسیون کم'},
+    {s:'space', q:'کامپیوتر، چاپگر و سایر تجهیزات اداری'},
+    {s:'work', q:'دوست دارم (یا دوست داشتم) کارم غیرقابل پیش‌بینی باشد'},
+    {s:'work', q:'تغییرات مکرر در برنامه‌ها یا وظایف دارد'},
+    {s:'work', q:'فقط مسئول وظایف خودم هستم و نه کل شرکت'},
+    {s:'work', q:'همکاری حمایتی و مثبتی بین همکاران یا بخش‌های مختلف وجود دارد'},
+    {s:'work', q:'تنوع وظایف دارد'},
+    {s:'work', q:'این کار از نظر اجتماعی مهم و ارزشمند است'},
+    {s:'work', q:'مخاطره‌آمیز نیست'},
+    {s:'work', q:'تضمین می‌کند که شغلم را از دست نمی‌دهم'},
+    {s:'work', q:'شامل گوش دادن به مردم می‌شود'},
+    {s:'work', q:'مردم به من گوش می‌دهند و از من یاد می‌گیرند'},
+    {s:'work', q:'نیاز به تبادل سریع اطلاعات/بحث‌ها دارد'},
+    {s:'work', q:'اهمیت جزئیات در وظایف پیچیده'},
+    {s:'work', q:'آزادی در وظایف/برنامه‌ریزی که گاهی به آن نیاز دارم'},
+    {s:'work', q:'دفترم محیطی آرام و خصوصی است'},
+    {s:'work', q:'دارای روال و محیط مشخص و از پیش تعیین‌شده است'},
+    {s:'work', q:'در شرکتی با نفوذ یا شهرت است'},
+    {s:'work', q:'نتایج کارم را بلافاصله به صورت ملموس می‌بینم'},
+    {s:'work', q:'دفتر در مکان یا ساختمانی جذاب واقع شده است'},
+    {s:'childhood', q:'بازی قهرمانی یا شمشیربازی تقلیدی انجام می‌دادم'},
+    {s:'childhood', q:'کتاب‌های علوم عمومی می‌خواندم'},
+    {s:'childhood', q:'مستند یا برنامه‌های علمی تماشا می‌کردم'},
+    {s:'childhood', q:'در نمایش‌ها یا تئاترها شرکت می‌کردم'},
+    {s:'childhood', q:'از حیوانات نجات می‌دادم / از حیوانات خانگی مراقبت می‌کردم'},
+    {s:'childhood', q:'به دنبال ماجراجویی می‌رفتم'},
+    {s:'childhood', q:'مردم را زیر نظر می‌گرفتم'},
+    {s:'childhood', q:'داستان‌هایی درباره بچه‌ها، حیوانات یا عاشقانه می‌خواندم'},
+    {s:'childhood', q:'در کلاس‌های ورزشی منظم (جودو، شنا، ژیمناستیک) شرکت می‌کردم'},
+    {s:'childhood', q:'باغبانی می‌کردم یا در کشاورزی کمک می‌کردم'},
+    {s:'childhood', q:'بازی‌های رومیزی یا کارتی استراتژیک بازی می‌کردم'},
+    {s:'childhood', q:'بازی‌های خیالی (نقش‌آفرینی) انجام می‌دادم'},
+    {s:'childhood', q:'بازی‌های فیزیکی پرخطر (مثل بالا رفتن از درخت، پریدن از ارتفاع)'},
+    {s:'childhood', q:'بازی‌های کلامی با انتخاب‌های اجتماعی بازی می‌کردم (راستگو یا تحدی)'},
+    {s:'childhood', q:'چیز می‌ساختم (لگو، جنگا، قطار، دژ)'},
+    {s:'childhood', q:'جسور بودم و کارهایی را که توصیه نمی‌شد امتحان می‌کردم'},
+    {s:'childhood', q:'با دوستان شایعه پخش می‌کردم یا داستان می‌ساختم'},
+    {s:'childhood', q:'معماهای فکری حل می‌کردم'},
+    {s:'childhood', q:'احساساتم را با دوستان در میان می‌گذاشتم'},
+    {s:'childhood', q:'روزهای زیادی بدون اطلاع والدینم از خانه فرار می‌کردم'},
+    {s:'childhood', q:'پول توجیبی‌ام را با صبر پس‌انداز می‌کردم تا بعداً چیزی که می‌خواهم بخرم'},
+    {s:'childhood', q:'هدایا را برای اقوامم تزئین و آماده می‌کردم'},
+    {s:'childhood', q:'پروژه‌های زیادی با ابتکار خودم شروع می‌کردم'},
+    {s:'grades', q:'نمرات فعالیت‌های ورزشی‌ات چقدر بود'},
+    {s:'grades', q:'نمرات درس‌های ریاضی و علوم‌ات چقدر بود'},
+    {s:'grades', q:'نمرات فعالیت‌های اجتماعی و زبانی‌ات چقدر بود'},
+    {s:'problems', q:'در مقطعی تحصیلات دانشگاهی‌ام را رها کردم (7-8 اگر بیش از یک ترم رها کردم)'},
+    {s:'problems', q:'تعداد دفعاتی که در ۲۰ سال اول زندگی‌ام به عفونت یا مسمومیت غذایی که نیاز به آنتی‌بیوتیک داشت مبتلا شدم (10 اگر بیشتر از 10 بار)'},
+    {s:'problems', q:'در کودکی تعارضات طولانی‌مدت (بیش از یک ماه) با والدین/سرپرستانم داشتم'},
+    {s:'problems', q:'اغلب حتی برای پروژه‌های شخصی‌ام از ضرب‌الاجل‌ها عقب می‌مانم'},
+    {s:'problems', q:'در مقطعی با قانون مشکل داشتم'},
+    {s:'problems', q:'در زمستان کوتاه شدن روز و تاریکی روی من تأثیر می‌گذارد'},
+    {s:'problems', q:'یافتن شریک صمیمی برایم سخت است'},
+    {s:'problems', q:'شریک یا پدر/مادر فرزندانم با نوشیدن الکل یا قانون مشکل دارد'},
+    {s:'problems', q:'وقت ندارم مکانم را کاملاً مرتب و تمیز کنم بنابراین پیدا کردن وسایل سخت است'},
+    {s:'problems', q:'والدینی دارم/داشتم که همه جنبه‌های زندگی‌ام را کنترل می‌کنند'},
+    {s:'adult', q:'کوه‌پیمایی، صخره‌نوردی و/یا کمپینگ در جمع بزرگسالان'},
+    {s:'adult', q:'سفر انفرادی برای کشف طبیعت'},
+    {s:'adult', q:'کمپینگ با خانواده'},
+    {s:'adult', q:'سفرهای ماجراجویانه (پاراشوت، پاراگلایدر)'},
+    {s:'adult', q:'فعالیت اجتماعی یا کنشگری اجتماعی/سیاسی'},
+    {s:'adult', q:'رفتن به مهمانی‌های دوستان'},
+    {s:'adult', q:'برگزاری مهمانی خودت و دعوت از بازدیدکنندگان'},
+    {s:'adult', q:'ماندن در خانه با یک کتاب خوب'},
+    {s:'adult', q:'حضور در رویدادهای فرهنگی: فیلم، تئاتر، کنسرت'},
+    {s:'adult', q:'باغبانی'},
+    {s:'adult', q:'جبران کمبود خواب یا خوابیدن بیشتر'},
+    {s:'adult', q:'حضور در کنفرانس‌ها/سخنرانی‌ها یا شرکت در دوره‌های آموزشی'},
+    {s:'adult', q:'استفاده از الکل یا چیز دیگری برای تأثیر بر خلق‌وخوی'},
+    {s:'adult', q:'استراحت در ساحل یا پارک'},
+    {s:'adult', q:'حل معما یا پازل'},
+    {s:'adult', q:'گوش دادن به ویدیوهای یوتیوب/پادکست'},
+    {s:'adult', q:'شرکت در ورزش‌های فیزیکی'},
+    {s:'adult', q:'مدیتیشن/ذهن‌آگاهی'},
+    {s:'adult', q:'ساختن و/یا تعمیر کردن چیزها'},
+    {s:'adult', q:'هنرهای خلاقانه (نقاشی، ساختن موسیقی)'},
+    {s:'adult', q:'معاشرت اجتماعی'},
+    {s:'adult', q:'آشپزی'},
+    {s:'adult', q:'اعتماد کردن و سهیم شدن احساسات با دوستان'},
+    {s:'adult', q:'کار داوطلبانه'},
+    {s:'adult', q:'خرید کردن'},
+    {s:'adult', q:'بحث درباره ایده‌ها (سیاست، باشگاه کتاب)'},
+    {s:'partner', q:'شریکم بیشتر "عمل‌گرا" است تا "کلام‌گرا"'},
+    {s:'partner', q:'در نظم و پاکیزگی مکانی که در آن زندگی می‌کنیم کمک می‌کند'},
+    {s:'partner', q:'با مکالمات عاطفی طولانی مزاحمم نمی‌شود'},
+    {s:'partner', q:'ما را به اپرا، باله و موزه می‌برد'},
+    {s:'partner', q:'به من و خانواده وفادار است'},
+    {s:'partner', q:'دارای تحصیلات دانشگاهی است'},
+    {s:'radio', q:'اخبار جهانی'},
+    {s:'radio', q:'اخبار محلی'},
+    {s:'radio', q:'نظرات، پادکست و/یا سخنرانی‌ها'},
+    {s:'radio', q:'پخش رادیویی رویدادهای ورزشی'},
+    {s:'radio', q:'فقط موسیقی'},
+  ]
+};
+
+// ===== STATE =====
+let lang = 'en';
+let currentQ = 0;
+let answers = {};
+let demographics = {};
+let radioSelections = { gender: '', hand: '' };
+let checkedConcerns = new Set();
+const TOTAL = 144;
+
+// ===== INIT =====
+function startForm(selectedLang) {
+  lang = selectedLang;
+  document.documentElement.setAttribute('lang', lang);
+  document.documentElement.setAttribute('dir', T[lang].dir);
+  document.getElementById('langOverlay').style.display = 'none';
+  applyDemoTranslations();
+  document.getElementById('demoContainer').classList.add('active');
+}
+
+function applyDemoTranslations() {
+  const t = T[lang];
+  const L = t.labels;
+  const set = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.textContent = val; };
+  
+  set('demoBadge', t.demoBadge);
+  document.getElementById('demoTitle').innerHTML = t.demoTitle;
+  set('gender-m', t.genderM);
+  set('gender-f', t.genderF);
+  set('hand-r', t.handR);
+  set('hand-l', t.handL);
+
+  // Apply all field labels
+  const labelMap = {
+    'lbl-fname':L.fname,'lbl-lname':L.lname,'lbl-age':L.age,'lbl-dob':L.dob,
+    'lbl-gender':L.gender,'lbl-hand':L.hand,'lbl-pob':L.pob,'lbl-nationality':L.nationality,
+    'lbl-address':L.address,'lbl-postalCode':L.postalCode,'lbl-telDay':L.telDay,'lbl-telEve':L.telEve,
+    'lbl-langs':L.langs,'lbl-immigrated':L.immigrated,'lbl-parentsAge':L.parentsAge,
+    'lbl-birthOrder':L.birthOrder,'lbl-siblingDiff':L.siblingDiff,'lbl-parentProf':L.parentProf,
+    'lbl-relParents':L.relParents,'lbl-relParentsYou':L.relParentsYou,
+    'lbl-relParentsSib':L.relParentsSib,'lbl-relSibYou':L.relSibYou,
+    'lbl-marital':L.marital,'lbl-maritalHow':L.maritalHow,'lbl-children':L.children,
+    'lbl-pets':L.pets,'lbl-living':L.living,'lbl-edu':L.edu,
+    'lbl-hobbyPre':L.hobbyPre,'lbl-hobbyNow':L.hobbyNow,
+    'lbl-weight':L.weight,'lbl-height':L.height,'lbl-bloodType':L.bloodType,
+    'lbl-traumas':L.traumas,'lbl-surgeries':L.surgeries,'lbl-healthHist':L.healthHist,
+    'lbl-alcohol':L.alcohol,'lbl-smoking':L.smoking,'lbl-drugs':L.drugs,
+    'lbl-medication':L.medication,'lbl-diet':L.diet,'lbl-meals':L.meals,
+    'lbl-exercise':L.exercise,'lbl-sleepPat':L.sleepPat,
+    'lbl-consciousness':L.consciousness,'lbl-psychEpisodes':L.psychEpisodes,
+    'lbl-famFather':L.famFather,'lbl-famMother':L.famMother,'lbl-famGrand':L.famGrand,
+    'lbl-famSib':L.famSib,'lbl-famChild':L.famChild,
+    'lbl-workPos':L.workPos,'lbl-workStart':L.workStart,
+    'lbl-workTasks':L.workTasks,'lbl-workPrev':L.workPrev,'lbl-concerns':L.concerns,
+  };
+  Object.entries(labelMap).forEach(([id, val]) => set(id, val));
+
+  // Translate select options
+  const maritalSel = document.getElementById('inp-marital');
+  if(maritalSel && L.maritalOptions) {
+    [...maritalSel.options].forEach((opt, i) => { if(L.maritalOptions[i]) opt.text = L.maritalOptions[i]; });
+  }
+  const livingSel = document.getElementById('inp-living');
+  if(livingSel && L.livingOptions) {
+    [...livingSel.options].forEach((opt, i) => { if(L.livingOptions[i]) opt.text = L.livingOptions[i]; });
+  }
+
+  // Begin button
+  const beginBtn = document.querySelector('#demoContainer .nav-btn.primary');
+  if(beginBtn) beginBtn.textContent = t.beginBtn;
+
+  // Section titles
+  ['sec1','sec2','sec3','sec4','sec5','sec6'].forEach(s => {
+    const el = document.getElementById('demo-'+s);
+    if(el && L[s]) el.textContent = L[s];
+  });
+
+  // Render concerns checkboxes
+  const grid = document.getElementById('concernsGrid');
+  if(grid && L.concernsList) {
+    grid.innerHTML = '';
+    L.concernsList.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'concern-item' + (checkedConcerns.has(i) ? ' checked' : '');
+      div.innerHTML = '<div class="concern-check"></div><span>' + c + '</span>';
+      div.onclick = () => { checkedConcerns.has(i) ? checkedConcerns.delete(i) : checkedConcerns.add(i); div.classList.toggle('checked'); };
+      grid.appendChild(div);
+    });
+  }
+}
+
+function selectRadio(group, val) {
+  radioSelections[group] = val;
+  if (group === 'gender') {
+    document.getElementById('gender-m').classList.toggle('selected', val === 'm');
+    document.getElementById('gender-f').classList.toggle('selected', val === 'f');
+  } else {
+    document.getElementById('hand-r').classList.toggle('selected', val === 'r');
+    document.getElementById('hand-l').classList.toggle('selected', val === 'l');
+  }
+}
+
+function startQuestions() {
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  demographics = {
+    first_name: getVal('inp-fname'), last_name: getVal('inp-lname'),
+    age: getVal('inp-age'), date_of_birth: getVal('inp-dob'),
+    gender: radioSelections.gender, dominant_hand: radioSelections.hand,
+    place_of_birth: getVal('inp-pob'), nationality: getVal('inp-nationality'),
+    address: getVal('inp-address'), postal_code: getVal('inp-postalCode'),
+    tel_daytime: getVal('inp-telDay'), tel_evening: getVal('inp-telEve'),
+    languages_spoken: getVal('inp-langs'), immigrated: getVal('inp-immigrated'),
+    parents_age_at_birth: getVal('inp-parentsAge'), birth_order: getVal('inp-birthOrder'),
+    sibling_age_diff: getVal('inp-siblingDiff'), parents_profession: getVal('inp-parentProf'),
+    rel_parents: getVal('inp-relParents'), rel_parents_you: getVal('inp-relParentsYou'),
+    rel_parents_sib: getVal('inp-relParentsSib'), rel_sib_you: getVal('inp-relSibYou'),
+    marital_status: getVal('inp-marital'), marital_details: getVal('inp-maritalHow'),
+    children: getVal('inp-children'), pets: getVal('inp-pets'),
+    living_arrangements: getVal('inp-living'), education: getVal('inp-edu'),
+    hobby_before_16: getVal('inp-hobbyPre'), hobby_now: getVal('inp-hobbyNow'),
+    weight: getVal('inp-weight'), height: getVal('inp-height'), blood_type: getVal('inp-bloodType'),
+    exercise_hours_per_week: getVal('inp-exercise'),
+    traumas: getVal('inp-traumas'), past_surgeries: getVal('inp-surgeries'),
+    health_history: getVal('inp-healthHist'), alcohol: getVal('inp-alcohol'),
+    smoking: getVal('inp-smoking'), drugs: getVal('inp-drugs'),
+    medication: getVal('inp-medication'), diet: getVal('inp-diet'),
+    meals: getVal('inp-meals'), sleep_pattern: getVal('inp-sleepPat'),
+    lost_consciousness: getVal('inp-consciousness'), psych_episodes: getVal('inp-psychEpisodes'),
+    fam_history_father: getVal('inp-famFather'), fam_history_mother: getVal('inp-famMother'),
+    fam_history_grandparents: getVal('inp-famGrand'), fam_history_siblings: getVal('inp-famSib'),
+    fam_history_children: getVal('inp-famChild'),
+    work_position: getVal('inp-workPos'), work_started: getVal('inp-workStart'),
+    work_tasks: getVal('inp-workTasks'), work_previous: getVal('inp-workPrev'),
+    psychological_concerns: [...checkedConcerns].join(', '),
+    language: lang, timestamp: new Date().toISOString()
+  };
+  document.getElementById('demoContainer').classList.remove('active');
+  document.getElementById('qContainer').classList.add('active');
+  currentQ = 0;
+  renderQuestion();
+}
+
+// ===== RENDER QUESTION =====
+function renderQuestion() {
+  const questions = QUESTIONS[lang];
+  if (currentQ >= questions.length) { showThankYou(); return; }
+  const q = questions[currentQ];
+  const t = T[lang];
+  // Section label
+  document.getElementById('qSectionLabel').textContent = t.sections[q.s] || q.s;
+  // Question text
+  document.getElementById('qText').textContent = q.q;
+  // Rating labels
+  document.getElementById('ratingLabelLeft').textContent = q.special ? '1' : t.ratingLeft;
+  document.getElementById('ratingLabelRight').textContent = q.special ? '10' : t.ratingRight;
+  // Rating buttons
+  const rb = document.getElementById('ratingButtons');
+  rb.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'r-btn' + (answers[currentQ] === i ? ' selected' : '');
+    btn.textContent = i;
+    btn.onclick = () => selectRating(i);
+    rb.appendChild(btn);
+  }
+  // Nav buttons
+  document.getElementById('btnBack').disabled = currentQ === 0;
+  document.getElementById('btnBack').textContent = t.btnBack;
+  document.getElementById('btnNext').textContent = currentQ === questions.length - 1 ? (lang === 'en' ? 'Submit ✓' : lang === 'ar' ? 'إرسال ✓' : 'ارسال ✓') : t.btnNext;
+  document.getElementById('skipNote').textContent = t.skipNote;
+  // Progress
+  const pct = Math.round((currentQ / TOTAL) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressInfo').textContent = (currentQ + 1) + ' / ' + TOTAL;
+}
+
+function selectRating(val) {
+  answers[currentQ] = val;
+  document.querySelectorAll('.r-btn').forEach((b, i) => {
+    b.classList.toggle('selected', i + 1 === val);
+  });
+}
+
+function goNext() {
+  currentQ++;
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); window.scrollTo(0, 0); }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (document.getElementById('qContainer').classList.contains('active')) {
+    if (e.key === 'Enter') goNext();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') goBack();
+    const n = parseInt(e.key);
+    if (n >= 1 && n <= 9) selectRating(n);
+  }
+});
+
+function showThankYou() {
+  document.getElementById('qContainer').classList.remove('active');
+  const ty = document.getElementById('thankYou');
+  const t = T[lang];
+  ty.querySelector('.ty-title').innerHTML = lang === 'en' ? 'Thank<br><em>You</em>' : lang === 'ar' ? '<em>شكراً</em><br>لك' : 'ممنون<br><em>از شما</em>';
+  ty.querySelector('.ty-body').textContent = t.tyBody;
+  ty.querySelector('.ty-btn').textContent = t.downloadBtn;
+  ty.classList.add('active');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressInfo').textContent = '✓';
+}
+
+function downloadCSV() {
+  const questions = QUESTIONS[lang];
+  let csv = 'Field,Value\n';
+  Object.entries(demographics).forEach(([k,v]) => { csv += `"${k}","${v}"\n`; });
+  csv += '\nQ#,Section,Question,Answer\n';
+  questions.forEach((q, i) => {
+    const ans = answers[i] !== undefined ? answers[i] : '';
+    csv += `${i+1},"${q.s}","${q.q.replace(/"/g,'""')}","${ans}"\n`;
+  });
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'SEP-STQ-' + lang + '-' + Date.now() + '.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
