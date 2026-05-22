@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FET — Visual Ideas for Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#faf8f4; --ink:#0d0d0a; --muted:#666660;
+  --border:rgba(0,0,0,0.12); --accent:#c8501a;
+}
+body { background:var(--bg); color:var(--ink); font-family:'Outfit',sans-serif; font-weight:300; }
+
+/* HEADER */
+.header {
+  padding: 4rem 4rem 3rem;
+  border-bottom: 1px solid var(--border);
+  max-width: 900px;
+  margin: 0 auto;
+}
+.eyebrow { font-size:0.72rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
+.title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.5rem,6vw,4rem); font-weight:300; line-height:1.05; margin-bottom:1.5rem; }
+.title em { font-style:italic; color:var(--accent); }
+.intro { font-size:1rem; line-height:1.9; color:var(--muted); max-width:680px; margin-bottom:2rem; }
+.intro strong { color:var(--ink); font-weight:400; }
+.context-note {
+  padding: 1.2rem 1.8rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  font-size:0.88rem; line-height:1.8; color:var(--muted);
+  max-width: 680px;
+}
+.context-note strong { color:var(--ink); font-weight:400; }
+
+/* IDEA SECTIONS */
+.idea-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.idea-number {
+  font-family:'Cormorant Garamond',serif;
+  font-size: 5rem; font-weight:300;
+  color: rgba(0,0,0,0.06);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.idea-label { font-size:0.65rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--accent); margin-bottom:0.8rem; }
+.idea-title { font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,3vw,2.5rem); font-weight:300; margin-bottom:1.2rem; line-height:1.1; }
+.idea-desc { font-size:0.95rem; line-height:1.9; color:var(--muted); max-width:640px; margin-bottom:2.5rem; }
+.idea-desc strong { color:var(--ink); font-weight:400; }
+
+/* Addresses */
+.addresses { display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:2rem; }
+.addr-point {
+  display:flex; align-items:flex-start; gap:0.6rem;
+  font-size:0.82rem; line-height:1.6; color:var(--muted);
+  padding: 0.7rem 1rem; border:1px solid var(--border);
+  flex: 1; min-width: 200px;
+}
+.addr-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; margin-top:6px; }
+
+/* IFRAME */
+.iframe-wrap {
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+.iframe-wrap iframe {
+  width: 100%;
+  border: none;
+  display: block;
+}
+.iframe-caption {
+  padding: 0.8rem 1.2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(0,0,0,0.02);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.open-btn {
+  padding: 0.3rem 0.8rem;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-family:'Outfit',sans-serif;
+  font-size:0.68rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+  color: var(--muted);
+  text-decoration:none;
+  transition:all 0.2s;
+}
+.open-btn:hover { border-color:var(--ink); color:var(--ink); }
+
+/* FOOTER */
+footer {
+  max-width:900px; margin:0 auto;
+  padding:3rem 4rem;
+  font-size:0.82rem; color:var(--muted); line-height:1.8;
+}
+
+@media (max-width:700px) {
+  .header, .idea-section, footer { padding: 3rem 1.5rem; }
+  .idea-number { font-size:3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="eyebrow">For Review — Dr. Irina Trofimova</div>
+  <h1 class="title">Two ideas for<br>visualising the <em>ensemble</em></h1>
+  <p class="intro">
+    Both proposals attempt to address the core challenge you raised: making it visually impossible to read FET as a 1:1 NT-to-trait mapping, while remaining accessible to a general audience.
+  </p>
+  <div class="context-note">
+    <strong>The problem being addressed:</strong> Even with matrix layouts and colour coding, viewers tend to read "NE = Orientation" rather than understanding that each trait is regulated by a <em>team</em> of neurotransmitters — with one leading and others supporting. These two proposals attempt different solutions to that problem.
+  </div>
+</div>
+
+<!-- IDEA 1: KITCHEN -->
+<div class="idea-section">
+  <div class="idea-number">01</div>
+  <div class="idea-label">First Proposal</div>
+  <h2 class="idea-title">The Recipe Metaphor<br>— "FET Kitchen"</h2>
+  <p class="idea-desc">
+    Each trait is presented as a <strong>recipe</strong> with a leading ingredient and supporting ones. Selecting a trait triggers an animation: individual neurotransmitter "bottles" appear above a bowl, pour their contents in proportion to their contribution, and mix together to produce the trait. The result makes it visually clear that <strong>no single bottle alone produces the dish</strong>.
+  </p>
+
+  <div class="addresses">
+    <div class="addr-point"><div class="addr-dot"></div>The pour animation makes the ensemble process active and visible — not just labelled</div>
+    <div class="addr-point"><div class="addr-dot"></div>Bottle proportions show relative contribution — NE does not dominate equally in all traits</div>
+    <div class="addr-point"><div class="addr-dot"></div>Recipe metaphor is culturally universal and requires no scientific background</div>
+    <div class="addr-point"><div class="addr-dot"></div>No animation on load — only triggered on click, minimising data usage</div>
+  </div>
+
+  <div class="iframe-wrap">
+    <iframe src="fet-kitchen.html" height="820" scrolling="no"></iframe>
+    <div class="iframe-caption">
+      <span>FET Kitchen — Interactive Demo</span>
+      <a href="fet-kitchen.html" target="_blank" class="open-btn">Open full page →</a>
+    </div>
+  </div>
+</div>
+
+<!-- IDEA 2: MATRIX -->
+<div class="idea-section">
+  <div class="idea-number">02</div>
+  <div class="idea-label">Second Proposal</div>
+  <h2 class="idea-title">The Ensemble Matrix<br>— Ingredient Cards</h2>
+  <p class="idea-desc">
+    The FET 3×4 matrix, extended with a colour-coded <strong>ensemble bar</strong> in each cell showing the relative team composition. Clicking any trait opens an <strong>Ingredient Card</strong> — a structured breakdown of the neurochemical recipe using the same leading/supporting format. The bar makes it immediately visible that the same NT appears across multiple traits in different proportions.
+  </p>
+
+  <div class="addresses">
+    <div class="addr-point"><div class="addr-dot"></div>Colour bars in each cell make cross-trait NT participation visible at a glance</div>
+    <div class="addr-point"><div class="addr-dot"></div>4-colour horizontal system as per your coding: NE blue, DA orange, ACh/5-HT green, Opioid purple</div>
+    <div class="addr-point"><div class="addr-dot"></div>Ingredient card on click — detailed breakdown without cluttering the main view</div>
+    <div class="addr-point"><div class="addr-dot"></div>Light background, larger fonts — designed for readability by all audiences</div>
+  </div>
+
+  <div class="iframe-wrap">
+    <iframe src="fet-matrix.html" height="820" scrolling="no"></iframe>
+    <div class="iframe-caption">
+      <span>FET Ensemble Matrix — Interactive Demo</span>
+      <a href="fet-matrix.html" target="_blank" class="open-btn">Open full page →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  Both visualisations are drafts. Proportions in the ensemble bars and bottle fills are approximate representations based on the literature — not quantitative claims. Any corrections to the neurochemical assignments or relative weightings would be welcomed and incorporated before publication.<br><br>
+  — Mohammad Behzadpour · McMaster Collaboration · 2026
+</footer>
+
+</body>
+</html>

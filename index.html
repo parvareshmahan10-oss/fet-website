@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FET — Functional Ensemble of Temperament</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+:root {
+  --bg: #06080f; --border: rgba(255,255,255,0.07);
+  --text: #e8e4dc; --muted: #6a7080;
+  --ne: #4a9eff; --da: #ff7a3d; --ach: #3ddb8a; --accent: #c8a96e;
+}
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; overflow-x: hidden; }
+
+#canvas-bg {
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 4rem; height: 70px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(6,8,15,0.8); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; letter-spacing: 0.3em; color: var(--accent); text-decoration: none; }
+.nav-tabs { display: flex; list-style: none; }
+.nav-tabs li a {
+  display: block; padding: 0 1.8rem; height: 70px; line-height: 70px;
+  font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none; border-left: 1px solid var(--border);
+  transition: all 0.3s; position: relative;
+}
+.nav-tabs li:last-child a { border-right: 1px solid var(--border); }
+.nav-tabs li a::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--accent); transform: scaleX(0); transition: transform 0.3s; }
+.nav-tabs li a:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-tabs li a:hover::after { transform: scaleX(1); }
+
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 100px 4rem 4rem;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.4rem 1.2rem; border: 1px solid var(--border);
+  border-radius: 100px; font-size: 0.7rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 3rem;
+  animation: fadeUp 1s ease 0.2s both;
+}
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ach); animation: blink 2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(5rem,15vw,14rem); font-weight: 300;
+  letter-spacing: 0.15em; line-height: 1; margin-bottom: 1rem;
+  animation: fadeUp 1s ease 0.4s both;
+}
+.hero-title-letters { display: flex; justify-content: center; gap: 0.05em; }
+.letter-f { color: var(--ne); }
+.letter-e { color: var(--accent); }
+.letter-t { color: var(--da); }
+
+.hero-subtitle-full {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(0.9rem,2vw,1.1rem); font-weight: 300;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 3rem;
+  animation: fadeUp 1s ease 0.6s both;
+}
+
+.hero-desc {
+  max-width: 580px; font-size: 1rem; line-height: 1.9;
+  color: rgba(232,228,220,0.6); margin-bottom: 4rem;
+  animation: fadeUp 1s ease 0.8s both;
+}
+
+.hero-nt-row {
+  display: flex; align-items: center; justify-content: center; gap: 3rem;
+  animation: fadeUp 1s ease 1s both;
+}
+
+.nt-pill {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 1.4rem; border-radius: 100px;
+  font-size: 0.78rem; letter-spacing: 0.1em; border: 1px solid;
+  transition: all 0.3s;
+}
+.nt-pill:hover { transform: translateY(-2px); }
+.nt-ne { border-color: rgba(74,158,255,0.3); color: var(--ne); background: rgba(74,158,255,0.05); }
+.nt-da { border-color: rgba(255,122,61,0.3); color: var(--da); background: rgba(255,122,61,0.05); }
+.nt-ach { border-color: rgba(61,219,138,0.3); color: var(--ach); background: rgba(61,219,138,0.05); }
+.nt-dot { width: 7px; height: 7px; border-radius: 50%; }
+.dot-ne { background: var(--ne); }
+.dot-da { background: var(--da); }
+.dot-ach { background: var(--ach); }
+
+.scroll-hint {
+  position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  color: var(--muted); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  animation: fadeUp 1s ease 1.2s both;
+}
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--muted), transparent); animation: scrollAnim 2s ease infinite; }
+@keyframes scrollAnim { 0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom} }
+
+.stats-strip {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(4,1fr);
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.stat-item { padding: 2.5rem 3rem; border-right: 1px solid var(--border); text-align: center; }
+.stat-item:last-child { border-right: none; }
+.stat-number { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--accent); line-height: 1; margin-bottom: 0.5rem; }
+.stat-label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+
+.teaser-grid {
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border-bottom: 1px solid var(--border);
+}
+.teaser-card {
+  padding: 4rem 3rem; border-right: 1px solid var(--border);
+  cursor: pointer; transition: background 0.3s;
+  text-decoration: none; color: inherit; display: block;
+}
+.teaser-card:last-child { border-right: none; }
+.teaser-card:hover { background: rgba(255,255,255,0.02); }
+.teaser-num { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 300; color: var(--border); line-height: 1; margin-bottom: 1.5rem; transition: color 0.3s; }
+.teaser-card:hover .teaser-num { color: var(--accent); }
+.teaser-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 1rem; line-height: 1.3; }
+.teaser-desc { font-size: 0.85rem; line-height: 1.8; color: var(--muted); margin-bottom: 2rem; }
+.teaser-arrow { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); transition: gap 0.3s; }
+.teaser-card:hover .teaser-arrow { gap: 1rem; }
+
+footer {
+  position: relative; z-index: 1;
+  padding: 3rem 4rem; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: rgba(200,169,110,0.5); }
+footer span { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--muted); }
+
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease, transform 0.8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
+
+@media (max-width: 900px) {
+  nav { padding: 0 1.5rem; }
+  .nav-tabs li a { padding: 0 1rem; font-size: 0.7rem; }
+  .stats-strip { grid-template-columns: repeat(2,1fr); }
+  .teaser-grid { grid-template-columns: 1fr; }
+  .teaser-card { border-right: none; border-bottom: 1px solid var(--border); }
+  footer { flex-direction: column; gap: 1rem; padding: 2rem; }
+  .hero { padding: 100px 2rem 4rem; }
+  .hero-nt-row { flex-direction: column; gap: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<nav>
+  <a href="#" class="nav-logo">FET</a>
+  <ul class="nav-tabs">
+    <li><a href="history.html">History</a></li>
+    <li><a href="definition.html">Definition</a></li>
+    <li><a href="test.html">Test</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Neurochemical Model of Temperament
+  </div>
+  <h1 class="hero-title">
+    <div class="hero-title-letters">
+      <span class="letter-f">F</span>
+      <span class="letter-e">E</span>
+      <span class="letter-t">T</span>
+    </div>
+  </h1>
+  <p class="hero-subtitle-full">Functional Ensemble of Temperament</p>
+  <p class="hero-desc">A neurochemically grounded model of temperament — linking three neurotransmitter systems to twelve behavioural traits. Developed at McMaster University in collaboration with Cambridge University.</p>
+  <div class="hero-nt-row">
+    <div class="nt-pill nt-ne"><div class="nt-dot dot-ne"></div>Noradrenaline · Orientation</div>
+    <div class="nt-pill nt-da"><div class="nt-dot dot-da"></div>Dopamine · Integration</div>
+    <div class="nt-pill nt-ach"><div class="nt-dot dot-ach"></div>Serotonin / ACh · Maintenance</div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-line"></div>Explore</div>
+</section>
+
+<div class="stats-strip reveal">
+  <div class="stat-item"><div class="stat-number">12</div><div class="stat-label">Temperament Traits</div></div>
+  <div class="stat-item"><div class="stat-number">3</div><div class="stat-label">Neurotransmitter Systems</div></div>
+  <div class="stat-item"><div class="stat-number">77</div><div class="stat-label">Validated Items</div></div>
+  <div class="stat-item"><div class="stat-number">3</div><div class="stat-label">Languages Available</div></div>
+</div>
+
+<div class="teaser-grid">
+  <a href="history.html" class="teaser-card reveal">
+    <div class="teaser-num">01</div>
+    <h2 class="teaser-title">History of Behavioural Regulation</h2>
+    <p class="teaser-desc">From Hippocrates to modern neuroscience — why existing models fall short and how FET emerged from decades of research.</p>
+    <span class="teaser-arrow">Explore history →</span>
+  </a>
+  <a href="definition.html" class="teaser-card reveal">
+    <div class="teaser-num">02</div>
+    <h2 class="teaser-title">Definition &amp; Framework</h2>
+    <p class="teaser-desc">What FET is, how it works, and why the neurochemical approach changes everything we thought we knew about temperament.</p>
+    <span class="teaser-arrow">Learn more →</span>
+  </a>
+  <a href="test.html" class="teaser-card reveal">
+    <div class="teaser-num">03</div>
+    <h2 class="teaser-title">Take the Assessment</h2>
+    <p class="teaser-desc">A validated questionnaire in English, Arabic, and Persian. Understand your neurochemical temperament profile.</p>
+    <span class="teaser-arrow">Begin test →</span>
+  </a>
+</div>
+
+<footer>
+  <div class="footer-logo">FET — Functional Ensemble of Temperament</div>
+  <span>Trofimova & Robbins · McMaster University · Cambridge University</span>
+</footer>
+
+<script>
+// ========== SYNAPTIC PARTICLE SYSTEM ==========
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
+let scrollY = 0;
+let scrollVel = 0;
+let lastScrollY = 0;
+
+window.addEventListener('resize', () => {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+});
+
+window.addEventListener('scroll', () => {
+  scrollY = window.scrollY;
+  scrollVel = scrollY - lastScrollY;
+  lastScrollY = scrollY;
+});
+
+// Neurotransmitter types
+const NT_TYPES = [
+  { color: '#4a9eff', glow: 'rgba(74,158,255,', name: 'NE', size: [2, 4] },
+  { color: '#ff7a3d', glow: 'rgba(255,122,61,', name: 'DA', size: [2, 3.5] },
+  { color: '#3ddb8a', glow: 'rgba(61,219,138,', name: 'ACh', size: [1.5, 3] },
+];
+
+// Synapse nodes — fixed points particles flow between
+const NODES = Array.from({ length: 12 }, () => ({
+  x: Math.random() * W,
+  y: Math.random() * H,
+  vx: (Math.random() - 0.5) * 0.15,
+  vy: (Math.random() - 0.5) * 0.15,
+}));
+
+// Particles
+class Particle {
+  constructor() { this.reset(); }
+  reset() {
+    const nt = NT_TYPES[Math.floor(Math.random() * NT_TYPES.length)];
+    this.nt = nt;
+    this.color = nt.color;
+    this.glow = nt.glow;
+    this.r = nt.size[0] + Math.random() * (nt.size[1] - nt.size[0]);
+    // Start from a random node
+    const startNode = NODES[Math.floor(Math.random() * NODES.length)];
+    this.x = startNode.x + (Math.random() - 0.5) * 60;
+    this.y = startNode.y + (Math.random() - 0.5) * 60;
+    // Pick a target node
+    this.targetNode = NODES[Math.floor(Math.random() * NODES.length)];
+    // Speed
+    const speed = 0.3 + Math.random() * 0.5;
+    const angle = Math.atan2(this.targetNode.y - this.y, this.targetNode.x - this.x);
+    this.vx = Math.cos(angle) * speed;
+    this.vy = Math.sin(angle) * speed;
+    this.life = 0;
+    this.maxLife = 120 + Math.random() * 180;
+    this.alpha = 0;
+    // Slight wave
+    this.waveAmp = Math.random() * 0.8;
+    this.waveFreq = 0.02 + Math.random() * 0.03;
+    this.waveOffset = Math.random() * Math.PI * 2;
+  }
+
+  update(t) {
+    this.life++;
+    // Fade in / out
+    if (this.life < 20) this.alpha = this.life / 20;
+    else if (this.life > this.maxLife - 20) this.alpha = (this.maxLife - this.life) / 20;
+    else this.alpha = 1;
+
+    // Slight perpendicular wave
+    const perp = { x: -this.vy, y: this.vx };
+    const wave = Math.sin(t * this.waveFreq + this.waveOffset) * this.waveAmp;
+
+    // Scroll interaction — particles drift with scroll
+    const scrollEffect = scrollVel * 0.08;
+
+    this.x += this.vx + perp.x * wave * 0.1 + (Math.random() - 0.5) * 0.2;
+    this.y += this.vy + perp.y * wave * 0.1 + scrollEffect;
+
+    // Attract toward target node
+    const dx = this.targetNode.x - this.x;
+    const dy = this.targetNode.y - this.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 60) {
+      // Reached target — pick new target
+      this.targetNode = NODES[Math.floor(Math.random() * NODES.length)];
+    }
+    this.vx += (dx / dist) * 0.01;
+    this.vy += (dy / dist) * 0.01;
+    // Dampen
+    this.vx *= 0.995;
+    this.vy *= 0.995;
+
+    if (this.life >= this.maxLife || this.x < -50 || this.x > W + 50 || this.y < -50 || this.y > H + 50) {
+      this.reset();
+    }
+  }
+
+  draw() {
+    // Glow
+    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 6);
+    grad.addColorStop(0, this.glow + (this.alpha * 0.9) + ')');
+    grad.addColorStop(0.4, this.glow + (this.alpha * 0.3) + ')');
+    grad.addColorStop(1, this.glow + '0)');
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r * 6, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+    // Core
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = this.color;
+    ctx.globalAlpha = this.alpha;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+}
+
+// Create particles
+const particles = Array.from({ length: 120 }, () => new Particle());
+
+// Connections between nodes
+function drawConnections() {
+  for (let i = 0; i < NODES.length; i++) {
+    for (let j = i + 1; j < NODES.length; j++) {
+      const dx = NODES[i].x - NODES[j].x;
+      const dy = NODES[i].y - NODES[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 280) {
+        ctx.beginPath();
+        ctx.moveTo(NODES[i].x, NODES[i].y);
+        ctx.lineTo(NODES[j].x, NODES[j].y);
+        const alpha = (1 - dist / 280) * 0.06;
+        ctx.strokeStyle = `rgba(200,169,110,${alpha})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+// Node dots (synapses)
+function drawNodes() {
+  NODES.forEach(n => {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(200,169,110,0.15)';
+    ctx.fill();
+    // Pulse ring
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 8, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(200,169,110,0.05)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+}
+
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, W, H);
+
+  // Dampen scroll velocity
+  scrollVel *= 0.85;
+
+  // Move nodes slowly
+  NODES.forEach(n => {
+    n.x += n.vx;
+    n.y += n.vy;
+    if (n.x < 0 || n.x > W) n.vx *= -1;
+    if (n.y < 0 || n.y > H) n.vy *= -1;
+  });
+
+  drawConnections();
+  drawNodes();
+
+  particles.forEach(p => {
+    p.update(t);
+    p.draw();
+  });
+
+  t++;
+}
+
+animate();
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) setTimeout(() => entry.target.classList.add('visible'), i * 150);
+  });
+}, { threshold: 0.1 });
+reveals.forEach(el => observer.observe(el));
+</script>
+
+<!-- FLOATING BUTTON -->
+<div id="ideaBtn" onclick="document.getElementById('ideaOverlay').classList.add('open')" style="
+  position:fixed; bottom:2rem; right:2rem; z-index:200;
+  padding:0.7rem 1.4rem;
+  background:rgba(6,8,15,0.9);
+  border:1px solid rgba(200,169,110,0.4);
+  color:#c8a96e;
+  font-family:'Outfit',sans-serif;
+  font-size:0.72rem;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  cursor:pointer;
+  backdrop-filter:blur(12px);
+  transition:all 0.3s;
+" onmouseover="this.style.background='rgba(200,169,110,0.15)'" onmouseout="this.style.background='rgba(6,8,15,0.9)'">
+  Visual Ideas ↗
+</div>
+
+<!-- POPUP OVERLAY -->
+<div id="ideaOverlay" style="
+  display:none;
+  position:fixed; inset:0; z-index:300;
+  background:rgba(6,8,15,0.92);
+  backdrop-filter:blur(16px);
+  align-items:center; justify-content:center;
+  padding:2rem;
+">
+  <div style="
+    max-width:480px; width:100%;
+    border:1px solid rgba(255,255,255,0.1);
+    background:#0d1220;
+    padding:2.5rem;
+    position:relative;
+    animation:fadeUp 0.3s ease;
+  ">
+    <button onclick="document.getElementById('ideaOverlay').classList.remove('open')" style="
+      position:absolute; top:1rem; right:1rem;
+      width:28px; height:28px;
+      border:1px solid rgba(255,255,255,0.1);
+      background:transparent; color:#6a7080;
+      cursor:pointer; font-size:0.8rem;
+      display:flex; align-items:center; justify-content:center;
+      transition:all 0.2s;
+    " onmouseover="this.style.background='#c8a96e';this.style.color='#06080f'" onmouseout="this.style.background='transparent';this.style.color='#6a7080'">✕</button>
+
+    <div style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:#c8a96e;margin-bottom:1rem;">For Review</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;margin-bottom:1rem;line-height:1.1;color:#e8e4dc;">
+      Visualising the<br><em style="color:#c8a96e">ensemble concept</em>
+    </h2>
+    <p style="font-size:0.88rem;line-height:1.8;color:#6a7080;margin-bottom:2rem;">
+      Two interactive proposals for representing the neurochemical team-work underlying each FET trait — addressing the challenge that viewers often read it as a 1:1 NT-to-trait mapping.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:0.8rem;">
+      <a href="test-ideas.html" target="_blank" style="
+        display:flex; align-items:center; justify-content:space-between;
+        padding:1.1rem 1.4rem;
+        border:1px solid rgba(200,169,110,0.3);
+        text-decoration:none; color:#e8e4dc;
+        transition:all 0.3s;
+        font-size:0.85rem;
+      " onmouseover="this.style.background='rgba(200,169,110,0.08)'" onmouseout="this.style.background='transparent'">
+        <span>View both proposals side by side</span>
+        <span style="color:#c8a96e;font-size:0.75rem;letter-spacing:0.1em">OPEN →</span>
+      </a>
+      <a href="fet-kitchen.html" target="_blank" style="
+        display:flex; align-items:center; justify-content:space-between;
+        padding:1rem 1.4rem;
+        border:1px solid rgba(255,255,255,0.07);
+        text-decoration:none; color:#6a7080;
+        transition:all 0.3s;
+        font-size:0.82rem;
+      " onmouseover="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='#e8e4dc'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='#6a7080'">
+        <span>01 — The Recipe Metaphor (Kitchen)</span>
+        <span style="font-size:0.72rem;letter-spacing:0.1em">OPEN →</span>
+      </a>
+      <a href="fet-matrix.html" target="_blank" style="
+        display:flex; align-items:center; justify-content:space-between;
+        padding:1rem 1.4rem;
+        border:1px solid rgba(255,255,255,0.07);
+        text-decoration:none; color:#6a7080;
+        transition:all 0.3s;
+        font-size:0.82rem;
+      " onmouseover="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='#e8e4dc'" onmouseout="this.style.borderColor='rgba(255,255,255,0.07)';this.style.color='#6a7080'">
+        <span>02 — The Ensemble Matrix</span>
+        <span style="font-size:0.72rem;letter-spacing:0.1em">OPEN →</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('ideaOverlay').addEventListener('click', function(e){
+  if(e.target === this) this.classList.remove('open');
+});
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') document.getElementById('ideaOverlay').classList.remove('open');
+});
+// Show flex when open
+const overlay = document.getElementById('ideaOverlay');
+const observer2 = new MutationObserver(()=>{
+  overlay.style.display = overlay.classList.contains('open') ? 'flex' : 'none';
+});
+observer2.observe(overlay, {attributes:true, attributeFilter:['class']});
+</script>
+
+</body>
+</html>
