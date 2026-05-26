@@ -108,7 +108,7 @@ nav {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   text-align: center;
-  padding: 64px 4rem 3rem;
+  padding: 96px 4rem 3rem;
   position: relative; z-index: 1;
   gap: 0;
 }
@@ -137,8 +137,8 @@ nav {
 
 /* ══ TWO BIG CTA CARDS ══ */
 .cta-row {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1.4rem; width: 100%; max-width: 700px;
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  gap: 0; width: 100%; max-width: 720px;
   opacity: 0; animation: fadeUp 0.9s ease 0.65s forwards;
 }
 
@@ -146,7 +146,7 @@ nav {
   display: flex; flex-direction: column;
   text-decoration: none; color: inherit;
   border: 1.5px solid var(--border-strong);
-  border-radius: 20px;
+  border-radius: 0;
   padding: 2rem 2rem 1.8rem;
   background: var(--surface);
   position: relative; overflow: hidden;
@@ -154,10 +154,13 @@ nav {
               box-shadow 0.3s, border-color 0.3s, background 0.4s;
   cursor: pointer;
 }
+.cta-card:first-child { border-radius: 20px 0 0 20px; }
+.cta-card:last-child  { border-radius: 0 20px 20px 0; margin-left: -1.5px; }
 .cta-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 48px rgba(80,60,20,0.18);
+  box-shadow: 0 20px 48px rgba(80,60,20,0.18), 0 0 0 1.5px var(--accent);
   border-color: var(--accent);
+  z-index: 1;
 }
 /* colored top stripe */
 .cta-card::before {
@@ -212,12 +215,15 @@ nav {
 .cta-divider {
   display: flex; flex-direction: column; align-items: center;
   justify-content: center; gap: 0.4rem;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
+  background: var(--surface);
+  border-top: 1.5px solid var(--border-strong);
+  border-bottom: 1.5px solid var(--border-strong);
   opacity: 0; animation: fadeUp 0.9s ease 0.75s forwards;
 }
-.divider-line { width: 1px; height: 40px; background: var(--border-strong); }
+.divider-line { width: 1px; height: 30px; background: var(--border-strong); }
 .divider-label {
-  font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--muted); writing-mode: vertical-rl;
   transition: color 0.4s;
 }
@@ -378,7 +384,9 @@ footer a:hover { color: var(--accent); }
 }
 @media (max-width: 700px) {
   .cta-row { grid-template-columns: 1fr; max-width: 420px; }
-  .cta-divider { flex-direction: row; padding: 0; }
+  .cta-divider { flex-direction: row; border: none; border-left: 1.5px solid var(--border-strong); border-right: 1.5px solid var(--border-strong); border-top: none; border-bottom: none; padding: 0.8rem 1rem; }
+  .cta-card:first-child { border-radius: 20px 20px 0 0; }
+  .cta-card:last-child  { border-radius: 0 0 20px 20px; border-left: 1.5px solid var(--border-strong); border-top: none; }
   .divider-line { width: 40px; height: 1px; }
   .divider-label { writing-mode: horizontal-tb; }
   .page-title { font-size: clamp(1.6rem, 6vw, 2.4rem); }
@@ -411,11 +419,11 @@ footer a:hover { color: var(--accent); }
   <div class="cta-row">
 
     <!-- STQ-77 -->
-    <a href="stq77-form.html" class="cta-card" style="--stripe-color: var(--ne)">
+    <a href="stq77-form.html" class="cta-card" style="--stripe-color: var(--accent)">
       <div class="cta-number">Assessment 1</div>
       <div class="cta-name"><em>STQ-77</em></div>
-      <div class="cta-fullname">Structure of Temperament Questionnaire<br>77 items · ~15 min</div>
-      <div class="cta-btn" style="--btn-bg: var(--ne); --btn-color: #fff;">
+      <div class="cta-fullname">Structure of Temperament Questionnaire</div>
+      <div class="cta-btn">
         Take the STQ-77 <span class="arrow">→</span>
       </div>
       <div class="cta-learn">↓ Learn more below</div>
@@ -429,11 +437,11 @@ footer a:hover { color: var(--accent); }
     </div>
 
     <!-- SEP-STQ -->
-    <a href="sep-stq-form.html" class="cta-card" style="--stripe-color: var(--da)">
+    <a href="sep-stq-form.html" class="cta-card" style="--stripe-color: var(--accent)">
       <div class="cta-number">Assessment 2</div>
       <div class="cta-name"><em>SEP-STQ</em></div>
-      <div class="cta-fullname">Specialized Extended Phenotype STQ<br>EN · AR · FA · ~10 min</div>
-      <div class="cta-btn" style="--btn-bg: var(--da); --btn-color: #fff;">
+      <div class="cta-fullname">Specialized Extended Phenotype STQ</div>
+      <div class="cta-btn" style="background: var(--text); color: var(--bg);">
         Take the SEP-STQ <span class="arrow">→</span>
       </div>
       <div class="cta-learn">↓ Learn more below</div>
