@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FET — Functional Ensemble of Temperament</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+:root, [data-theme="light"] {
+  --bg: #f4efe6;
+  --surface: #ffffff;
+  --border: rgba(80,60,30,0.15);
+  --border-strong: rgba(80,60,30,0.28);
+  --text: #111009;
+  --text2: #2a2418;
+  --muted: #4a4232;
+  --ne: #0d55a0;
+  --da: #b04810;
+  --ach: #127040;
+  --accent: #7a5e20;
+  --accent-light: rgba(122,94,32,0.10);
+  --toggle-bg: rgba(122,94,32,0.10);
+  --toggle-border: rgba(122,94,32,0.28);
+  --toggle-knob: #7a5e20;
+}
+
+[data-theme="dark"] {
+  --bg: #141210;
+  --surface: #1e1b16;
+  --border: rgba(200,170,100,0.12);
+  --border-strong: rgba(200,170,100,0.25);
+  --text: #f0e8d8;
+  --text2: #c8b898;
+  --muted: #a09070;
+  --ne: #5b9de0;
+  --da: #e07840;
+  --ach: #40b870;
+  --accent: #c8a050;
+  --accent-light: rgba(200,160,80,0.12);
+  --toggle-bg: rgba(200,160,80,0.14);
+  --toggle-border: rgba(200,160,80,0.32);
+  --toggle-knob: #c8a050;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(154,122,58,0.06) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 85%, rgba(26,106,191,0.04) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 50%, rgba(26,140,84,0.03) 0%, transparent 60%);
+}
+
+/* TOGGLE */
+.theme-toggle {
+  position: fixed;
+  top: 1.4rem; right: 1.6rem;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem 0.35rem 0.5rem;
+  cursor: pointer;
+  transition: background 0.4s, border-color 0.4s, box-shadow 0.3s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.theme-toggle:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.13); }
+
+.toggle-icon {
+  width: 17px; height: 17px;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), color 0.4s;
+}
+[data-theme="dark"] .toggle-icon { transform: rotate(20deg); }
+
+.toggle-track {
+  width: 36px; height: 20px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  position: relative;
+  transition: background 0.4s, border-color 0.4s;
+  flex-shrink: 0;
+}
+.toggle-knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--toggle-knob);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.20);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.4s;
+}
+[data-theme="dark"] .toggle-knob { transform: translateX(16px); }
+
+/* PAGE */
+.page {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 4vh 4rem; gap: 2.8vh;
+}
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(5rem, 13vw, 12rem);
+  font-weight: 300;
+  letter-spacing: 0.18em; line-height: 1;
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+.letter-f { color: var(--ne); }
+.letter-e { color: var(--accent); transition: color 0.4s; }
+.letter-t { color: var(--da); }
+
+.hero-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.05rem, 2vw, 1.35rem);
+  font-weight: 400; letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  animation: fadeUp 0.8s ease 0.35s both;
+  text-align: center; transition: color 0.4s;
+}
+
+.hero-desc {
+  max-width: 580px;
+  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
+  line-height: 1.85; color: var(--text2);
+  text-align: center;
+  animation: fadeUp 0.8s ease 0.5s both;
+  font-weight: 400; transition: color 0.4s;
+}
+
+/* CARDS */
+.cards-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 1.6rem; width: 100%; max-width: 680px;
+  perspective: 1200px;
+  animation: fadeUp 0.8s ease 0.65s both;
+}
+
+.test-card {
+  position: relative; text-decoration: none; color: inherit;
+  display: block; border-radius: 28px;
+  background: var(--surface); border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(80,60,20,0.08);
+  transition: transform 0.35s cubic-bezier(0.23,1,0.32,1),
+              box-shadow 0.35s cubic-bezier(0.23,1,0.32,1),
+              background 0.4s, border-color 0.4s;
+  transform-style: preserve-3d; cursor: pointer;
+}
+.test-card:hover {
+  box-shadow: 0 32px 64px rgba(80,60,20,0.22),
+              0 0 0 1px var(--border-strong),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.card-inner {
+  padding: 2.4rem 2.2rem 2.2rem;
+  display: flex; flex-direction: column;
+  align-items: flex-start; text-align: left;
+  min-height: 210px; position: relative;
+}
+
+.card-bg-letter {
+  position: absolute; bottom: -1.5rem; right: -0.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 10rem; font-weight: 300; line-height: 1;
+  color: var(--accent); opacity: 0.06;
+  pointer-events: none;
+  transition: opacity 0.35s, transform 0.35s, color 0.4s;
+  user-select: none;
+}
+.test-card:hover .card-bg-letter { opacity: 0.13; transform: scale(1.05) translateY(-4px); }
+
+.card-top {
+  display: flex; justify-content: space-between;
+  align-items: center; width: 100%; margin-bottom: 1.6rem;
+}
+.card-label {
+  font-size: 0.78rem; letter-spacing: 0.20em;
+  text-transform: uppercase; color: var(--accent);
+  font-weight: 600; transition: color 0.4s;
+}
+.card-arrow-circle {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 1rem;
+  transition: all 0.3s; background: var(--accent-light); flex-shrink: 0;
+}
+.test-card:hover .card-arrow-circle {
+  background: var(--accent); color: var(--bg);
+  border-color: var(--accent); transform: rotate(45deg);
+}
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 3.8vw, 3.2rem);
+  font-weight: 400; line-height: 1.05;
+  color: var(--text); letter-spacing: 0.01em;
+  margin-top: auto; transition: color 0.4s;
+}
+.card-title em { font-style: italic; color: var(--accent); transition: color 0.4s; }
+
+.card-inner::after {
+  content: ''; position: absolute;
+  bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(to right, var(--accent), transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+}
+.test-card:hover .card-inner::after { transform: scaleX(1); }
+
+.card-shine {
+  position: absolute; inset: 0; border-radius: 28px;
+  pointer-events: none; opacity: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.10) 0%, transparent 55%);
+  transition: opacity 0.35s;
+}
+.test-card:hover .card-shine { opacity: 1; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .page { padding: 5vh 2rem; gap: 2.5vh; }
+  .cards-grid { grid-template-columns: 1fr; max-width: 420px; }
+}
+@media (max-width: 550px) {
+  .hero-title { font-size: clamp(4.5rem, 22vw, 7rem); }
+  .hero-desc { font-size: 1rem; }
+  .card-inner { padding: 1.5rem 1.5rem 1.8rem; }
+  .theme-toggle { top: 0.9rem; right: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Switch dark / light mode">
+  <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1"  x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3"  y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>
+  <div class="toggle-track"><div class="toggle-knob"></div></div>
+</button>
+
+<div class="page">
+  <h1 class="hero-title">
+    <span class="letter-f">F</span><span class="letter-e">E</span><span class="letter-t">T</span>
+  </h1>
+  <p class="hero-sub">Functional Ensemble of Temperament</p>
+  <p class="hero-desc">
+    A neurochemically grounded model of personality — developed at McMaster University
+    in collaboration with Cambridge University.
+  </p>
+  <div class="cards-grid">
+    <a href="test.html" class="test-card">
+      <div class="card-shine"></div>
+      <div class="card-inner">
+        <div class="card-bg-letter">T</div>
+        <div class="card-top">
+          <span class="card-label">Assessment</span>
+          <div class="card-arrow-circle">↗</div>
+        </div>
+        <h3 class="card-title"><em>Test</em></h3>
+      </div>
+    </a>
+    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="test-card">
+      <div class="card-shine"></div>
+      <div class="card-inner">
+        <div class="card-bg-letter">R</div>
+        <div class="card-top">
+          <span class="card-label">Academic</span>
+          <div class="card-arrow-circle">↗</div>
+        </div>
+        <h3 class="card-title">References &amp; <em>Publications</em></h3>
+      </div>
+    </a>
+  </div>
+</div>
+
+<script>
+const SUN = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+const html = document.documentElement;
+const btn  = document.getElementById('themeToggle');
+const icon = document.getElementById('toggleIcon');
+
+const saved = localStorage.getItem('fet-theme');
+if (saved) applyTheme(saved);
+
+btn.addEventListener('click', () => {
+  applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+function applyTheme(t) {
+  html.setAttribute('data-theme', t);
+  localStorage.setItem('fet-theme', t);
+  icon.innerHTML = t === 'dark' ? MOON : SUN;
+}
+
+// 3D tilt
+document.querySelectorAll('.test-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const rx = (((e.clientY - r.top)  / r.height) - 0.5) * -10;
+    const ry = (((e.clientX - r.left) / r.width)  - 0.5) *  10;
+    card.style.transform = `translateY(-8px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseenter', () => {
+    card.style.transition = 'transform 0.08s, box-shadow 0.2s';
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s';
+    card.style.transform = '';
+  });
+});
+</script>
+</body>
+</html>
