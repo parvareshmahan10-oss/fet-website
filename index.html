@@ -6,7 +6,7 @@
 <title>FET — Functional Ensemble of Temperament</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
- 
+
 :root,[data-theme="light"]{
   --bg:#f0ede6;--surface:#fff;--surface2:#e8e4db;
   --border:rgba(30,60,30,0.15);--border-s:rgba(30,60,30,0.28);
@@ -27,7 +27,7 @@
   --nav:rgba(10,22,38,0.94);
   --tog-bg:rgba(74,170,112,0.12);--tog-bd:rgba(74,170,112,0.30);--tog-k:#4aaa70;
 }
- 
+
 html,body{height:100%;overflow:hidden;}
 body{
   background:var(--bg);color:var(--text);
@@ -35,17 +35,17 @@ body{
   transition:background .4s,color .4s;
   position:relative;
 }
- 
+
 body::before{
   content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   background-size:300px 300px;
 }
 [data-theme="dark"] body::before{opacity:.03;}
- 
+
 #stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .7s;}
 [data-theme="dark"] #stars{opacity:1;}
- 
+
 /* ── NAV ── */
 nav{
   position:relative;z-index:10;
@@ -58,12 +58,12 @@ nav{
 }
 .nav-logo{
   font-family:Arial,'Arial Black',Helvetica,sans-serif;
-  font-size:1.2rem;font-weight:900;letter-spacing:.32em;
+  font-size:1.6rem;font-weight:900;letter-spacing:.32em;
   color:var(--accent);text-decoration:none;transition:color .4s;
 }
 .nav-right{display:flex;align-items:center;gap:1.2rem;}
 .nav-ref{
-  font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  font-size:.9rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);text-decoration:none;transition:color .25s;
 }
 .nav-ref:hover{color:var(--accent);}
@@ -78,7 +78,7 @@ nav{
 .toggle-track{width:28px;height:16px;border-radius:999px;background:var(--surface);border:1px solid var(--border-s);position:relative;flex-shrink:0;transition:background .4s;}
 .toggle-knob{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--tog-k);box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .4s;}
 [data-theme="dark"] .toggle-knob{transform:translateX(12px);}
- 
+
 /* ── MAIN SCREEN ── */
 .screen{
   position:relative;z-index:1;
@@ -89,7 +89,7 @@ nav{
   gap:1.4vh;
   overflow:hidden;
 }
- 
+
 /* ── TOP HEADER ── */
 .header{
   display:flex;align-items:center;justify-content:space-between;
@@ -98,7 +98,7 @@ nav{
 .het-left{display:flex;align-items:baseline;gap:.7rem;}
 .fet-word{
   font-family:Arial,'Arial Black',Helvetica,sans-serif;
-  font-size:clamp(2.8rem,6vw,5.2rem);
+  font-size:clamp(4rem,8vw,7.5rem);
   font-weight:900;letter-spacing:.1em;line-height:1;
 }
 .lf{color:var(--accent);}
@@ -109,18 +109,18 @@ nav{
   border-left:2px solid var(--border-s);
   padding-left:.8rem;
 }
-.het-full{font-size:clamp(.72rem,1.2vw,.9rem);font-weight:700;letter-spacing:.06em;color:var(--text2);transition:color .4s;}
-.het-credit{font-size:.68rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
- 
+.het-full{font-size:clamp(1rem,1.6vw,1.25rem);font-weight:700;letter-spacing:.06em;color:var(--text2);transition:color .4s;}
+.het-credit{font-size:.88rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
+
 .header-pills{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
- 
- 
+
+
 /* ── CARDS ROW ── */
 .cards{
   display:grid;grid-template-columns:1fr 1fr;
   gap:1rem;min-height:0;
 }
- 
+
 .card{
   background:var(--surface);
   border:1px solid var(--border);
@@ -140,24 +140,24 @@ nav{
 }
 .card:hover{border-color:var(--border-s);box-shadow:0 8px 32px rgba(13,27,46,.12);}
 [data-theme="dark"] .card:hover{box-shadow:0 8px 32px rgba(0,0,0,.35);}
- 
+
 .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;}
-.card-step{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);opacity:.7;}
+.card-step{font-size:.8rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);opacity:.7;}
 .card-badge{
-  font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  padding:.18rem .55rem;border-radius:999px;
+  font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:.22rem .65rem;border-radius:999px;
   background:var(--al);color:var(--accent);
   transition:background .4s,color .4s;
 }
 .card-title{
   font-family:Arial,'Arial Black',Helvetica,sans-serif;
-  font-size:clamp(1.6rem,3vw,2.6rem);font-weight:900;
+  font-size:clamp(2.2rem,4vw,3.8rem);font-weight:900;
   letter-spacing:.04em;line-height:1;color:var(--text);
   transition:color .4s;
 }
 .card-title em{font-style:normal;color:var(--c-accent,var(--accent));}
-.card-sub{font-size:.7rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
- 
+.card-sub{font-size:.92rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
+
 /* info grid inside card */
 .card-info{
   display:grid;gap:.35rem;
@@ -167,42 +167,42 @@ nav{
   display:flex;align-items:center;gap:.55rem;
   padding:.38rem .55rem;
   background:var(--al);border-radius:8px;
-  font-size:.72rem;color:var(--text2);
+  font-size:.92rem;color:var(--text2);
   transition:background .4s,color .4s;
   line-height:1.3;
 }
 .info-dot{width:5px;height:5px;border-radius:50%;background:var(--c-accent,var(--accent));flex-shrink:0;}
 .info-row strong{font-weight:700;color:var(--text);transition:color .4s;}
- 
+
 /* mini traits strip */
 .traits-strip{
   display:flex;gap:.28rem;flex-wrap:wrap;align-items:center;
   margin-top:.1rem;
 }
 .tr{
-  font-size:.6rem;font-weight:700;letter-spacing:.06em;
-  padding:.16rem .4rem;border-radius:5px;
+  font-size:.78rem;font-weight:700;letter-spacing:.06em;
+  padding:.22rem .55rem;border-radius:5px;
   border:1px solid var(--border);
   color:var(--muted);background:var(--surface2);
   transition:all .3s;
 }
 .tr:hover{background:var(--al);border-color:var(--border-s);}
 .tr-lbl{
-  font-size:.58rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+  font-size:.78rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;
   opacity:.75;align-self:center;white-space:nowrap;
 }
-.tr-sep{color:var(--border-s);font-size:.7rem;align-self:center;padding:0 .1rem;}
+.tr-sep{color:var(--border-s);font-size:.9rem;align-self:center;padding:0 .1rem;}
 .traits-note{
-  font-size:.6rem;color:var(--muted);font-style:italic;
+  font-size:.78rem;color:var(--muted);font-style:italic;
   opacity:.7;line-height:1.4;margin-top:.25rem;
   transition:color .4s;
 }
- 
+
 /* card button */
 .card-btn{
   display:flex;align-items:center;justify-content:center;gap:.6rem;
   padding:.8rem 1rem;border-radius:10px;
-  font-size:.8rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  font-size:1rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
   text-decoration:none;
   transition:opacity .2s,transform .2s,gap .2s;
   margin-top:auto;
@@ -210,8 +210,8 @@ nav{
 .card-btn:hover{opacity:.88;transform:translateY(-1px);gap:.9rem;}
 .btn-green{background:var(--accent);color:#fff;}
 .btn-gold{background:var(--gold);color:#000;}
-.btn-arrow{font-size:1rem;}
- 
+.btn-arrow{font-size:1.2rem;}
+
 /* ── FOOTER STRIP ── */
 .foot{
   display:flex;align-items:center;justify-content:space-between;
@@ -220,11 +220,11 @@ nav{
   flex-wrap:wrap;gap:.5rem;
 }
 .foot-stats{display:flex;gap:1.4rem;}
-.foot-stat{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:var(--muted);}
-.foot-num{font-weight:900;font-size:.82rem;color:var(--accent);}
-.foot-anon{font-size:.68rem;color:var(--muted);opacity:.7;letter-spacing:.06em;}
+.foot-stat{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--muted);}
+.foot-num{font-weight:900;font-size:1rem;color:var(--accent);}
+.foot-anon{font-size:.82rem;color:var(--muted);opacity:.7;letter-spacing:.06em;}
 .foot-ref{
-  font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  font-size:.85rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
   color:var(--muted);text-decoration:none;
   padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;
   transition:border-color .22s,color .22s;
@@ -234,7 +234,7 @@ nav{
 </head>
 <body>
 <canvas id="stars"></canvas>
- 
+
 <nav>
   <a href="#" class="nav-logo">FET</a>
   <div class="nav-right">
@@ -252,9 +252,9 @@ nav{
     </button>
   </div>
 </nav>
- 
+
 <div class="screen">
- 
+
   <!-- HEADER -->
   <div class="header">
     <div class="het-left">
@@ -264,12 +264,12 @@ nav{
         <span class="het-credit">Trofimova &amp; Robbins · McMaster × Cambridge</span>
       </div>
     </div>
- 
+
   </div>
- 
+
   <!-- CARDS -->
   <div class="cards">
- 
+
     <!-- STQ-77 -->
     <div class="card" style="--c-stripe:var(--accent);--c-accent:var(--accent);">
       <div class="card-head">
@@ -309,7 +309,7 @@ nav{
       </div>
       <a href="stq77-form.html" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
     </div>
- 
+
     <!-- SEP-STQ -->
     <div class="card" style="--c-stripe:var(--gold);--c-accent:var(--gold);">
       <div class="card-head">
@@ -335,9 +335,9 @@ nav{
       </div>
       <a href="sep-stq-form.html" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
     </div>
- 
+
   </div>
- 
+
   <!-- FOOTER STRIP -->
   <div class="foot">
     <div class="foot-stats">
@@ -349,9 +349,9 @@ nav{
     <span class="foot-anon">● Fully anonymous · No login required · Data used for research only</span>
     <a href="https://psonline.ca/ira/ira.html" target="_blank" class="foot-ref">References ↗</a>
   </div>
- 
+
 </div>
- 
+
 <script>
 /* PARTICLES */
 (function(){
@@ -386,7 +386,7 @@ nav{
   rsz();seed();draw();
   window.addEventListener('resize',()=>{rsz();seed();});
 })();
- 
+
 /* THEME */
 const SUN=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
 const MOON=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
