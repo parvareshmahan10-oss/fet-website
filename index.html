@@ -4,349 +4,397 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FET — Functional Ensemble of Temperament</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-
-:root, [data-theme="light"] {
-  --bg: #f4efe6;
-  --surface: #ffffff;
-  --border: rgba(80,60,30,0.15);
-  --border-strong: rgba(80,60,30,0.28);
-  --text: #111009;
-  --text2: #2a2418;
-  --muted: #4a4232;
-  --ne: #0d55a0;
-  --da: #b04810;
-  --ach: #127040;
-  --accent: #7a5e20;
-  --accent-light: rgba(122,94,32,0.10);
-  --toggle-bg: rgba(122,94,32,0.10);
-  --toggle-border: rgba(122,94,32,0.28);
-  --toggle-knob: #7a5e20;
+*{margin:0;padding:0;box-sizing:border-box}
+ 
+:root,[data-theme="light"]{
+  --bg:#f0ede6;--surface:#fff;--surface2:#e8e4db;
+  --border:rgba(30,60,30,0.15);--border-s:rgba(30,60,30,0.28);
+  --text:#0d1b2e;--text2:#1a3040;--muted:#4a6858;
+  --ne:#0d4a8a;--da:#b84010;--ach:#2a6644;
+  --accent:#2a6644;--gold:#b88a00;
+  --al:rgba(42,102,68,0.09);
+  --nav:rgba(240,237,230,0.94);
+  --tog-bg:rgba(42,102,68,0.10);--tog-bd:rgba(42,102,68,0.30);--tog-k:#2a6644;
 }
-
-[data-theme="dark"] {
-  --bg: #141210;
-  --surface: #1e1b16;
-  --border: rgba(200,170,100,0.12);
-  --border-strong: rgba(200,170,100,0.25);
-  --text: #f0e8d8;
-  --text2: #c8b898;
-  --muted: #a09070;
-  --ne: #5b9de0;
-  --da: #e07840;
-  --ach: #40b870;
-  --accent: #c8a050;
-  --accent-light: rgba(200,160,80,0.12);
-  --toggle-bg: rgba(200,160,80,0.14);
-  --toggle-border: rgba(200,160,80,0.32);
-  --toggle-knob: #c8a050;
+[data-theme="dark"]{
+  --bg:#0d1b2e;--surface:#122038;--surface2:#0e1d35;
+  --border:rgba(100,180,130,0.13);--border-s:rgba(100,180,130,0.26);
+  --text:#e8f2ee;--text2:#b0ccc0;--muted:#7ab898;
+  --ne:#5090d8;--da:#e07840;--ach:#4aaa70;
+  --accent:#4aaa70;--gold:#d4a830;
+  --al:rgba(74,170,112,0.10);
+  --nav:rgba(10,22,38,0.94);
+  --tog-bg:rgba(74,170,112,0.12);--tog-bd:rgba(74,170,112,0.30);--tog-k:#4aaa70;
 }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  font-weight: 400;
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background 0.4s ease, color 0.4s ease;
+ 
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  transition:background .4s,color .4s;
+  position:relative;
 }
-
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image:
-    radial-gradient(ellipse at 15% 10%, rgba(154,122,58,0.06) 0%, transparent 45%),
-    radial-gradient(ellipse at 85% 85%, rgba(26,106,191,0.04) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 50%, rgba(26,140,84,0.03) 0%, transparent 60%);
+ 
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-size:300px 300px;
 }
-
-/* TOGGLE */
-.theme-toggle {
-  position: fixed;
-  top: 1.4rem; right: 1.6rem;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--toggle-bg);
-  border: 1px solid var(--toggle-border);
-  border-radius: 999px;
-  padding: 0.35rem 0.65rem 0.35rem 0.5rem;
-  cursor: pointer;
-  transition: background 0.4s, border-color 0.4s, box-shadow 0.3s;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+[data-theme="dark"] body::before{opacity:.03;}
+ 
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .7s;}
+[data-theme="dark"] #stars{opacity:1;}
+ 
+/* ── NAV ── */
+nav{
+  position:relative;z-index:10;
+  height:52px;padding:0 1.8rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--nav);backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--border);
+  transition:background .4s,border-color .4s;
+  flex-shrink:0;
 }
-.theme-toggle:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.13); }
-
-.toggle-icon {
-  width: 17px; height: 17px;
-  color: var(--accent);
-  flex-shrink: 0;
-  transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), color 0.4s;
+.nav-logo{
+  font-family:Arial,'Arial Black',Helvetica,sans-serif;
+  font-size:1.2rem;font-weight:900;letter-spacing:.32em;
+  color:var(--accent);text-decoration:none;transition:color .4s;
 }
-[data-theme="dark"] .toggle-icon { transform: rotate(20deg); }
-
-.toggle-track {
-  width: 36px; height: 20px;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--border-strong);
-  position: relative;
-  transition: background 0.4s, border-color 0.4s;
-  flex-shrink: 0;
+.nav-right{display:flex;align-items:center;gap:1.2rem;}
+.nav-ref{
+  font-size:.7rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;transition:color .25s;
 }
-.toggle-knob {
-  position: absolute;
-  top: 2px; left: 2px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--toggle-knob);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.20);
-  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.4s;
+.nav-ref:hover{color:var(--accent);}
+.theme-toggle{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--tog-bg);border:1px solid var(--tog-bd);
+  border-radius:999px;padding:.25rem .5rem .25rem .4rem;
+  cursor:pointer;transition:background .4s,border-color .4s;
 }
-[data-theme="dark"] .toggle-knob { transform: translateX(16px); }
-
-/* PAGE */
-.page {
-  position: relative; z-index: 1;
-  min-height: 100vh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 4vh 4rem; gap: 2.8vh;
+.toggle-icon{width:13px;height:13px;color:var(--accent);flex-shrink:0;transition:transform .5s cubic-bezier(.34,1.56,.64,1),color .4s;}
+[data-theme="dark"] .toggle-icon{transform:rotate(20deg);}
+.toggle-track{width:28px;height:16px;border-radius:999px;background:var(--surface);border:1px solid var(--border-s);position:relative;flex-shrink:0;transition:background .4s;}
+.toggle-knob{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--tog-k);box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .4s;}
+[data-theme="dark"] .toggle-knob{transform:translateX(12px);}
+ 
+/* ── MAIN SCREEN ── */
+.screen{
+  position:relative;z-index:1;
+  height:calc(100vh - 52px);
+  display:grid;
+  grid-template-rows:auto 1fr auto;
+  padding:1.4vh 1.8rem 1.2vh;
+  gap:1.4vh;
+  overflow:hidden;
 }
-
-.hero-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(5rem, 13vw, 12rem);
-  font-weight: 300;
-  letter-spacing: 0.18em; line-height: 1;
-  animation: fadeUp 0.8s ease 0.2s both;
+ 
+/* ── TOP HEADER ── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1.5rem;
 }
-.letter-f { color: var(--ne); }
-.letter-e { color: var(--accent); transition: color 0.4s; }
-.letter-t { color: var(--da); }
-
-.hero-sub {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(1.05rem, 2vw, 1.35rem);
-  font-weight: 400; letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--muted);
-  animation: fadeUp 0.8s ease 0.35s both;
-  text-align: center; transition: color 0.4s;
+.het-left{display:flex;align-items:baseline;gap:.7rem;}
+.fet-word{
+  font-family:Arial,'Arial Black',Helvetica,sans-serif;
+  font-size:clamp(2.8rem,6vw,5.2rem);
+  font-weight:900;letter-spacing:.1em;line-height:1;
 }
-
-.hero-desc {
-  max-width: 580px;
-  font-size: clamp(1.05rem, 1.5vw, 1.2rem);
-  line-height: 1.85; color: var(--text2);
-  text-align: center;
-  animation: fadeUp 0.8s ease 0.5s both;
-  font-weight: 400; transition: color 0.4s;
+.lf{color:var(--accent);}
+.le{color:var(--gold);}
+.lt{color:var(--text);transition:color .4s;}
+.het-desc{
+  display:flex;flex-direction:column;gap:.2rem;
+  border-left:2px solid var(--border-s);
+  padding-left:.8rem;
 }
-
-/* CARDS */
-.cards-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 1.6rem; width: 100%; max-width: 680px;
-  perspective: 1200px;
-  animation: fadeUp 0.8s ease 0.65s both;
+.het-full{font-size:clamp(.72rem,1.2vw,.9rem);font-weight:700;letter-spacing:.06em;color:var(--text2);transition:color .4s;}
+.het-credit{font-size:.68rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
+ 
+.header-pills{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
+ 
+ 
+/* ── CARDS ROW ── */
+.cards{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:1rem;min-height:0;
 }
-
-.test-card {
-  position: relative; text-decoration: none; color: inherit;
-  display: block; border-radius: 28px;
-  background: var(--surface); border: 1px solid var(--border);
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(80,60,20,0.08);
-  transition: transform 0.35s cubic-bezier(0.23,1,0.32,1),
-              box-shadow 0.35s cubic-bezier(0.23,1,0.32,1),
-              background 0.4s, border-color 0.4s;
-  transform-style: preserve-3d; cursor: pointer;
+ 
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  display:grid;
+  grid-template-rows:auto auto 1fr auto;
+  padding:1.2rem 1.3rem 1.1rem;
+  gap:.6rem;
+  overflow:hidden;
+  transition:border-color .3s,box-shadow .3s,background .4s;
+  position:relative;
 }
-.test-card:hover {
-  box-shadow: 0 32px 64px rgba(80,60,20,0.22),
-              0 0 0 1px var(--border-strong),
-              inset 0 1px 0 rgba(255,255,255,0.06);
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--c-stripe,var(--accent));
+  border-radius:16px 16px 0 0;
 }
-
-.card-inner {
-  padding: 2.4rem 2.2rem 2.2rem;
-  display: flex; flex-direction: column;
-  align-items: flex-start; text-align: left;
-  min-height: 210px; position: relative;
+.card:hover{border-color:var(--border-s);box-shadow:0 8px 32px rgba(13,27,46,.12);}
+[data-theme="dark"] .card:hover{box-shadow:0 8px 32px rgba(0,0,0,.35);}
+ 
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;}
+.card-step{font-size:.6rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);opacity:.7;}
+.card-badge{
+  font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:.18rem .55rem;border-radius:999px;
+  background:var(--al);color:var(--accent);
+  transition:background .4s,color .4s;
 }
-
-.card-bg-letter {
-  position: absolute; bottom: -1.5rem; right: -0.5rem;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 10rem; font-weight: 300; line-height: 1;
-  color: var(--accent); opacity: 0.06;
-  pointer-events: none;
-  transition: opacity 0.35s, transform 0.35s, color 0.4s;
-  user-select: none;
+.card-title{
+  font-family:Arial,'Arial Black',Helvetica,sans-serif;
+  font-size:clamp(1.6rem,3vw,2.6rem);font-weight:900;
+  letter-spacing:.04em;line-height:1;color:var(--text);
+  transition:color .4s;
 }
-.test-card:hover .card-bg-letter { opacity: 0.13; transform: scale(1.05) translateY(-4px); }
-
-.card-top {
-  display: flex; justify-content: space-between;
-  align-items: center; width: 100%; margin-bottom: 1.6rem;
+.card-title em{font-style:normal;color:var(--c-accent,var(--accent));}
+.card-sub{font-size:.7rem;color:var(--muted);letter-spacing:.06em;transition:color .4s;}
+ 
+/* info grid inside card */
+.card-info{
+  display:grid;gap:.35rem;
+  min-height:0;overflow:hidden;
 }
-.card-label {
-  font-size: 0.78rem; letter-spacing: 0.20em;
-  text-transform: uppercase; color: var(--accent);
-  font-weight: 600; transition: color 0.4s;
+.info-row{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.38rem .55rem;
+  background:var(--al);border-radius:8px;
+  font-size:.72rem;color:var(--text2);
+  transition:background .4s,color .4s;
+  line-height:1.3;
 }
-.card-arrow-circle {
-  width: 36px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--border-strong);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--accent); font-size: 1rem;
-  transition: all 0.3s; background: var(--accent-light); flex-shrink: 0;
+.info-dot{width:5px;height:5px;border-radius:50%;background:var(--c-accent,var(--accent));flex-shrink:0;}
+.info-row strong{font-weight:700;color:var(--text);transition:color .4s;}
+ 
+/* mini traits strip */
+.traits-strip{
+  display:flex;gap:.28rem;flex-wrap:wrap;align-items:center;
+  margin-top:.1rem;
 }
-.test-card:hover .card-arrow-circle {
-  background: var(--accent); color: var(--bg);
-  border-color: var(--accent); transform: rotate(45deg);
+.tr{
+  font-size:.6rem;font-weight:700;letter-spacing:.06em;
+  padding:.16rem .4rem;border-radius:5px;
+  border:1px solid var(--border);
+  color:var(--muted);background:var(--surface2);
+  transition:all .3s;
 }
-
-.card-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.4rem, 3.8vw, 3.2rem);
-  font-weight: 400; line-height: 1.05;
-  color: var(--text); letter-spacing: 0.01em;
-  margin-top: auto; transition: color 0.4s;
+.tr:hover{background:var(--al);border-color:var(--border-s);}
+.tr-lbl{
+  font-size:.58rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;
+  opacity:.75;align-self:center;white-space:nowrap;
 }
-.card-title em { font-style: italic; color: var(--accent); transition: color 0.4s; }
-
-.card-inner::after {
-  content: ''; position: absolute;
-  bottom: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(to right, var(--accent), transparent);
-  transform: scaleX(0); transform-origin: left;
-  transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+.tr-sep{color:var(--border-s);font-size:.7rem;align-self:center;padding:0 .1rem;}
+.traits-note{
+  font-size:.6rem;color:var(--muted);font-style:italic;
+  opacity:.7;line-height:1.4;margin-top:.25rem;
+  transition:color .4s;
 }
-.test-card:hover .card-inner::after { transform: scaleX(1); }
-
-.card-shine {
-  position: absolute; inset: 0; border-radius: 28px;
-  pointer-events: none; opacity: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.10) 0%, transparent 55%);
-  transition: opacity 0.35s;
+ 
+/* card button */
+.card-btn{
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  padding:.8rem 1rem;border-radius:10px;
+  font-size:.8rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  text-decoration:none;
+  transition:opacity .2s,transform .2s,gap .2s;
+  margin-top:auto;
 }
-.test-card:hover .card-shine { opacity: 1; }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(22px); }
-  to   { opacity: 1; transform: translateY(0); }
+.card-btn:hover{opacity:.88;transform:translateY(-1px);gap:.9rem;}
+.btn-green{background:var(--accent);color:#fff;}
+.btn-gold{background:var(--gold);color:#000;}
+.btn-arrow{font-size:1rem;}
+ 
+/* ── FOOTER STRIP ── */
+.foot{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:.6vh;
+  border-top:1px solid var(--border);
+  flex-wrap:wrap;gap:.5rem;
 }
-
-@media (max-width: 900px) {
-  .page { padding: 5vh 2rem; gap: 2.5vh; }
-  .cards-grid { grid-template-columns: 1fr; max-width: 420px; }
+.foot-stats{display:flex;gap:1.4rem;}
+.foot-stat{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:var(--muted);}
+.foot-num{font-weight:900;font-size:.82rem;color:var(--accent);}
+.foot-anon{font-size:.68rem;color:var(--muted);opacity:.7;letter-spacing:.06em;}
+.foot-ref{
+  font-size:.68rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;
+  padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;
+  transition:border-color .22s,color .22s;
 }
-@media (max-width: 550px) {
-  .hero-title { font-size: clamp(4.5rem, 22vw, 7rem); }
-  .hero-desc { font-size: 1rem; }
-  .card-inner { padding: 1.5rem 1.5rem 1.8rem; }
-  .theme-toggle { top: 0.9rem; right: 0.9rem; }
-}
+.foot-ref:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
-
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Switch dark / light mode">
-  <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none"
-       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="5"/>
-    <line x1="12" y1="1"  x2="12" y2="3"/>
-    <line x1="12" y1="21" x2="12" y2="23"/>
-    <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-    <line x1="1" y1="12" x2="3"  y2="12"/>
-    <line x1="21" y1="12" x2="23" y2="12"/>
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-  </svg>
-  <div class="toggle-track"><div class="toggle-knob"></div></div>
-</button>
-
-<div class="page">
-  <h1 class="hero-title">
-    <span class="letter-f">F</span><span class="letter-e">E</span><span class="letter-t">T</span>
-  </h1>
-  <p class="hero-sub">Functional Ensemble of Temperament</p>
-  <p class="hero-desc">
-    A neurochemically grounded model of personality — developed at McMaster University
-    in collaboration with Cambridge University.
-  </p>
-  <div class="cards-grid">
-    <a href="test.html" class="test-card">
-      <div class="card-shine"></div>
-      <div class="card-inner">
-        <div class="card-bg-letter">T</div>
-        <div class="card-top">
-          <span class="card-label">Assessment</span>
-          <div class="card-arrow-circle">↗</div>
-        </div>
-        <h3 class="card-title"><em>Test</em></h3>
-      </div>
-    </a>
-    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="test-card">
-      <div class="card-shine"></div>
-      <div class="card-inner">
-        <div class="card-bg-letter">R</div>
-        <div class="card-top">
-          <span class="card-label">Academic</span>
-          <div class="card-arrow-circle">↗</div>
-        </div>
-        <h3 class="card-title">References &amp; <em>Publications</em></h3>
-      </div>
-    </a>
+<canvas id="stars"></canvas>
+ 
+<nav>
+  <a href="#" class="nav-logo">FET</a>
+  <div class="nav-right">
+    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="nav-ref">References &amp; Publications ↗</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <div class="toggle-track"><div class="toggle-knob"></div></div>
+    </button>
   </div>
+</nav>
+ 
+<div class="screen">
+ 
+  <!-- HEADER -->
+  <div class="header">
+    <div class="het-left">
+      <div class="fet-word"><span class="lf">F</span><span class="le">E</span><span class="lt">T</span></div>
+      <div class="het-desc">
+        <span class="het-full">Functional Ensemble of Temperament</span>
+        <span class="het-credit">Trofimova &amp; Robbins · McMaster × Cambridge</span>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <!-- CARDS -->
+  <div class="cards">
+ 
+    <!-- STQ-77 -->
+    <div class="card" style="--c-stripe:var(--accent);--c-accent:var(--accent);">
+      <div class="card-head">
+        <span class="card-step">Assessment 01</span>
+        <span class="card-badge">77 items · ~20 min</span>
+      </div>
+      <div>
+        <div class="card-title"><em>STQ-77</em></div>
+        <div class="card-sub">Structure of Temperament Questionnaire</div>
+      </div>
+      <div class="card-info">
+        <div class="info-row"><span class="info-dot"></span><span>Measures <strong>neurochemical dynamics</strong> underlying behaviour — not personality types</span></div>
+        <div class="info-row"><span class="info-dot"></span><span>How long you sustain effort · how fast you integrate info · where attention orients</span></div>
+        <div class="info-row"><span class="info-dot"></span><span>Links 3 neurotransmitter systems to <strong>12 formal-dynamical traits</strong></span></div>
+        <div class="traits-strip">
+          <span class="tr-lbl" style="color:var(--ne)">NE</span>
+          <span class="tr" style="color:var(--ne)">PRO</span>
+          <span class="tr" style="color:var(--ne)">EMP</span>
+          <span class="tr" style="color:var(--ne)">SS</span>
+          <span class="tr-sep">·</span>
+          <span class="tr-lbl" style="color:var(--da)">DA</span>
+          <span class="tr" style="color:var(--da)">PL</span>
+          <span class="tr" style="color:var(--da)">TMS</span>
+          <span class="tr" style="color:var(--da)">TMM</span>
+          <span class="tr-sep">·</span>
+          <span class="tr-lbl" style="color:var(--ach)">ACh/5-HT</span>
+          <span class="tr" style="color:var(--ach)">ERI</span>
+          <span class="tr" style="color:var(--ach)">ERS</span>
+          <span class="tr" style="color:var(--ach)">ERM</span>
+          <span class="tr-sep">·</span>
+          <span class="tr-lbl" style="color:#9b6bbf">Opioid</span>
+          <span class="tr" style="color:#9b6bbf">NEU</span>
+          <span class="tr" style="color:#9b6bbf">IMP</span>
+          <span class="tr" style="color:#9b6bbf">SF</span>
+        </div>
+        <div class="traits-note">Color = primary associated system. All traits involve multiple neurotransmitters working in concert — no 1:1 mapping.</div>
+      </div>
+      <a href="stq77-form.html" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
+    </div>
+ 
+    <!-- SEP-STQ -->
+    <div class="card" style="--c-stripe:var(--gold);--c-accent:var(--gold);">
+      <div class="card-head">
+        <span class="card-step">Assessment 02</span>
+        <span class="card-badge" style="background:rgba(184,138,0,.10);color:var(--gold);">EN · AR · FA</span>
+      </div>
+      <div>
+        <div class="card-title" style="color:var(--text)"><em style="color:var(--gold)">SEP-STQ</em></div>
+        <div class="card-sub">Specialized Extended Phenotype STQ</div>
+      </div>
+      <div class="card-info">
+        <div class="info-row" style="background:rgba(184,138,0,.07);"><span class="info-dot" style="background:var(--gold)"></span><span>Measures the <strong>environment you construct</strong> around yourself — your extended phenotype</span></div>
+        <div class="info-row" style="background:rgba(184,138,0,.07);"><span class="info-dot" style="background:var(--gold)"></span><span>Tests whether your neurochemistry predicts the niche you build — cross-culturally</span></div>
+        <div class="info-row" style="background:rgba(184,138,0,.07);"><span class="info-dot" style="background:var(--gold)"></span><span>6 domains: <strong>home · work · social · childhood · leisure · culture</strong></span></div>
+        <div class="traits-strip">
+          <span class="tr" style="color:var(--gold)">📚 Home</span>
+          <span class="tr" style="color:var(--gold)">💼 Work</span>
+          <span class="tr" style="color:var(--gold)">🤝 Social</span>
+          <span class="tr" style="color:var(--gold)">🧒 Childhood</span>
+          <span class="tr" style="color:var(--gold)">🎯 Leisure</span>
+          <span class="tr" style="color:var(--gold)">🌍 Culture</span>
+        </div>
+      </div>
+      <a href="sep-stq-form.html" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
+    </div>
+ 
+  </div>
+ 
+  <!-- FOOTER STRIP -->
+  <div class="foot">
+    <div class="foot-stats">
+      <span class="foot-stat"><span class="foot-num">12</span> temperament traits</span>
+      <span class="foot-stat"><span class="foot-num">3</span> neurotransmitter systems</span>
+      <span class="foot-stat"><span class="foot-num">77</span> validated items</span>
+      <span class="foot-stat"><span class="foot-num">3</span> languages</span>
+    </div>
+    <span class="foot-anon">● Fully anonymous · No login required · Data used for research only</span>
+    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="foot-ref">References ↗</a>
+  </div>
+ 
 </div>
-
+ 
 <script>
-const SUN = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
-const MOON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
-
-const html = document.documentElement;
-const btn  = document.getElementById('themeToggle');
-const icon = document.getElementById('toggleIcon');
-
-const saved = localStorage.getItem('fet-theme');
-if (saved) applyTheme(saved);
-
-btn.addEventListener('click', () => {
-  applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-});
-
-function applyTheme(t) {
-  html.setAttribute('data-theme', t);
-  localStorage.setItem('fet-theme', t);
-  icon.innerHTML = t === 'dark' ? MOON : SUN;
-}
-
-// 3D tilt
-document.querySelectorAll('.test-card').forEach(card => {
-  card.addEventListener('mousemove', e => {
-    const r = card.getBoundingClientRect();
-    const rx = (((e.clientY - r.top)  / r.height) - 0.5) * -10;
-    const ry = (((e.clientX - r.left) / r.width)  - 0.5) *  10;
-    card.style.transform = `translateY(-8px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
-  });
-  card.addEventListener('mouseenter', () => {
-    card.style.transition = 'transform 0.08s, box-shadow 0.2s';
-  });
-  card.addEventListener('mouseleave', () => {
-    card.style.transition = 'transform 0.55s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s';
-    card.style.transform = '';
-  });
-});
+/* PARTICLES */
+(function(){
+  const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  const C=['#4aaa70','#d4a830','#5090d8','#7ad8b0'];
+  let ps=[];
+  function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
+  function seed(){
+    ps=Array.from({length:70},()=>({
+      x:Math.random()*cv.width,y:Math.random()*cv.height,
+      r:Math.random()*1.5+.4,
+      vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,
+      color:C[Math.floor(Math.random()*C.length)],
+      alpha:Math.random()*.5+.18,
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){
+      const dx=ps[i].x-ps[j].x,dy=ps[i].y-ps[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<140){ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);
+        ctx.strokeStyle=`rgba(74,170,112,${.07*(1-d/140)})`;ctx.lineWidth=.5;ctx.stroke();}
+    }
+    ps.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color+Math.floor(p.alpha*255).toString(16).padStart(2,'0');ctx.fill();
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  rsz();seed();draw();
+  window.addEventListener('resize',()=>{rsz();seed();});
+})();
+ 
+/* THEME */
+const SUN=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+const html=document.documentElement,btn=document.getElementById('themeToggle'),icon=document.getElementById('toggleIcon');
+const saved=localStorage.getItem('fet-theme');
+if(saved)apply(saved);
+btn.addEventListener('click',()=>apply(html.getAttribute('data-theme')==='dark'?'light':'dark'));
+function apply(t){html.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);icon.innerHTML=t==='dark'?MOON:SUN;}
 </script>
 </body>
 </html>
