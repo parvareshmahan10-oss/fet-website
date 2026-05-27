@@ -115,18 +115,65 @@ const UI = {
  ar: {dir:'rtl', badge:'معلومات المشارك', title:'قبل البدء، <em>أخبرنا عن نفسك</em>', sec:'المعلومات الأساسية', begin:'ابدأ التقييم →', notice:'ستُحفظ إجاباتك محلياً في المتصفح إلى حين تنزيل ملف CSV.', left:'لا أوافق بشدة', right:'أوافق بشدة', back:'→ رجوع', next:'التالي ←', finish:'إنهاء ←', skip:'اضغط Enter للمتابعة', ty:'شكراً<br><em>لك</em>', body:'تم تسجيل إجاباتك. يمكنك الآن تنزيل إجابات STQ-77 بصيغة CSV.', dl:'تنزيل إجاباتي (CSV)', fields:[['name','الاسم / الرمز','text'],['gender','الجنس','radio:ذكر|أنثى'],['hand','اليد المسيطرة','radio:اليمنى|اليسرى'],['birthPlace','مكان الولادة','text'],['dob','تاريخ الميلاد','date'],['testDate','تاريخ الاختبار','date'],['education','التعليم / السنوات','text'],['parentsAge','عمر الوالدين عند ولادتك','text'],['siblings','فارق العمر مع الإخوة/الأخوات','text'],['profession','المهنة الرئيسية','text'],['nationality','الجنسية','text']] }
 };
 let lang='en', current=0, answers=Array(77).fill(null), demo={};
+
+/* ── SAVE / RESTORE ── */
+const STQ_KEY = 'stq77_progress';
+function saveProgress(){
+  localStorage.setItem(STQ_KEY, JSON.stringify({ lang, current, answers, demo,
+    phase: $('qContainer').classList.contains('active') ? 'q' : 'demo' }));
+}
+function clearProgress(){ localStorage.removeItem(STQ_KEY); }
+function checkSaved(){
+  try {
+    const raw = localStorage.getItem(STQ_KEY);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(!s.lang || !s.answers) return;
+    // inject "continue" UI into lang overlay
+    const modal = document.querySelector('.lang-modal');
+    const cont = document.createElement('div');
+    cont.id = 'continueBlock';
+    cont.innerHTML = `<div style="margin-bottom:1.4rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:16px;background:var(--surface2)">
+      <div style="font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem">Saved session</div>
+      <div style="font-size:.95rem;color:var(--ink);margin-bottom:.9rem">Question ${s.current+1} / 77 &mdash; ${s.lang.toUpperCase()}</div>
+      <button class="lang-btn" style="width:100%;font-weight:500" onclick="restoreProgress()">Continue where you left off →</button>
+    </div>
+    <div style="font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">— or start fresh —</div>`;
+    modal.insertBefore(cont, modal.querySelector('.lang-options'));
+  } catch(e){}
+}
+function restoreProgress(){
+  try {
+    const s = JSON.parse(localStorage.getItem(STQ_KEY));
+    lang=s.lang; current=s.current; answers=s.answers; demo=s.demo||{};
+    const u=UI[lang];
+    document.documentElement.lang=lang; document.documentElement.dir=u.dir;
+    $('langOverlay').style.display='none';
+    if(s.phase==='q'){
+      $('qContainer').classList.add('active');
+      renderQuestion();
+    } else {
+      $('demoContainer').classList.add('active');
+      $('demoBadge').textContent=u.badge; $('demoTitle').innerHTML=u.title;
+      $('demoSec1').textContent=u.sec; $('beginBtn').textContent=u.begin;
+      $('demoNotice').textContent=u.notice;
+      renderDemo();
+    }
+    updateProgress();
+  } catch(e){}
+}
 function $(id){return document.getElementById(id)}
-function startForm(l){lang=l; const u=UI[l]; document.documentElement.lang=l; document.documentElement.dir=u.dir; $('langOverlay').style.display='none'; $('demoContainer').classList.add('active'); $('demoBadge').textContent=u.badge; $('demoTitle').innerHTML=u.title; $('demoSec1').textContent=u.sec; $('beginBtn').textContent=u.begin; $('demoNotice').textContent=u.notice; renderDemo(); updateProgress();}
+function startForm(l){lang=l; const u=UI[l]; document.documentElement.lang=l; document.documentElement.dir=u.dir; $('langOverlay').style.display='none'; $('demoContainer').classList.add('active'); $('demoBadge').textContent=u.badge; $('demoTitle').innerHTML=u.title; $('demoSec1').textContent=u.sec; $('beginBtn').textContent=u.begin; $('demoNotice').textContent=u.notice; renderDemo(); updateProgress(); saveProgress();}
 function renderDemo(){const grid=$('demoGrid'); grid.innerHTML=''; UI[lang].fields.forEach(([id,label,type])=>{ const wrap=document.createElement('div'); wrap.className='demo-field'; const lab=document.createElement('label'); lab.className='demo-label'; lab.textContent=label; wrap.appendChild(lab); if(type.startsWith('radio:')){ const group=document.createElement('div'); group.className='demo-radio-group'; type.slice(6).split('|').forEach(opt=>{ const b=document.createElement('div'); b.className='demo-radio'; b.textContent=opt; b.onclick=()=>{demo[id]=opt; group.querySelectorAll('.demo-radio').forEach(x=>x.classList.remove('selected')); b.classList.add('selected')}; group.appendChild(b); }); wrap.appendChild(group); } else { const inp=document.createElement('input'); inp.className='demo-input'; inp.type=type; inp.id='demo-'+id; inp.oninput=()=>demo[id]=inp.value; wrap.appendChild(inp); } grid.appendChild(wrap); });}
 function startQuestions(){ UI[lang].fields.forEach(([id])=>{ const el=$('demo-'+id); if(el) demo[id]=el.value; }); $('demoContainer').classList.remove('active'); $('qContainer').classList.add('active'); renderQuestion();}
-function renderQuestion(){const u=UI[lang]; const q=QUESTIONS[lang][current] || QUESTIONS.en[current]; $('qSectionLabel').textContent=`STQ-77 · ${current+1} / 77`; $('qText').textContent=q; $('ratingLabelLeft').textContent=u.left; $('ratingLabelRight').textContent=u.right; $('btnBack').textContent=u.back; $('btnNext').textContent=current===76?u.finish:u.next; $('skipNote').textContent=u.skip; $('btnBack').disabled=current===0; const rb=$('ratingButtons'); rb.innerHTML=''; for(let i=1;i<=4;i++){const b=document.createElement('button'); b.className='r-btn'+(answers[current]===i?' selected':''); b.textContent=i; b.onclick=()=>{answers[current]=i; renderQuestion(); setTimeout(()=>{ if(current<76) goNext(); },120)}; rb.appendChild(b);} updateProgress();}
-function goBack(){ if(current>0){current--; renderQuestion();} }
-function goNext(){ if(current<76){current++; renderQuestion();} else showThanks(); }
+function renderQuestion(){const u=UI[lang]; const q=QUESTIONS[lang][current] || QUESTIONS.en[current]; $('qSectionLabel').textContent=`STQ-77 · ${current+1} / 77`; $('qText').textContent=q; $('ratingLabelLeft').textContent=u.left; $('ratingLabelRight').textContent=u.right; $('btnBack').textContent=u.back; $('btnNext').textContent=current===76?u.finish:u.next; $('skipNote').textContent=u.skip; $('btnBack').disabled=current===0; const rb=$('ratingButtons'); rb.innerHTML=''; for(let i=1;i<=4;i++){const b=document.createElement('button'); b.className='r-btn'+(answers[current]===i?' selected':''); b.textContent=i; b.onclick=()=>{answers[current]=i; renderQuestion(); saveProgress(); setTimeout(()=>{ if(current<76) goNext(); },120)}; rb.appendChild(b);} updateProgress();}
+function goBack(){ if(current>0){current--; renderQuestion(); saveProgress();} }
+function goNext(){ if(current<76){current++; renderQuestion(); saveProgress();} else showThanks(); }
 let hasSubmittedToSheets=false;
 function showThanks(){ const u=UI[lang]; if(!hasSubmittedToSheets){ hasSubmittedToSheets=true; submitToGoogleSheets(); } $('qContainer').classList.remove('active'); $('thankYou').classList.add('active'); $('tyTitle').innerHTML=u.ty; $('tyBody').textContent=u.body; $('downloadBtn').textContent=u.dl; updateProgress(true); }
 function updateProgress(done=false){ let total=77, val=0; if($('qContainer').classList.contains('active')) val=(current+1)/total*100; if(done) val=100; $('progressFill').style.width=val+'%'; $('progressInfo').textContent = done ? 'Complete' : ($('qContainer').classList.contains('active') ? `${current+1} / ${total}` : 'STQ-77'); }
 function csvEscape(v){ v=(v??'').toString(); return '"'+v.replaceAll('"','""')+'"'; }
-function downloadCSV(){ const rows=[]; rows.push(['section','field','value']); Object.entries(demo).forEach(([k,v])=>rows.push(['demographics',k,v])); rows.push([]); rows.push(['item','question_en','question_'+lang,'response_1_to_4']); for(let i=0;i<77;i++) rows.push([i+1,QUESTIONS.en[i],QUESTIONS[lang][i]||QUESTIONS.en[i],answers[i]??'']); const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n'); const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='STQ77_responses_'+lang+'.csv'; a.click(); URL.revokeObjectURL(url); }
+function downloadCSV(){ const rows=[]; rows.push(['section','field','value']); Object.entries(demo).forEach(([k,v])=>rows.push(['demographics',k,v])); rows.push([]); rows.push(['item','question_en','question_'+lang,'response_1_to_4']); for(let i=0;i<77;i++) rows.push([i+1,QUESTIONS.en[i],QUESTIONS[lang][i]||QUESTIONS.en[i],answers[i]??'']); const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n'); const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='STQ77_responses_'+lang+'.csv'; a.click(); URL.revokeObjectURL(url); clearProgress(); }
 const SUN  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
 const MOON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
 const _html = document.documentElement;
@@ -136,6 +183,7 @@ const _saved = localStorage.getItem('fet-theme');
 if (_saved) _applyTheme(_saved);
 _btn.addEventListener('click', () => _applyTheme(_html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 function _applyTheme(t) { _html.setAttribute('data-theme', t); localStorage.setItem('fet-theme', t); _icon.innerHTML = t === 'dark' ? MOON : SUN; }
+checkSaved();
 document.addEventListener('keydown',e=>{ if(e.key==='Enter' && $('qContainer').classList.contains('active')) goNext(); if(['1','2','3','4'].includes(e.key) && $('qContainer').classList.contains('active')){answers[current]=Number(e.key); renderQuestion();} });
 </script>
 </body>
