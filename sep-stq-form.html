@@ -10,8 +10,8 @@
 html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 :root, [data-theme="light"] {
   --bg: #f0ede6; --surface: #ffffff;
-  --border: rgba(30,60,30,0.18); --border2: rgba(30,60,30,0.30);
-  --text: #0d1b2e; --muted: #3a5c48;
+  --border: rgba(30,60,30,0.35); --border2: rgba(30,60,30,0.58);
+  --text: #0d1b2e; --muted: #2a4838;
   --ne: #0d4a8a; --da: #b84010; --ach: #2a6644; --accent: #2a6644;
   --gold: #b88a00;
   --modal-bg: rgba(240,237,230,0.97);
@@ -23,8 +23,8 @@ html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 }
 [data-theme="dark"] {
   --bg: #0d1b2e; --surface: #122038;
-  --border: rgba(100,180,130,0.15); --border2: rgba(100,180,130,0.28);
-  --text: #e8f2ee; --muted: #7ab898;
+  --border: rgba(100,180,130,0.40); --border2: rgba(100,180,130,0.62);
+  --text: #f0f8f4; --muted: #8ecaaa;
   --ne: #5090d8; --da: #e07840; --ach: #4aaa70; --accent: #4aaa70;
   --gold: #d4a830;
   --modal-bg: rgba(10,22,38,0.97);
@@ -65,7 +65,7 @@ body::before {
 }
 .lang-modal {
   text-align: center; max-width: 480px; padding: 3rem;
-  border: 1px solid var(--border2);
+  border: 2px solid var(--border2);
   border-radius: 28px;
   background: var(--surface-card);
   box-shadow: 0 24px 80px rgba(80,60,20,.15);
@@ -80,7 +80,7 @@ body::before {
 .lang-subtitle { font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase; color: #8a94a4; margin-bottom: 3rem; line-height: 2; }
 .lang-options { display: flex; flex-direction: column; gap: 0.8rem; }
 .lang-btn {
-  padding: 1.1rem 2rem; border: 1px solid var(--border);
+  padding: 1.1rem 2rem; border: 2px solid var(--border);
   border-radius: 999px;
   background: transparent; color: var(--text);
   font-family: Arial, Helvetica, sans-serif; font-size: 1.1rem;
@@ -99,7 +99,7 @@ body::before {
   transition: width 0.4s ease; width: 0%;
 }
 .progress-info {
-  position: fixed; top: 46px; right: 1.5rem; z-index: 100;
+  position: fixed; top: 10px; left: 1.2rem; z-index: 100;
   font-size: 0.7rem; letter-spacing: 0.15em; color: #8a94a4;
   text-transform: uppercase;
 }
@@ -143,8 +143,8 @@ body::before {
 .demo-field { display: flex; flex-direction: column; gap: 0.5rem; }
 .demo-field.full { grid-column: 1 / -1; }
 .demo-label {
-  font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: #8a94a4;
+  font-size: 0.82rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text); font-weight: 600;
 }
 [dir="rtl"] .demo-label {
   letter-spacing: 0; text-transform: none;
@@ -152,7 +152,7 @@ body::before {
   font-size: 0.88rem;
 }
 .demo-input, .demo-select {
-  background: var(--input-bg); border: 1px solid var(--border);
+  background: var(--input-bg); border: 2px solid var(--border);
   border-radius: 14px;
   color: var(--text); padding: 0.9rem 1rem;
   font-family: Arial, Helvetica, sans-serif; font-size: 1rem; font-weight: 400;
@@ -163,7 +163,7 @@ body::before {
 .demo-select option { background: var(--bg); }
 .demo-radio-group { display: flex; gap: 1rem; }
 .demo-radio {
-  flex: 1; padding: 0.9rem; border: 1px solid var(--border);
+  flex: 1; padding: 0.9rem; border: 2px solid var(--border);
   border-radius: 14px;
   text-align: center; cursor: pointer; transition: all 0.3s;
   font-size: 0.95rem; color: var(--muted);
@@ -206,8 +206,8 @@ body::before {
 .rating-wrap { margin-bottom: 2.5rem; }
 .rating-labels {
   display: flex; justify-content: space-between;
-  font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 1rem;
+  font-size: 0.88rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text); margin-bottom: 1rem; font-weight:600;
 }
 [dir="rtl"] .rating-labels {
   letter-spacing: 0; text-transform: none;
@@ -220,9 +220,9 @@ body::before {
   gap: 0.5rem;
 }
 .r-btn {
-  aspect-ratio: 1; border: 1px solid var(--border);
+  aspect-ratio: 1; border: 2px solid var(--border);
   border-radius: 18px;
-  background: var(--surface); color: var(--muted);
+  background: var(--surface); color: var(--text);
   font-family: Arial, Helvetica, sans-serif; font-size: 1rem;
   cursor: pointer; transition: all 0.2s;
   display: flex; align-items: center; justify-content: center;
@@ -236,7 +236,7 @@ body::before {
   display: flex; gap: 1rem; justify-content: space-between; align-items: center;
 }
 .nav-btn {
-  padding: 1rem 2.2rem; border: 1px solid var(--border);
+  padding: 1rem 2.2rem; border: 2px solid var(--border);
   border-radius: 999px;
   background: transparent; color: var(--muted);
   font-family: Arial, Helvetica, sans-serif; font-size: 0.84rem;
@@ -336,9 +336,9 @@ body::before {
   .rating-buttons { grid-template-columns: repeat(5, 1fr); gap: 0.4rem; }
   .r-btn { aspect-ratio: 1; font-size: 1rem; min-height: 0; border-radius: 14px; border-width: 1.5px; }
   .r-btn.selected { box-shadow: 0 4px 14px rgba(154,122,58,.30); }
-  .q-text { font-size: clamp(1.3rem,5.5vw,1.8rem) !important; margin-bottom: 1.8rem; }
-  [dir="rtl"] .q-text { font-size: clamp(1.1rem,5vw,1.45rem) !important; line-height: 2.1 !important; }
-  [lang="ar"] .q-text { font-size: clamp(1.05rem,4.8vw,1.4rem) !important; }
+  .q-text { font-size: clamp(2rem,6vw,2.6rem) !important; margin-bottom: 1.8rem; color: #0d1b2e !important; }
+  [dir="rtl"] .q-text { font-size: clamp(1.5rem,5.5vw,2rem) !important; line-height: 2.1 !important; }
+  [lang="ar"] .q-text { font-size: clamp(1.4rem,5vw,1.9rem) !important; }
   .lang-modal { padding: 2rem 1.4rem; margin: 1rem; border-radius: 20px; }
   .lang-btn { font-size: 1rem; padding: 0.95rem 1rem; }
   .form-container { padding: 5rem 0.9rem 2rem; }
