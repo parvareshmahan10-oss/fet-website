@@ -119,8 +119,8 @@ body::before {
   max-width: 600px; width: 100%;
 }
 .section-badge {
-  font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--accent); margin-bottom: 1rem;
+  font-size: 0.9rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 1rem; font-weight: 700;
 }
 [dir="rtl"] .section-badge {
   letter-spacing: 0; text-transform: none;
@@ -143,19 +143,19 @@ body::before {
 .demo-field { display: flex; flex-direction: column; gap: 0.5rem; }
 .demo-field.full { grid-column: 1 / -1; }
 .demo-label {
-  font-size: 0.82rem; letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--text); font-weight: 600;
+  font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text); font-weight: 800;
 }
 [dir="rtl"] .demo-label {
   letter-spacing: 0; text-transform: none;
   font-family: 'Vazirmatn','Noto Sans Arabic',sans-serif;
-  font-size: 0.88rem;
+  font-size: 1.05rem;
 }
 .demo-input, .demo-select {
   background: var(--input-bg); border: 2px solid var(--border);
   border-radius: 14px;
-  color: var(--text); padding: 0.9rem 1rem;
-  font-family: Arial, Helvetica, sans-serif; font-size: 1rem; font-weight: 400;
+  color: var(--text); padding: 1rem 1.1rem;
+  font-family: Arial, Helvetica, sans-serif; font-size: 1.1rem; font-weight: 500;
   outline: none; transition: border-color 0.3s;
   width: 100%;
 }
@@ -166,13 +166,13 @@ body::before {
   flex: 1; padding: 0.9rem; border: 2px solid var(--border);
   border-radius: 14px;
   text-align: center; cursor: pointer; transition: all 0.3s;
-  font-size: 0.95rem; color: var(--muted);
+  font-size: 1.05rem; color: var(--text); font-weight: 600;
 }
 .demo-radio:hover { border-color: var(--accent); color: var(--text); }
 .demo-radio.selected { border-color: var(--accent); color: var(--accent); background: rgba(154,122,58,0.08); }
 [dir="rtl"] .demo-radio {
   font-family: 'Vazirmatn','Noto Sans Arabic',sans-serif;
-  letter-spacing: 0; font-size: 0.95rem;
+  letter-spacing: 0; font-size: 1.05rem;
 }
 
 /* ===== QUESTION CARD ===== */
@@ -274,15 +274,15 @@ body::before {
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)} }
 
 .demo-section-title {
-  font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase;
-  color: var(--accent); margin: 2rem 0 1rem;
+  font-size: 1rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); margin: 2rem 0 1.1rem; font-weight: 800;
   display: flex; align-items: center; gap: 0.8rem;
 }
 .demo-section-title::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
 [dir="rtl"] .demo-section-title {
   letter-spacing: 0; text-transform: none;
   font-family: 'Vazirmatn','Noto Sans Arabic',sans-serif;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 [dir="rtl"] .demo-section-title::before { display: none; }
 [dir="rtl"] .demo-section-title::after { content: ''; width: 20px; height: 1px; background: var(--accent); }
