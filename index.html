@@ -28,6 +28,7 @@
   --tog-bg:rgba(74,170,112,0.12);--tog-bd:rgba(74,170,112,0.30);--tog-k:#4aaa70;
 }
 
+html{background:var(--bg);}
 html,body{height:100%;overflow:hidden;}
 body{
   background:var(--bg);color:var(--text);
@@ -43,8 +44,9 @@ body::before{
 }
 [data-theme="dark"] body::before{opacity:.03;}
 
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .7s;}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .7s;background:transparent !important;}
 [data-theme="dark"] #stars{opacity:1;}
+@media(max-width:768px){#stars{display:none;}[data-theme="dark"] #stars{display:block;}}
 
 /* ── NAV ── */
 nav{
@@ -215,9 +217,45 @@ nav{
 [data-theme="dark"] .btn-gold{background:var(--gold);color:#0d1b2e;}
 
 @media(max-width:768px){
-  html,body{height:auto;overflow-y:auto;}
-  .screen{height:auto;min-height:calc(100vh - 52px);overflow:visible;}
-  .cards{grid-template-columns:1fr;}
+  html,body{height:auto;overflow-y:auto;overflow-x:hidden;}
+
+  /* Nav */
+  nav{height:auto;padding:.7rem 1rem;flex-wrap:wrap;gap:.5rem;}
+  .nav-right{gap:.8rem;}
+  .nav-ref{font-size:.85rem;letter-spacing:.08em;}
+
+  /* Screen layout */
+  .screen{
+    height:auto;min-height:0;overflow:visible;
+    padding:1rem;gap:1rem;
+    grid-template-rows:auto auto auto;
+  }
+
+  /* Header */
+  .header{flex-direction:column;align-items:flex-start;gap:.6rem;}
+  .het-left{flex-wrap:wrap;gap:.5rem;}
+  .fet-word{font-size:clamp(3rem,14vw,5rem);}
+  .het-full{font-size:clamp(.95rem,3.5vw,1.1rem);}
+  .het-desc{border-left:none;border-top:2px solid var(--border-s);padding-left:0;padding-top:.5rem;}
+
+  /* Cards */
+  .cards{grid-template-columns:1fr;gap:.8rem;}
+  .card{padding:1rem;gap:.5rem;}
+  .card-title{font-size:clamp(2rem,10vw,3rem);}
+  .card-sub{font-size:1rem;}
+  .info-row{font-size:1rem;padding:.4rem .55rem;}
+  .card-btn{font-size:1rem;padding:.9rem;}
+
+  /* Footer */
+  .foot{flex-direction:column;align-items:flex-start;gap:.6rem;padding-top:.8rem;}
+  .foot-stats{flex-wrap:wrap;gap:.8rem;}
+  .foot-stat{font-size:.95rem;}
+}
+
+@media(max-width:420px){
+  .fet-word{font-size:clamp(2.5rem,16vw,4rem);}
+  .card-title{font-size:clamp(1.8rem,12vw,2.5rem);}
+  .nav-ref{display:none;}
 }
 
 /* ── FOOTER STRIP ── */
