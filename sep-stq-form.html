@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; background: var(--bg); }
 :root, [data-theme="light"] {
   --bg: #f0ede6; --surface: #ffffff; --sep-title: #555555;
   --border: rgba(30,60,30,0.35); --border2: rgba(30,60,30,0.58);
@@ -337,7 +337,7 @@ body::before {
   .rating-buttons { grid-template-columns: repeat(5, 1fr); gap: 0.4rem; }
   .r-btn { aspect-ratio: 1; font-size: 1rem; min-height: 0; border-radius: 14px; border-width: 1.5px; }
   .r-btn.selected { box-shadow: 0 4px 14px rgba(154,122,58,.30); }
-  .q-text { font-size: clamp(2rem,6vw,2.6rem) !important; margin-bottom: 1.8rem; color: #0d1b2e !important; }
+  .q-text { font-size: clamp(2rem,6vw,2.6rem) !important; margin-bottom: 1.8rem; color: var(--text) !important; }
   [dir="rtl"] .q-text { font-size: clamp(1.5rem,5.5vw,2rem) !important; line-height: 2.1 !important; }
   [lang="ar"] .q-text { font-size: clamp(1.4rem,5vw,1.9rem) !important; }
   .lang-modal { padding: 2rem 1.4rem; margin: 1rem; border-radius: 20px; }
