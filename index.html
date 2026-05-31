@@ -20,7 +20,7 @@
 [data-theme="dark"]{
   --bg:#0d1b2e;--surface:#122038;--surface2:#0e1d35;
   --border:rgba(100,180,130,0.13);--border-s:rgba(100,180,130,0.26);
-  --text:#e8f2ee;--text2:#b0ccc0;--muted:#7ab898;
+  --text:#ffffff;--text2:#ffffff;--muted:#ffffff;
   --ne:#5090d8;--da:#e07840;--ach:#4aaa70;
   --accent:#4aaa70;--gold:#a8b4c0;
   --al:rgba(74,170,112,0.10);
@@ -294,7 +294,7 @@ nav{
     <!-- STQ-77 -->
     <div class="card" style="--c-stripe:var(--accent);--c-accent:var(--accent);">
       <div class="card-head">
-        <span class="card-step">Assessment 01</span>
+        <span class="card-step">Part 1</span>
         <span class="card-badge">77 items · ~20 min</span>
       </div>
       <div>
@@ -306,13 +306,13 @@ nav{
         <div class="info-row"><span class="info-dot"></span><span>How long you sustain effort · how fast you integrate info · where attention orients</span></div>
         <div class="info-row"><span class="info-dot"></span><span>Maps neurochemical systems to <strong>12 formal-dynamical traits</strong> — see Background for full detail</span></div>
       </div>
-      <a href="stq77-form.html" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
+      <a href="javascript:void(0)" onclick="goToTest('stq77-form.html')" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
     </div>
 
     <!-- SEP-STQ -->
     <div class="card" style="--c-stripe:var(--gold);--c-accent:var(--gold);">
       <div class="card-head">
-        <span class="card-step">Assessment 02</span>
+        <span class="card-step">Part 2</span>
         <span class="card-badge" style="background:rgba(184,138,0,.10);color:var(--gold);">EN · AR · FA</span>
       </div>
       <div>
@@ -332,7 +332,7 @@ nav{
           <span class="tr" style="color:var(--gold)">🌍 Culture</span>
         </div>
       </div>
-      <a href="sep-stq-form.html" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
+      <a href="javascript:void(0)" onclick="goToTest('sep-stq-form.html')" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
     </div>
 
   </div>
@@ -349,6 +349,20 @@ nav{
 </div>
 
 <script>
+/* ROUTING */
+function goToTest(testUrl){
+  try {
+    const p = JSON.parse(localStorage.getItem('fet_participant'));
+    if(p && p.data && p.data.fname){
+      // Participant info exists — go straight to test
+      window.location.href = testUrl;
+      return;
+    }
+  } catch(e){}
+  // No participant info — go to participant-info with return URL
+  window.location.href = 'participant-info.html?return=' + testUrl;
+}
+
 /* PARTICLES */
 (function(){
   const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
