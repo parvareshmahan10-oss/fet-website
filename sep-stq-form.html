@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; background: var(--bg); }
+html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 :root, [data-theme="light"] {
   --bg: #f0ede6; --surface: #ffffff; --sep-title: #555555;
   --border: rgba(30,60,30,0.35); --border2: rgba(30,60,30,0.58);
@@ -337,7 +337,7 @@ body::before {
   .rating-buttons { grid-template-columns: repeat(5, 1fr); gap: 0.4rem; }
   .r-btn { aspect-ratio: 1; font-size: 1rem; min-height: 0; border-radius: 14px; border-width: 1.5px; }
   .r-btn.selected { box-shadow: 0 4px 14px rgba(154,122,58,.30); }
-  .q-text { font-size: clamp(2rem,6vw,2.6rem) !important; margin-bottom: 1.8rem; color: var(--text) !important; }
+  .q-text { font-size: clamp(2rem,6vw,2.6rem) !important; margin-bottom: 1.8rem; color: #0d1b2e !important; }
   [dir="rtl"] .q-text { font-size: clamp(1.5rem,5.5vw,2rem) !important; line-height: 2.1 !important; }
   [lang="ar"] .q-text { font-size: clamp(1.4rem,5vw,1.9rem) !important; }
   .lang-modal { padding: 2rem 1.4rem; margin: 1rem; border-radius: 20px; }
@@ -1176,12 +1176,26 @@ let demographics = {};
 let radioSelections = { gender: '', hand: '' };
 let checkedConcerns = new Set();
 const TOTAL = 144;
+const PARTICIPANT_KEY = 'fet_participant';
+function getParticipant(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return r?JSON.parse(r):null; }catch(e){return null;} }
+function loadParticipantIntoDemographics(){
+  const p=getParticipant();
+  if(p&&p.data){
+    demographics=Object.assign({},p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand});
+    // Also fill visible form inputs if demoContainer is shown
+    Object.entries(p.data).forEach(([k,v])=>{ const el=document.getElementById('inp-'+k); if(el&&v!==undefined) el.value=v; });
+    if(p.radioState?.gender){ radioSelections.gender=p.radioState.gender; selectRadio('gender',p.radioState.gender); }
+    if(p.radioState?.hand){ radioSelections.hand=p.radioState.hand; selectRadio('hand',p.radioState.hand); }
+  }
+}
 
 /* ── SAVE / RESTORE ── */
 const SEP_KEY = 'sep_stq_progress';
 function saveProgress(){
+  const p=getParticipant();
+  const mergedDemo = p&&p.data ? Object.assign({},demographics,p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand}) : demographics;
   localStorage.setItem(SEP_KEY, JSON.stringify({
-    lang, currentQ, answers, demographics,
+    lang, currentQ, answers, demographics: mergedDemo,
     radioSelections, checkedConcerns: [...checkedConcerns],
     phase: document.getElementById('qContainer').classList.contains('active') ? 'q' : 'demo'
   }));
@@ -1210,6 +1224,9 @@ function restoreProgress(){
     lang=s.lang; currentQ=s.currentQ||0; answers=s.answers||{};
     demographics=s.demographics||{}; radioSelections=s.radioSelections||{gender:'',hand:''};
     checkedConcerns=new Set(s.checkedConcerns||[]);
+    // Merge latest participant info on top
+    const p=getParticipant();
+    if(p&&p.data){ demographics=Object.assign({},demographics,p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand}); }
     document.documentElement.setAttribute('lang', lang);
     document.documentElement.setAttribute('dir', T[lang]?.dir||'ltr');
     document.getElementById('langOverlay').style.display='none';
@@ -1217,8 +1234,13 @@ function restoreProgress(){
       document.getElementById('qContainer').classList.add('active');
       renderQuestion();
     } else {
-      document.getElementById('demoContainer').classList.add('active');
-      applyDemoTranslations();
+      if(p&&p.data){
+        document.getElementById('qContainer').classList.add('active');
+        renderQuestion();
+      } else {
+        document.getElementById('demoContainer').classList.add('active');
+        applyDemoTranslations();
+      }
     }
     updateProgressBar();
   } catch(e){}
@@ -1231,7 +1253,15 @@ function startForm(selectedLang) {
   document.documentElement.setAttribute('dir', T[lang].dir);
   document.getElementById('langOverlay').style.display = 'none';
   applyDemoTranslations();
-  document.getElementById('demoContainer').classList.add('active');
+  loadParticipantIntoDemographics();
+  if(getParticipant()&&getParticipant().data&&getParticipant().data.fname){
+    // Participant info on file — go straight to questions
+    document.getElementById('qContainer').classList.add('active');
+    renderQuestion();
+  } else {
+    // No participant info — redirect with return URL
+    window.location.href='participant-info.html?lang='+lang+'&return=sep-stq-form.html';
+  }
 }
 
 function applyDemoTranslations() {
