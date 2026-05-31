@@ -509,6 +509,13 @@ function getSaved(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return 
 
 function startForm(l){
   lang = l;
+  // Save lang immediately so tests can read it even before form is filled
+  try {
+    const existing = getSaved() || {};
+    existing.lang = l;
+    existing.data = existing.data || {};
+    localStorage.setItem(PARTICIPANT_KEY, JSON.stringify(existing));
+  } catch(e){}
   const t = T[l];
   document.documentElement.setAttribute('lang', l);
   document.documentElement.setAttribute('dir', t.dir);
