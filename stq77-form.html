@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box} html{scroll-behavior:smooth}
 :root,[data-theme="light"]{--bg:#f0ede6;--surface:rgba(255,255,255,.92);--surface2:#e5e1d8;--ink:#0d1b2e;--muted:#2a4838;--line:rgba(30,60,30,.35);--accent:#2a6644;--accent2:#1d4d31;--blue:#0d4a8a;--green:#2a6644;--gold:#b88a00;--modal-bg:rgba(240,237,230,.97);--input-bg:rgba(255,255,255,.80);--toggle-bg:rgba(42,102,68,.10);--toggle-border:rgba(42,102,68,.30);--toggle-knob:#2a6644}
-[data-theme="dark"]{--bg:#0d1b2e;--surface:rgba(18,32,56,.93);--surface2:#0a1626;--ink:#f0f8f4;--muted:#8ecaaa;--line:rgba(100,180,130,.40);--accent:#4aaa70;--accent2:#5ec888;--blue:#5090d8;--green:#4aaa70;--gold:#d4a830;--modal-bg:rgba(10,22,38,.97);--input-bg:rgba(18,32,56,.85);--toggle-bg:rgba(74,170,112,.12);--toggle-border:rgba(74,170,112,.32);--toggle-knob:#4aaa70}
+[data-theme="dark"]{--bg:#0d1b2e;--surface:rgba(18,32,56,.93);--surface2:#0a1626;--ink:#ffffff;--muted:#ffffff;--line:rgba(100,180,130,.40);--accent:#4aaa70;--accent2:#5ec888;--blue:#5090d8;--green:#4aaa70;--gold:#d4a830;--modal-bg:rgba(10,22,38,.97);--input-bg:rgba(18,32,56,.85);--toggle-bg:rgba(74,170,112,.12);--toggle-border:rgba(74,170,112,.32);--toggle-knob:#4aaa70}
 body{min-height:100vh;font-family:Arial,'Arial Black',Helvetica,sans-serif;font-weight:400;color:var(--ink);background:var(--bg);overflow-x:hidden;transition:background .4s,color .4s}
 .theme-toggle{position:fixed;top:10px;right:1.2rem;z-index:1100;display:flex;align-items:center;gap:.45rem;background:var(--toggle-bg);border:1px solid var(--toggle-border);border-radius:999px;padding:.28rem .55rem .28rem .42rem;cursor:pointer;transition:background .4s,border-color .4s,box-shadow .3s;backdrop-filter:blur(8px)}
 .theme-toggle:hover{box-shadow:0 4px 16px rgba(0,0,0,.12)}
@@ -136,6 +136,7 @@ const UI = {
 };
 let lang='en', current=0, answers=Array(77).fill(null), demo={};
 const PARTICIPANT_KEY = 'fet_participant';
+const DEV_MODE = true; // ← set false before going live
 function getParticipant(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return r?JSON.parse(r):null; }catch(e){return null;} }
 function loadParticipantIntoDemo(){ const p=getParticipant(); if(p&&p.data){ demo=Object.assign({},p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand}); } }
 
@@ -147,12 +148,28 @@ function saveProgress(){
 }
 function clearProgress(){ localStorage.removeItem(STQ_KEY); }
 function checkSaved(){
+  // If participant info exists — skip lang modal, use participant's language
+  const p = getParticipant();
+  if(p && p.data && p.data.fname && p.lang){
+    const savedSTQ = localStorage.getItem(STQ_KEY);
+    if(savedSTQ){
+      try{
+        const s = JSON.parse(savedSTQ);
+        if(s.lang && s.answers){
+          // Resume existing STQ session
+          restoreProgress(); return;
+        }
+      }catch(e){}
+    }
+    // Fresh start with participant's language
+    startForm(p.lang); return;
+  }
+  // No participant info — show lang modal with optional "continue" block
   try {
     const raw = localStorage.getItem(STQ_KEY);
     if(!raw) return;
     const s = JSON.parse(raw);
     if(!s.lang || !s.answers) return;
-    // inject "continue" UI into lang overlay
     const modal = document.querySelector('.lang-modal');
     const cont = document.createElement('div');
     cont.id = 'continueBlock';
@@ -196,8 +213,8 @@ function startForm(l){
   document.documentElement.lang=l; document.documentElement.dir=u.dir;
   $('langOverlay').style.display='none';
   loadParticipantIntoDemo();
-  if(getParticipant()&&getParticipant().data&&getParticipant().data.fname){
-    // Participant info already on file — skip demo, go straight to questions
+  if(DEV_MODE || (getParticipant()&&getParticipant().data&&getParticipant().data.fname)){
+    // DEV_MODE or participant info on file — go straight to questions
     $('qContainer').classList.add('active'); renderQuestion(); updateProgress(); saveProgress();
   } else {
     // No participant info — redirect to participant-info page with return URL
@@ -218,7 +235,7 @@ function renderQuestion(){
   $('skipNote').textContent=''; // no "press Enter" note
   $('btnBack').disabled=current===0;
   // Disable Next if no answer yet
-  $('btnNext').disabled=answers[current]===null;
+  $('btnNext').disabled = !DEV_MODE && answers[current]===null;
   const rb=$('ratingButtons');
   rb.innerHTML='';
   const lbls=[u.left, u.lbl2||'', u.lbl3||'', u.right];
@@ -240,7 +257,7 @@ function renderQuestion(){
   updateProgress();
 }
 function goBack(){ if(current>0){current--; renderQuestion(); saveProgress();} }
-function goNext(){ if(answers[current]===null) return; if(current<76){current++; renderQuestion(); saveProgress();} else showThanks(); }
+function goNext(){ if(!DEV_MODE && answers[current]===null) return; if(current<76){current++; renderQuestion(); saveProgress();} else showThanks(); }
 let hasSubmittedToSheets=false;
 function showThanks(){ const u=UI[lang]; if(!hasSubmittedToSheets){ hasSubmittedToSheets=true; submitToGoogleSheets(); } $('qContainer').classList.remove('active'); $('thankYou').classList.add('active'); $('tyTitle').innerHTML=u.ty; $('tyBody').textContent=u.body; $('downloadBtn').textContent=u.dl; updateProgress(true); }
 function updateProgress(done=false){ let total=77, val=0; if($('qContainer').classList.contains('active')) val=(current+1)/total*100; if(done) val=100; $('progressFill').style.width=val+'%'; $('progressInfo').textContent = done ? 'Complete' : ($('qContainer').classList.contains('active') ? `${current+1} / ${total}` : 'STQ-77'); }
