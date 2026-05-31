@@ -24,7 +24,7 @@ html { scroll-behavior: smooth; overflow-x: hidden; max-width: 100%; }
 [data-theme="dark"] {
   --bg: #0d1b2e; --surface: #122038; --sep-title: #a8b4c0;
   --border: rgba(100,180,130,0.40); --border2: rgba(100,180,130,0.62);
-  --text: #f0f8f4; --muted: #8ecaaa;
+  --text:#ffffff; --muted:#ffffff;
   --ne: #5090d8; --da: #e07840; --ach: #4aaa70; --accent: #4aaa70;
   --gold: #d4a830;
   --modal-bg: rgba(10,22,38,0.97);
@@ -1177,6 +1177,7 @@ let radioSelections = { gender: '', hand: '' };
 let checkedConcerns = new Set();
 const TOTAL = 144;
 const PARTICIPANT_KEY = 'fet_participant';
+const DEV_MODE = true; // ← set false before going live
 function getParticipant(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return r?JSON.parse(r):null; }catch(e){return null;} }
 function loadParticipantIntoDemographics(){
   const p=getParticipant();
@@ -1202,6 +1203,22 @@ function saveProgress(){
 }
 function clearProgress(){ localStorage.removeItem(SEP_KEY); }
 function checkSaved(){
+  // If participant info exists — skip lang modal, use participant's language
+  const p = getParticipant();
+  if(p && p.data && p.data.fname && p.lang){
+    const savedSEP = localStorage.getItem(SEP_KEY);
+    if(savedSEP){
+      try{
+        const s = JSON.parse(savedSEP);
+        if(s.lang && s.answers !== undefined){
+          restoreProgress(); return;
+        }
+      }catch(e){}
+    }
+    // Fresh start with participant's language
+    startForm(p.lang); return;
+  }
+  // No participant info — show lang modal with optional "continue" block
   try {
     const raw = localStorage.getItem(SEP_KEY);
     if(!raw) return;
@@ -1254,8 +1271,8 @@ function startForm(selectedLang) {
   document.getElementById('langOverlay').style.display = 'none';
   applyDemoTranslations();
   loadParticipantIntoDemographics();
-  if(getParticipant()&&getParticipant().data&&getParticipant().data.fname){
-    // Participant info on file — go straight to questions
+  if(DEV_MODE || (getParticipant()&&getParticipant().data&&getParticipant().data.fname)){
+    // DEV_MODE or participant info on file — go straight to questions
     document.getElementById('qContainer').classList.add('active');
     renderQuestion();
   } else {
@@ -1358,39 +1375,49 @@ function selectRadio(group, val) {
 }
 
 function startQuestions() {
-  const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
-  demographics = {
-    first_name: getVal('inp-fname'), last_name: getVal('inp-lname'),
-    age: getVal('inp-age'), date_of_birth: getVal('inp-dob'),
-    gender: radioSelections.gender, dominant_hand: radioSelections.hand,
-    place_of_birth: getVal('inp-pob'), nationality: getVal('inp-nationality'),
-    address: getVal('inp-address'), postal_code: getVal('inp-postalCode'),
-    tel_daytime: getVal('inp-telDay'), tel_evening: getVal('inp-telEve'),
-    languages_spoken: getVal('inp-langs'), immigrated: getVal('inp-immigrated'),
-    parents_age_at_birth: getVal('inp-parentsAge'), birth_order: getVal('inp-birthOrder'),
-    sibling_age_diff: getVal('inp-siblingDiff'), parents_profession: getVal('inp-parentProf'),
-    rel_parents: getVal('inp-relParents'), rel_parents_you: getVal('inp-relParentsYou'),
-    rel_parents_sib: getVal('inp-relParentsSib'), rel_sib_you: getVal('inp-relSibYou'),
-    marital_status: getVal('inp-marital'), marital_details: getVal('inp-maritalHow'),
-    children: getVal('inp-children'), pets: getVal('inp-pets'),
-    living_arrangements: getVal('inp-living'), education: getVal('inp-edu'),
-    hobby_before_16: getVal('inp-hobbyPre'), hobby_now: getVal('inp-hobbyNow'),
-    weight: getVal('inp-weight'), height: getVal('inp-height'), blood_type: getVal('inp-bloodType'),
-    exercise_hours_per_week: getVal('inp-exercise'),
-    traumas: getVal('inp-traumas'), past_surgeries: getVal('inp-surgeries'),
-    health_history: getVal('inp-healthHist'), alcohol: getVal('inp-alcohol'),
-    smoking: getVal('inp-smoking'), drugs: getVal('inp-drugs'),
-    medication: getVal('inp-medication'), diet: getVal('inp-diet'),
-    meals: getVal('inp-meals'), sleep_pattern: getVal('inp-sleepPat'),
-    lost_consciousness: getVal('inp-consciousness'), psych_episodes: getVal('inp-psychEpisodes'),
-    fam_history_father: getVal('inp-famFather'), fam_history_mother: getVal('inp-famMother'),
-    fam_history_grandparents: getVal('inp-famGrand'), fam_history_siblings: getVal('inp-famSib'),
-    fam_history_children: getVal('inp-famChild'),
-    work_position: getVal('inp-workPos'), work_started: getVal('inp-workStart'),
-    work_tasks: getVal('inp-workTasks'), work_previous: getVal('inp-workPrev'),
-    psychological_concerns: [...checkedConcerns].join(', '),
-    language: lang, timestamp: new Date().toISOString()
-  };
+  const p = getParticipant();
+  if(p && p.data) {
+    // Use participant-info data directly — no need to read demo inputs
+    demographics = Object.assign({}, p.data, {
+      gender: p.radioState?.gender || '',
+      dominant_hand: p.radioState?.hand || '',
+      language: lang, timestamp: new Date().toISOString()
+    });
+  } else {
+    const getVal = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+    demographics = {
+      first_name: getVal('inp-fname'), last_name: getVal('inp-lname'),
+      age: getVal('inp-age'), date_of_birth: getVal('inp-dob'),
+      gender: radioSelections.gender, dominant_hand: radioSelections.hand,
+      place_of_birth: getVal('inp-pob'), nationality: getVal('inp-nationality'),
+      address: getVal('inp-address'), postal_code: getVal('inp-postalCode'),
+      tel_daytime: getVal('inp-telDay'), tel_evening: getVal('inp-telEve'),
+      languages_spoken: getVal('inp-langs'), immigrated: getVal('inp-immigrated'),
+      parents_age_at_birth: getVal('inp-parentsAge'), birth_order: getVal('inp-birthOrder'),
+      sibling_age_diff: getVal('inp-siblingDiff'), parents_profession: getVal('inp-parentProf'),
+      rel_parents: getVal('inp-relParents'), rel_parents_you: getVal('inp-relParentsYou'),
+      rel_parents_sib: getVal('inp-relParentsSib'), rel_sib_you: getVal('inp-relSibYou'),
+      marital_status: getVal('inp-marital'), marital_details: getVal('inp-maritalHow'),
+      children: getVal('inp-children'), pets: getVal('inp-pets'),
+      living_arrangements: getVal('inp-living'), education: getVal('inp-edu'),
+      hobby_before_16: getVal('inp-hobbyPre'), hobby_now: getVal('inp-hobbyNow'),
+      weight: getVal('inp-weight'), height: getVal('inp-height'), blood_type: getVal('inp-bloodType'),
+      exercise_hours_per_week: getVal('inp-exercise'),
+      traumas: getVal('inp-traumas'), past_surgeries: getVal('inp-surgeries'),
+      health_history: getVal('inp-healthHist'), alcohol: getVal('inp-alcohol'),
+      smoking: getVal('inp-smoking'), drugs: getVal('inp-drugs'),
+      medication: getVal('inp-medication'), diet: getVal('inp-diet'),
+      meals: getVal('inp-meals'), sleep_pattern: getVal('inp-sleepPat'),
+      lost_consciousness: getVal('inp-consciousness'), psych_episodes: getVal('inp-psychEpisodes'),
+      fam_history_father: getVal('inp-famFather'), fam_history_mother: getVal('inp-famMother'),
+      fam_history_grandparents: getVal('inp-famGrand'), fam_history_siblings: getVal('inp-famSib'),
+      fam_history_children: getVal('inp-famChild'),
+      work_position: getVal('inp-workPos'), work_started: getVal('inp-workStart'),
+      work_tasks: getVal('inp-workTasks'), work_previous: getVal('inp-workPrev'),
+      psychological_concerns: [...checkedConcerns].join(', '),
+      language: lang, timestamp: new Date().toISOString()
+    };
+  }
   document.getElementById('demoContainer').classList.remove('active');
   document.getElementById('qContainer').classList.add('active');
   currentQ = 0;
