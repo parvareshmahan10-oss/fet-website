@@ -12,6 +12,8 @@
   --text:#0d1b2e;--text2:#162535;--muted:#3a5848;
   --ne:#0d4a8a;--da:#b84010;--ach:#2a6644;--op:#6a3a8a;
   --accent:#2a6644;--grey:#555555;
+  --cherry:#b81030;
+  --prob-blue:#1a6abf;
   --al:rgba(42,102,68,0.09);
   --nav:rgba(240,237,230,0.94);
   --tog-bg:rgba(42,102,68,0.10);--tog-bd:rgba(42,102,68,0.30);--tog-k:#2a6644;
@@ -19,9 +21,11 @@
 [data-theme="dark"]{
   --bg:#0d1b2e;--surface:#122038;--surface2:#0e1d35;
   --border:rgba(100,180,130,0.32);--border-s:rgba(100,180,130,0.60);
-  --text:#f0f8f4;--text2:#ccddd5;--muted:#8ab8a0;
+  --text:#ffffff;--text2:#ffffff;--muted:#ffffff;
   --ne:#5090d8;--da:#e07840;--ach:#4aaa70;--op:#a07ad8;
-  --accent:#4aaa70;--grey:#a8b4c0;
+  --accent:#4aaa70;--grey:#ffffff;
+  --cherry:#e03050;
+  --prob-blue:#4a90e8;
   --al:rgba(74,170,112,0.10);
   --nav:rgba(10,22,38,0.94);
   --tog-bg:rgba(74,170,112,0.12);--tog-bd:rgba(74,170,112,0.30);--tog-k:#4aaa70;
@@ -35,6 +39,346 @@ html{background:var(--bg);}
 html,body{font-family:Arial,Helvetica,sans-serif;color:var(--text);background:var(--bg);transition:background .4s,color .4s;}
 /* NAV */
 nav{
+  position:sticky;z-index:10;top:0;z-index:10;
+  height:52px;padding:0 1.8rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--nav);backdrop-filter:blur(18px);
+  border-bottom:2px solid var(--border-s);
+  transition:background .4s,border-color .4s;
+}
+.nav-logo{font-family:Arial,'Arial Black',Helvetica,sans-serif;font-size:1.6rem;font-weight:900;letter-spacing:.32em;color:var(--accent);text-decoration:none;}
+.nav-right{display:flex;align-items:center;gap:1.2rem;}
+.nav-ref{font-size:.9rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .25s;}
+.nav-ref:hover{color:var(--accent);}
+.theme-toggle{display:flex;align-items:center;gap:.4rem;background:var(--tog-bg);border:1px solid var(--tog-bd);border-radius:999px;padding:.25rem .5rem .25rem .4rem;cursor:pointer;transition:background .4s,border-color .4s;}
+.toggle-icon{width:13px;height:13px;color:var(--accent);flex-shrink:0;transition:transform .5s cubic-bezier(.34,1.56,.64,1),color .4s;}
+[data-theme="dark"] .toggle-icon{transform:rotate(20deg);}
+.toggle-track{width:28px;height:16px;border-radius:999px;background:var(--surface);border:1px solid var(--border-s);position:relative;flex-shrink:0;transition:background .4s;}
+.toggle-knob{position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--tog-k);box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .4s;}
+[data-theme="dark"] .toggle-knob{transform:translateX(12px);}
+
+/* CONTENT */
+.wrap{max-width:900px;margin:0 auto;padding:3rem 1.8rem 5rem;}
+.page-title{font-size:clamp(2.4rem,5vw,4rem);font-weight:900;letter-spacing:.06em;line-height:1;margin-bottom:.5rem;color:var(--text);}
+.page-title em{font-style:normal;color:var(--accent);}
+.page-subtitle{font-size:1.05rem;color:var(--muted);letter-spacing:.06em;margin-bottom:3rem;line-height:1.7;}
+
+h2{font-size:1.3rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin:2.5rem 0 1rem;border-bottom:2px solid var(--border-s);padding-bottom:.5rem;}
+p{color:var(--text2);line-height:1.85;margin-bottom:1rem;font-size:1rem;}
+
+/* FET TABLE */
+.fet-table-wrap{overflow-x:auto;margin:1.5rem 0 2rem;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+th{background:var(--surface2);color:var(--text);font-weight:900;letter-spacing:.08em;text-transform:uppercase;padding:.75rem 1rem;border:2px solid var(--border-s);text-align:left;}
+td{padding:.65rem 1rem;border:1.5px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.6;}
+tr:hover td{background:var(--al);}
+.nt-tag{display:inline-block;padding:.1rem .45rem;border-radius:4px;font-size:.75rem;font-weight:700;letter-spacing:.05em;margin:.1rem .1rem 0 0;}
+.tag-ne{background:var(--surface2);color:var(--muted);}
+.tag-da{background:var(--surface2);color:var(--muted);}
+.tag-ach{background:var(--surface2);color:var(--muted);}
+.tag-op{background:var(--surface2);color:var(--muted);}
+.tag-misc{background:var(--surface2);color:var(--muted);}
+.col-trait{font-weight:700;color:var(--text);white-space:nowrap;}
+.col-abbr{font-weight:700;color:var(--accent);white-space:nowrap;}
+
+/* TRAIT GRID */
+.trait-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1rem 0 2rem;}
+.trait-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:1.2rem 1.3rem;transition:border-color .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.07);}
+.trait-card:hover{border-color:var(--border-s);box-shadow:0 4px 16px rgba(0,0,0,.12);}
+.trait-abbr{font-size:1rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;margin-bottom:.45rem;}
+.trait-name{font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:.4rem;}
+.trait-desc{font-size:.95rem;color:var(--text2);line-height:1.7;}
+
+/* DOMAIN BOXES */
+.domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin:1rem 0 2rem;}
+.domain-box{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:1rem;text-align:center;}
+.domain-icon{font-size:1.6rem;margin-bottom:.4rem;}
+.domain-name{font-size:.9rem;font-weight:700;color:var(--text);}
+.domain-desc{font-size:.78rem;color:var(--muted);margin-top:.2rem;line-height:1.5;}
+
+@media(max-width:768px){
+  /* Nav */
+  nav{height:auto;padding:.7rem 1rem;flex-wrap:wrap;gap:.5rem;}
+  .nav-right{gap:.7rem;}
+  .nav-ref{font-size:.82rem;letter-spacing:.06em;}
+
+  /* Content */
+  .wrap{padding:1.5rem 1rem 4rem;}
+  .page-title{font-size:clamp(1.8rem,9vw,3rem);}
+  .page-subtitle{font-size:.95rem;}
+
+  /* Sections */
+  h2{font-size:1.1rem;margin:2rem 0 .8rem;}
+  p{font-size:.95rem;}
+
+  /* FET Table - scrollable */
+  .fet-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:560px;font-size:.8rem;}
+  th,td{padding:.5rem .7rem;}
+
+  /* Trait grid - single column */
+  .trait-grid{grid-template-columns:1fr;}
+  .trait-card{padding:1rem;}
+  .trait-name{font-size:1rem;}
+  .trait-desc{font-size:.9rem;}
+
+  /* Domain grid - 2 columns */
+  .domain-grid{grid-template-columns:1fr 1fr;}
+  .domain-box{padding:.8rem .6rem;}
+  .domain-name{font-size:.85rem;}
+  .domain-desc{font-size:.75rem;}
+}
+
+@media(max-width:420px){
+  .domain-grid{grid-template-columns:1fr;}
+  .nav-ref{font-size:.78rem;}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<nav>
+  <a href="index.html" class="nav-logo">FET</a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-ref">← Assessments</a>
+    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="nav-ref">References ↗</a>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <div class="toggle-track"><div class="toggle-knob"></div></div>
+    </button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div class="page-title"><em>FET</em> — Learn More</div>
+  <div class="page-subtitle">Scientific context for the STQ-77 and SEP-STQ assessments</div>
+
+  <h2>What is the FET Model?</h2>
+  <p>The structure of adult temperament — biologically based individual differences in behaviour — can be presented in line with the universal architecture of mammalian behaviour: that is, in line with the stages and functional aspects of action construction. The <strong>Functional Ensemble of Temperament (FET)</strong> model consists of 12 components reflecting the regulation of behaviour across four universal aspects: three dynamical aspects (energetic, integration-related, and orientation-related), a probabilistic dimension (easy/known vs. uncertain/complex tasks), an activity-specific dimension (physical vs. verbal-social vs. mental), and an emotional amplifier of these dynamical aspects. The model is a derivative of Luria's neuropsychological model of behavioural regulation and Rusalov's STQ model (Rusalov &amp; Trofimova, 2007).</p>
+  <p>There is no one-to-one correspondence between a single neurochemical system and any feature of behavioural regulation. Neurotransmitter, hormonal, and opioid systems regulating temperament traits work in <em>overlapping teams</em>, with functional specialisations that reflect the functional aspects of action construction. These systems are strongly interdependent, contingent on each other's state, and have feedback relationships. For this reason the model is called a <em>Functional Ensemble</em>: temperament traits emerge from relationships between specific neurochemical systems, not from any single system acting alone. The FET covers neurotransmitters and neuromodulators including NE, DA, ACh, 5-HT, GABA, Glutamate, Oxytocin, Estrogen, Testosterone, Histamine, Adenosine, Adrenaline, Cortisol, opioid receptors (κ, μ, δ), Substance P, and other neuropeptides (PRL, GH, SOM, NPY).</p>
+
+  <h2>The 12 Traits — FET Structure</h2>
+  <p>Traits are organised across three <strong>functional aspects</strong> (columns) and three <strong>activity domains</strong> (rows), with a fourth row for emotional amplifiers. Both assessments — STQ-77 and SEP-STQ — measure the same 12 scales.</p>
+
+  <div class="fet-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>Orientation (NE+)</th>
+        <th>Integration (DA+)</th>
+        <th>Energetic (5-HT, ACh+)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Probabilistic / Analytic</strong></td>
+        <td>
+          <span class="col-abbr" style="color:var(--prob-blue)">PRO</span> — Sensitivity to Probabilities<br>
+          <span class="nt-tag tag-ne">NE</span><span class="nt-tag tag-ach">ACh</span><span class="nt-tag tag-da">DA</span><span class="nt-tag tag-misc">Glu</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--ach)">PL</span> — Plasticity<br>
+          <span class="nt-tag tag-da">DA</span><span class="nt-tag tag-ach">ACh</span><span class="nt-tag tag-misc">5-HT</span><span class="nt-tag tag-misc">GABA</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--ach)">ERI</span> — Mental Endurance<br>
+          <span class="nt-tag tag-ach">ACh</span><span class="nt-tag tag-ne">NE</span><span class="nt-tag tag-misc">5-HT</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Social-Verbal</strong></td>
+        <td>
+          <span class="col-abbr" style="color:var(--prob-blue)">EMP</span> — Empathy<br>
+          <span class="nt-tag tag-misc">OXT</span><span class="nt-tag tag-ne">NE</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--da)">TMS</span> — Social Tempo<br>
+          <span class="nt-tag tag-da">DA</span><span class="nt-tag tag-misc">Estr</span><span class="nt-tag tag-misc">NP</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--ach)">ERS</span> — Social Endurance<br>
+          <span class="nt-tag tag-misc">5-HT</span><span class="nt-tag tag-misc">Estr</span><span class="nt-tag tag-misc">H</span>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Physical-Motor</strong></td>
+        <td>
+          <span class="col-abbr" style="color:var(--prob-blue)">SS</span> — Sensation Seeking<br>
+          <span class="nt-tag tag-ne">NE</span><span class="nt-tag tag-misc">Tstr</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--da)">TMM</span> — Motor Tempo<br>
+          <span class="nt-tag tag-op">DOR</span><span class="nt-tag tag-da">DA</span><span class="nt-tag tag-misc">A</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--ach)">ERM</span> — Motor Endurance<br>
+          <span class="nt-tag tag-misc">5-HT</span><span class="nt-tag tag-op">ORE</span><span class="nt-tag tag-misc">NP</span>
+        </td>
+      </tr>
+      <tr style="background:var(--al)">
+        <td><strong>Emotional Amplifiers</strong></td>
+        <td>
+          <span class="col-abbr" style="color:var(--cherry)">NEU</span> — Neuroticism<br>
+          <span class="nt-tag tag-op">KOR</span><span class="nt-tag tag-misc">cytokines</span><span class="nt-tag tag-ne">NE-HPA</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--cherry)">IMP</span> — Impulsivity<br>
+          <span class="nt-tag tag-misc">sANS</span><span class="nt-tag tag-op">DOR</span><span class="nt-tag tag-da">DA</span>
+        </td>
+        <td>
+          <span class="col-abbr" style="color:var(--cherry)">SLF</span> — Satisfaction<br>
+          <span class="nt-tag tag-op">MOR</span><span class="nt-tag tag-misc">5-HT</span><span class="nt-tag tag-da">DA</span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>The 12 Traits in Detail</h2>
+  <div class="trait-grid">
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--prob-blue)">PRO</div>
+      <div class="trait-name">Sensitivity to Probabilities</div>
+      <div class="trait-desc">Tendency to notice and respond to uncertain, probabilistic, or ambiguous signals in the environment. High PRO = sensitive to novelty and unpredictability.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--ach)">PL</div>
+      <div class="trait-name">Plasticity</div>
+      <div class="trait-desc">Ability to efficiently switch between mental strategies and adapt to changing task demands. High PL = cognitive flexibility; Low PL = preference for routine.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--ach)">ERI</div>
+      <div class="trait-name">Mental Endurance</div>
+      <div class="trait-desc">Capacity to sustain intellectual effort over time. High ERI = able to work on complex problems for extended periods without fatigue.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--prob-blue)">EMP</div>
+      <div class="trait-name">Empathy</div>
+      <div class="trait-desc">Orientation toward other people's emotional and mental states. High EMP = attuned to social signals; associated with oxytocin systems.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--da)">TMS</div>
+      <div class="trait-name">Social Tempo</div>
+      <div class="trait-desc">Speed of social-verbal interaction — how fast one naturally engages in conversation and social processing. High TMS = fast-talking, quick social responses.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--ach)">ERS</div>
+      <div class="trait-name">Social Endurance</div>
+      <div class="trait-desc">Capacity to sustain social interaction without fatigue. High ERS = can engage in extended social activity; Low ERS = socially draining quickly.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--prob-blue)">SS</div>
+      <div class="trait-name">Sensation Seeking</div>
+      <div class="trait-desc">Drive to seek novel physical experiences and sensory stimulation. High SS = drawn to physical adventure, risk-taking, and new sensory input.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--da)">TMM</div>
+      <div class="trait-name">Motor Tempo</div>
+      <div class="trait-desc">Natural speed of physical movement and motor action. High TMM = fast physical reactions and movement; Low TMM = deliberate, slower-paced.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--ach)">ERM</div>
+      <div class="trait-name">Motor Endurance</div>
+      <div class="trait-desc">Capacity to sustain physical activity. High ERM = able to engage in prolonged physical effort; associated with serotonin and opioid systems.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--cherry)">NEU</div>
+      <div class="trait-name">Neuroticism</div>
+      <div class="trait-desc">Emotional sensitivity to failure, threat, and negative outcomes. Amplifies negative affect. Associated with HPA axis and kappa-opioid systems.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--cherry)">IMP</div>
+      <div class="trait-name">Impulsivity</div>
+      <div class="trait-desc">Tendency toward rapid, unplanned responses. High IMP = acts before thinking; linked to sympathetic nervous system and delta-opioid/dopamine interactions.</div>
+    </div>
+    <div class="trait-card">
+      <div class="trait-abbr" style="color:var(--cherry)">SLF</div>
+      <div class="trait-name">Dispositional Satisfaction</div>
+      <div class="trait-desc">Baseline mood and sense of wellbeing. High SLF = dispositionally positive, content; associated with mu-opioid and serotonin systems.</div>
+    </div>
+  </div>
+
+  <h2>About the STQ-77</h2>
+  <p>The Structure of Temperament Questionnaire — Compact (STQ-77) consists of 77 items: 72 items across 12 scales (6 per scale) and 5 validity items. Responses follow a 4-point Likert scale from "strongly disagree" to "strongly agree". The STQ-77 has been translated into 22 languages and validated across multiple cultures. Reliability coefficients fall in the range .70–.86.</p>
+
+  <h2>About the SEP-STQ</h2>
+  <p>The Specialized Extended Phenotype STQ examines the <em>environment</em> a person constructs around themselves — their extended phenotype — across six life domains. It tests whether temperament predicts the niche an individual builds, independently of culture. It uses the same 12 FET scales but probes expressed environments rather than self-reported dynamics.</p>
+
+  <div class="domain-grid">
+    <div class="domain-box"><div class="domain-icon">📚</div><div class="domain-name">Home</div><div class="domain-desc">Physical living space and domestic environment</div></div>
+    <div class="domain-box"><div class="domain-icon">💼</div><div class="domain-name">Work</div><div class="domain-desc">Occupational setting and work style</div></div>
+    <div class="domain-box"><div class="domain-icon">🤝</div><div class="domain-name">Social</div><div class="domain-desc">Social relationships and networks</div></div>
+    <div class="domain-box"><div class="domain-icon">🧒</div><div class="domain-name">Childhood</div><div class="domain-desc">Early developmental environment</div></div>
+    <div class="domain-box"><div class="domain-icon">🎯</div><div class="domain-name">Leisure</div><div class="domain-desc">Free-time activities and hobbies</div></div>
+    <div class="domain-box"><div class="domain-icon">🌍</div><div class="domain-name">Culture</div><div class="domain-desc">Cultural identity and background</div></div>
+  </div>
+
+  <h2>Key References</h2>
+  <p>Trofimova, I. &amp; Robbins, T.W. (2016). Temperament and arousal systems: a new synthesis of differential psychology and functional neurochemistry. <em>Neuroscience and Biobehavioural Reviews, 64</em>, 382–402.</p>
+  <p>Trofimova, I. (2016). The interlocking between functional aspects of activities and a neurochemical model of adult temperament. In Arnold, M.C. (Ed.) <em>Temperaments: Individual Differences, Social and Environmental Influences and Impact on Quality of Life</em>. Nova Science Publishers.</p>
+  <p>Rusalov, V.M. &amp; Trofimova, I.N. (2007). <em>Structure of Temperament and Its Measurement</em>. Toronto: Psychological Services Press.</p>
+  <p style="margin-top:1.5rem"><a href="https://psonline.ca/ira/ira.html" target="_blank" style="color:var(--accent);font-weight:700;">Full publication list →</a></p>
+</div>
+
+<script>
+
+/* STARS */
+(function(){
+  const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  const C=['#4aaa70','#a8b4c0','#5090d8','#7ad8b0','#b0ccc0'];
+  let ps=[];
+  function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
+  function seed(){
+    ps=Array.from({length:300},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height,
+      r:Math.random()*2.2+.5,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+      color:C[Math.floor(Math.random()*C.length)],
+      alpha:Math.random()*.7+.25,
+    }));
+  }
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){
+      const dx=ps[i].x-ps[j].x, dy=ps[i].y-ps[j].y, d=Math.sqrt(dx*dx+dy*dy);
+      if(d<180){
+        ctx.beginPath();ctx.moveTo(ps[i].x,ps[i].y);ctx.lineTo(ps[j].x,ps[j].y);
+        ctx.strokeStyle=`rgba(74,170,112,${.10*(1-d/180)})`;
+        ctx.lineWidth=.5;ctx.stroke();
+      }
+    }
+    ps.forEach(p=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=p.color+Math.floor(p.alpha*255).toString(16).padStart(2,'0');
+      ctx.fill();
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>cv.width)p.vx*=-1;
+      if(p.y<0||p.y>cv.height)p.vy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  rsz();seed();draw();
+  window.addEventListener('resize',()=>{rsz();seed();});
+})();
+
+const SUN=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+const html=document.documentElement,btn=document.getElementById('themeToggle'),icon=document.getElementById('toggleIcon');
+const saved=localStorage.getItem('fet-theme');
+if(saved)apply(saved);
+btn.addEventListener('click',()=>apply(html.getAttribute('data-theme')==='dark'?'light':'dark'));
+function apply(t){html.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);icon.innerHTML=t==='dark'?MOON:SUN;}
+</script>
+</body>
+</html>nav{
   position:sticky;z-index:10;top:0;z-index:10;
   height:52px;padding:0 1.8rem;
   display:flex;align-items:center;justify-content:space-between;
