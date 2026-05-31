@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr" data-theme="light">
 <head>
 <meta charset="UTF-8">
+<!-- FET-VERSION: 2.1 -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SEP-STQ Assessment — FET</title>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -489,7 +490,7 @@ body::before {
       <button class="nav-btn" id="btnBack" onclick="goBack()">← Back</button>
       <button class="nav-btn primary" id="btnNext" onclick="goNext()">Next →</button>
     </div>
-    <p class="skip-note" id="skipNote">Press Enter to continue</p>
+    <p class="skip-note" id="skipNote"></p>
   </div>
 </div>
 
@@ -556,7 +557,7 @@ const T = {
     },
     ratingLeft: 'Completely Disagree', ratingRight: 'Completely Agree',
     btnBack: '← Back', btnNext: 'Next →',
-    skipNote: 'Press Enter to continue',
+    skipNote: '',
     tyTitle: 'Thank You',
     tyBody: 'Your responses have been recorded and will contribute to ongoing research at McMaster University. Thank you for your time and participation.',
     downloadBtn: 'Download My Responses (CSV)',
@@ -626,7 +627,7 @@ const T = {
     },
     ratingLeft: 'لا أوافق تمامًا', ratingRight: 'أوافق تمامًا',
     btnBack: '→ رجوع', btnNext: 'التالي ←',
-    skipNote: 'اضغط Enter للمتابعة',
+    skipNote: '',
     tyTitle: 'شكراً لك',
     tyBody: 'تم تسجيل إجاباتك وستساهم في البحث الجاري في جامعة ماكماستر. شكراً لوقتك ومشاركتك.',
     downloadBtn: 'تحميل إجاباتي (CSV)',
@@ -696,7 +697,7 @@ const T = {
     },
     ratingLeft: 'کاملاً مخالفم', ratingRight: 'کاملاً موافقم',
     btnBack: '→ بازگشت', btnNext: 'بعدی ←',
-    skipNote: 'برای ادامه Enter را فشار دهید',
+    skipNote: '',
     tyTitle: 'ممنون',
     tyBody: 'پاسخ‌های شما ثبت شد و به تحقیقات دانشگاه مک‌مستر کمک خواهد کرد. از وقت و مشارکت شما متشکریم.',
     downloadBtn: 'دانلود پاسخ‌های من (CSV)',
