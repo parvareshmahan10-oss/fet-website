@@ -18,7 +18,7 @@ html{scroll-behavior:smooth;overflow-x:hidden}
 }
 [data-theme="dark"]{
   --bg:#0d1b2e;--surface:rgba(18,32,56,.93);--surface2:#0a1626;
-  --ink:#f0f8f4;--muted:#8ecaaa;--line:rgba(100,180,130,.38);--line2:rgba(100,180,130,.60);
+  --ink:#ffffff;--muted:#ffffff;--line:rgba(100,180,130,.38);--line2:rgba(100,180,130,.60);
   --accent:#4aaa70;--gold:#d4a830;--blue:#5090d8;
   --input-bg:rgba(18,32,56,.85);
   --toggle-bg:rgba(74,170,112,.12);--toggle-border:rgba(74,170,112,.32);--toggle-knob:#4aaa70;
@@ -389,6 +389,7 @@ textarea.fi{resize:vertical;min-height:72px}
 
 <script>
 const PARTICIPANT_KEY = 'fet_participant';
+const DEV_MODE = true; // ← set false before going live
 
 // ─── CONCERNS CHECKLIST (matches PDF exactly) ───
 const CONCERNS = {
@@ -870,7 +871,7 @@ function resetAll(){
   const saved = getSaved();
 
   // If already filled AND we have a return URL → skip straight to the assessment
-  if(saved && saved.data && saved.data.fname && RETURN_URL){
+  if(!DEV_MODE && saved && saved.data && saved.data.fname && RETURN_URL){
     window.location.replace(RETURN_URL);
     return;
   }
