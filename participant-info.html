@@ -52,9 +52,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;
 .lang-subtitle{font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);line-height:1.8;margin-bottom:.8rem}
 .lang-intro{font-size:.93rem;color:var(--ink);line-height:1.7;margin-bottom:1.8rem;padding:.9rem 1.1rem;background:rgba(42,102,68,.07);border-radius:12px;border-left:3px solid var(--accent);text-align:left}
 [dir=rtl] .lang-intro{border-left:none;border-right:3px solid var(--accent);text-align:right}
-.lang-options{display:grid;gap:.65rem}
-.lang-btn{border:2px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:500 1.05rem Arial,Helvetica,sans-serif;padding:1rem 1.2rem;cursor:pointer;transition:.25s;letter-spacing:.04em}
-.lang-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.lang-options{display:flex;flex-direction:column;gap:0}
+.lang-select{width:100%;border:2px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:500 1.1rem Arial,Helvetica,sans-serif;padding:1rem 1.2rem;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a6644' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.8rem;transition:.25s}
+.lang-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(42,102,68,.08)}
+.lang-confirm{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:999px;font:700 .95rem Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;margin-top:.65rem;transition:opacity .2s,transform .2s}
+.lang-confirm:hover{opacity:.88;transform:translateY(-1px)}
 .saved-option{margin-bottom:1rem;padding:.9rem 1.1rem;border:2px solid var(--accent);border-radius:16px;background:rgba(42,102,68,.07)}
 .saved-name{font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:.6rem}
 .saved-meta{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem}
@@ -162,7 +164,7 @@ textarea.fi{resize:vertical;min-height:72px}
 <body>
 
 <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progFill"></div></div>
-<a href="index.html" class="back-link" id="backLink">← FET Home</a>
+<a href="index.html" class="back-link" id="backLink" onclick="if(window.parent!==window){event.preventDefault();window.parent.postMessage('close-overlay','*');}">← FET Home</a>
 <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
   <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
@@ -181,9 +183,14 @@ textarea.fi{resize:vertical;min-height:72px}
     <div class="lang-intro" id="langIntro">Your individuality is shaped by family situation, childhood and somatic factors — we integrate this with your temperament. This form is filled <strong>once</strong> and shared with both assessments.</div>
     <div id="savedOptionBlock"></div>
     <div class="lang-options">
-      <button class="lang-btn" onclick="startForm('en')">English</button>
-      <button class="lang-btn" onclick="startForm('ar')">العربية</button>
-      <button class="lang-btn" onclick="startForm('fa')">فارسی</button>
+      <select class="lang-select" id="langSelect">
+        <option value="" disabled selected>Select language / Выберите язык…</option>
+        <option value="en">English</option>
+        <option value="ar">العربية</option>
+        <option value="fa">فارسی</option>
+        <option value="ru">Русский</option>
+      </select>
+      <button class="lang-confirm" onclick="var v=document.getElementById('langSelect').value;if(v)startForm(v);">Begin →</button>
     </div>
   </div>
 </div>
@@ -484,6 +491,31 @@ const T = {
     bedP:'وقت النوم المفضل', bedA:'وقت النوم الفعلي',
     fallAsleep:'الوقت حتى النوم', hoursP:'ساعات النوم المفضلة', hoursA:'ساعات النوم الفعلية',
   }
+,
+  ru: {
+    dir:'ltr', badge:'Часть 1 из 3', title:'Расскажите <em>о себе</em>',
+    sub:'Ваш анамнез интегрируется с вашим темпераментным профилем. Заполните один раз — применяется к обоим оценкам.',
+    backLink:'← На главную FET',
+    s1:'Личная информация', s2:'Семейный анамнез', s3:'Сведения о здоровье',
+    s4:'Семейная медицинская история', s4sub:'Основные заболевания и психиатрические расстройства у ближайших родственников:',
+    s5:'Функциональная активность', s6:'Психологические проблемы',
+    s7:'Информированное согласие на участие в исследовании',
+    concernNote:'Отметьте всё, что относится к вам. Затем укажите <strong>проблему № 1</strong> ниже.',
+    consentTitle:'Название исследования:', consentIntro:'Подписывая эту форму согласия, я понимаю и подтверждаю, что:',
+    submitTxt:'Сохранить и перейти к оценкам',
+    submitNote:'Сохраняется локально в вашем браузере. Автоматически применяется к обоим анкетам.',
+    doneTitle:'Готово к <em>началу</em>',
+    doneBody:'Информация об участнике сохранена. Пройдите любую оценку — ваш анамнез будет включён автоматически.',
+    doneSTQ:'Пройти STQ-77 →', doneSEP:'Пройти SEP-STQ →',
+    doneReset:'Очистить все сохранённые данные и начать сначала',
+    savedMeta:'Сохранённая информация', genderM:'М', genderF:'Ж', handR:'Правая', handL:'Левая',
+    sl1:'Печатное имя участника', sl2:'Дата (ДД/ММ/ГГГГ)', sl3:'Подпись',
+    useSaved:'Использовать сохранённые данные →', startFresh:'— или начать заново —',
+    sleepLabel:'Режим сна',
+    wakeP:'Желаемое время пробуждения', wakeA:'Фактическое время пробуждения',
+    bedP:'Желаемое время отхода ко сну', bedA:'Фактическое время отхода ко сну',
+    fallAsleep:'Время засыпания', hoursP:'Желаемое количество часов сна', hoursA:'Фактическое количество часов сна',
+  }
 };
 
 // ─── ALL TEXT FIELD IDs ───
@@ -764,6 +796,49 @@ const LABELS = {
     'maritalOpts':['اختر…','متزوج','علاقة قانونية','منفصل','مطلق','أرمل','أعزب'],
     'livingOpts':['اختر…','أسكن مع والديّ','إيجار','أمتلك شقة','أمتلك منزلاً'],
   }
+,
+  ru: {
+    'l-id':'ID участника','l-fname':'Имя(имена)','l-lname':'Фамилия',
+    'l-gender':'Пол','l-hand':'Ведущая рука','l-dob':'Дата рождения','l-age':'Возраст',
+    'l-address':'Адрес','l-postal':'Почтовый индекс','l-pob':'Место рождения','l-nat':'Национальность',
+    'l-tel1':'Тел. (дневное)','l-tel2':'Тел. (вечернее)','l-langs':'Языки общения',
+    'l-immigrated':'Если эмигрировали — когда / откуда / в каком возрасте',
+    'l-parentsAge':'Возраст родителей при вашем рождении (отец / мать)',
+    'l-birthOrder':'Порядок рождения (№ из скольких детей)',
+    'l-sibDiff':'Разница в возрасте между вами и братьями/сёстрами',
+    'l-parentProf':'Профессия: отца / матери / братьев и сестёр',
+    'l-relParents':'Отношения в детстве — между родителями',
+    'l-relParYou':'Отношения в детстве — родители и вы',
+    'l-relParSib':'Отношения в детстве — родители и ваши братья/сёстры',
+    'l-relSibYou':'Отношения в детстве — ваши братья/сёстры и вы',
+    'l-marital':'Семейное положение','l-maritalHow':'Если в браке/гражданском браке — как долго и возраст/профессия партнёра',
+    'l-children':'Дети (возраст и пол)','l-pets':'Домашние животные?',
+    'l-living':'Жилищные условия','l-edu':'Образование (когда, специальность)',
+    'l-hobbyPre':'Хобби до 16 лет','l-hobbyNow':'Хобби сейчас',
+    'l-weight':'Вес','l-height':'Рост','l-blood':'Группа крови',
+    'l-traumas':'Травмы / несчастные случаи (год)','l-surgeries':'Операции в прошлом',
+    'l-healthHist':'История болезней (частые синуситы, проблемы ЖКТ, астма, диабет, нарушения равновесия, эпилепсия, мигрень, слух/зрение, сердце, гепатит, повышенное давление, почки, потеря обоняния/вкуса, психиатрические проблемы, кожа, щитовидная железа, сон, язва и др.) — когда началось?',
+    'l-alcohol':'Употребление алкоголя (как долго и сколько)','l-smoking':'Курение',
+    'l-drugs':'Другие вещества (что, когда, сколько)',
+    'l-meds':'Принимаемые лекарства и дозировка',
+    'l-diet':'Ограничения в питании (вегетарианство? религиозные? финансовые?)',
+    'l-meals':'Время приёма пищи — укажите самый большой приём: завтрак / обед / ужин',
+    'l-exercise':'Часов в неделю на прогулки и физические упражнения','l-testDate':'Дата тестирования',
+    'l-sleep':'Режим сна',
+    'l-wakeP':'Желаемое время пробуждения','l-wakeA':'Фактическое время пробуждения',
+    'l-bedP':'Желаемое время отхода ко сну','l-bedA':'Фактическое время отхода ко сну',
+    'l-fallAsleep':'Время засыпания','l-hoursP':'Желаемое количество часов сна','l-hoursA':'Фактическое количество часов сна',
+    'l-consciousness':'Теряли ли вы когда-нибудь сознание? Если да — когда и что произошло',
+    'l-psychEp':'Были ли у вас случаи, требовавшие помощи психолога или психиатра? (почему и когда)',
+    'l-famFather':'Отец','l-famMother':'Мать','l-famGrand':'Бабушки/Дедушки',
+    'l-famSib':'Брат / Сестра','l-famChild':'Дети',
+    'l-workPos':'Должность / название','l-workStart':'Начало этой работы (когда)',
+    'l-workTasks':'Задачи и обязанности','l-workPrev':'Предыдущие должности (что и когда)',
+    'l-n1':'Моя проблема № 1:',
+    'sl1':'Имя участника (печатными буквами)','sl2':'Дата (ДД/ММ/ГГГГ)','sl3':'Подпись',
+    'maritalOpts':['Выберите…','Женат/замужем','Гражданский брак','Раздельно','В разводе','Вдовец/вдова','Не в браке'],
+    'livingOpts':['Выберите…','Живу с родителями','Аренда','Своя квартира','Свой дом'],
+  }
 };
 
 function applyTranslations(){
@@ -842,7 +917,12 @@ const URL_LANG   = getParam('lang');   // e.g. "en" / "fa" / "ar"
 // ─── SAVE & PROCEED ───
 function saveAndProceed(){
   autosave();
-  window.location.href = RETURN_URL || 'index.html';
+  if(window.parent !== window){
+    // Running inside index.html overlay iframe — notify parent to proceed
+    window.parent.postMessage('participant-done', '*');
+  } else {
+    window.location.href = RETURN_URL || 'index.html';
+  }
 }
 
 function resetAll(){
