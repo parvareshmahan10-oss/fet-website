@@ -388,6 +388,14 @@ textarea.fi{resize:vertical;min-height:72px}
 <script>
 const PARTICIPANT_KEY = 'fet_participant';
 const DEV_MODE = true; // ← set false before going live
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAL92zy9aSMeQwrbAeloaQCjyOOA5Fz4cZ4SxODjhPxGouuRhQNQ0k48URW2XTfSjlMw/exec";
+
+// ─── PARTICIPANT ID GENERATOR ───
+function generateParticipantID(){
+  const date = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const random = Math.random().toString(36).substring(2,6).toUpperCase();
+  return 'FET-' + date + '-' + random;
+}
 
 // ─── CONCERNS CHECKLIST (matches PDF exactly) ───
 const CONCERNS = {
@@ -541,13 +549,31 @@ function getSaved(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return 
 
 function startForm(l){
   lang = l;
-  // Save lang immediately so tests can read it even before form is filled
+  // Generate or restore participantID
+  const existingSaved = getSaved();
+  const participantID = existingSaved?.participantID || generateParticipantID();
+
+  // Set ID field as readonly with generated value
+  const idField = document.getElementById('i-id');
+  if(idField){
+    idField.value = participantID;
+    idField.readOnly = true;
+    idField.style.cursor = 'default';
+    idField.style.background = 'rgba(42,102,68,.06)';
+    idField.style.fontWeight = '700';
+    idField.style.letterSpacing = '.05em';
+  }
+
+  // Save lang + participantID immediately
   try {
-    const existing = getSaved() || {};
+    const existing = existingSaved || {};
     existing.lang = l;
+    existing.participantID = participantID;
     existing.data = existing.data || {};
+    existing.data.id = participantID;
     localStorage.setItem(PARTICIPANT_KEY, JSON.stringify(existing));
   } catch(e){}
+
   const t = T[l];
   document.documentElement.setAttribute('lang', l);
   document.documentElement.setAttribute('dir', t.dir);
@@ -596,8 +622,14 @@ function fillFromSaved(saved){
 function autosave(){
   const data={};
   FIDS.forEach(id=>{ const el=document.getElementById('i-'+id); if(el) data[id]=el.value; });
+  const existing = getSaved() || {};
+  // Preserve generated participantID — never overwrite with empty field value
+  const participantID = existing.participantID || data.id || generateParticipantID();
+  data.id = participantID;
   localStorage.setItem(PARTICIPANT_KEY, JSON.stringify({
+    ...existing,
     lang, radioState, data,
+    participantID,
     concerns:[...checkedConcerns], consent:[...checkedConsent],
     savedAt: Date.now()
   }));
@@ -914,11 +946,43 @@ function getParam(name){ return new URLSearchParams(window.location.search).get(
 const RETURN_URL = getParam('return'); // e.g. "stq77-form.html" or "sep-stq-form.html"
 const URL_LANG   = getParam('lang');   // e.g. "en" / "fa" / "ar"
 
+// ─── SUBMIT PART 1 TO GOOGLE SHEETS ───
+function submitPart1ToSheets(){
+  const saved = getSaved();
+  if(!saved) return;
+  const payload = {
+    form: 'PART1',
+    participantID: saved.participantID,
+    lang: saved.lang,
+    radioState: saved.radioState || {},
+    data: saved.data || {},
+    concerns: saved.concerns || [],
+    submittedAt: new Date().toISOString()
+  };
+  const body = new URLSearchParams();
+  body.append('payload', JSON.stringify(payload));
+  try {
+    if(navigator.sendBeacon){
+      const blob = new Blob([body.toString()], {type:'application/x-www-form-urlencoded;charset=UTF-8'});
+      const sent = navigator.sendBeacon(GOOGLE_SCRIPT_URL, blob);
+      if(sent){ console.log('Part 1 sent via sendBeacon'); return; }
+    }
+  } catch(e){ console.warn('sendBeacon failed', e); }
+  try {
+    fetch(GOOGLE_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+      body: body.toString(), keepalive: true
+    });
+    console.log('Part 1 sent via fetch');
+  } catch(e){ console.error('Part 1 Sheets error:', e); }
+}
+
 // ─── SAVE & PROCEED ───
 function saveAndProceed(){
   autosave();
+  submitPart1ToSheets();
   if(window.parent !== window){
-    // Running inside index.html overlay iframe — notify parent to proceed
     window.parent.postMessage('participant-done', '*');
   } else {
     window.location.href = RETURN_URL || 'index.html';
