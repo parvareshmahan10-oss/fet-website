@@ -1023,10 +1023,14 @@ function saveAndProceed(){
   autosave();
   submitPart1ToSheets();
 
-  // Show Part 1 complete screen
+  // ── Save minimal session and clear form data ──
+  // Clearing fet_participant ensures the NEXT person gets a fresh form with a new ID
   const saved = getSaved();
-  const pid = saved?.participantID || '';
-  const t = T[lang] || T['en'];
+  const pid  = saved?.participantID || '';
+  try {
+    localStorage.setItem('fet_active_session', JSON.stringify({ participantID: pid, lang }));
+    localStorage.removeItem(PARTICIPANT_KEY);
+  } catch(e){}
 
   // Update texts based on language
   const titles = { en:'Thank <em>You</em>', fa:'ممنون <em>از شما</em>', ar:'<em>شكراً</em> لك', ru:'<em>Спасибо</em> Вам' };
@@ -1035,17 +1039,15 @@ function saveAndProceed(){
   const notes   = { en:'77 questions · approx. 10–15 min', fa:'۷۷ سوال · حدود ۱۰–۱۵ دقیقه', ar:'٧٧ سؤالاً · حوالي ١٠–١٥ دقيقة', ru:'77 вопросов · около 10–15 мин' };
   const badges  = { en:'Part 1 of 3 — Complete', fa:'بخش ۱ از ۳ — تکمیل شد', ar:'الجزء ١ من ٣ — مكتمل', ru:'Часть 1 из 3 — Завершено' };
 
-  document.getElementById('pdTitle').innerHTML  = titles[lang]  || titles.en;
-  document.getElementById('pdBody').textContent  = bodies[lang]  || bodies.en;
-  document.getElementById('pdBtnTxt').textContent = btns[lang]   || btns.en;
+  document.getElementById('pdTitle').innerHTML   = titles[lang] || titles.en;
+  document.getElementById('pdBody').textContent  = bodies[lang] || bodies.en;
+  document.getElementById('pdBtnTxt').textContent = btns[lang]  || btns.en;
   document.getElementById('pdNote').textContent  = notes[lang]  || notes.en;
   document.getElementById('pdBadge').textContent = badges[lang] || badges.en;
   document.getElementById('pdId').textContent    = pid ? '🆔  ' + pid : '';
 
-  // RTL support
   const dir = (lang === 'fa' || lang === 'ar') ? 'rtl' : 'ltr';
   document.getElementById('partDone').setAttribute('dir', dir);
-
   document.getElementById('partDone').classList.add('active');
 }
 
