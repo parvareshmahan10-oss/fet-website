@@ -134,6 +134,31 @@ textarea.fi{resize:vertical;min-height:72px}
 
 /* SUBMIT */
 .submit-wrap{margin-top:1.6rem;text-align:center}
+/* ── PART DONE SCREEN ── */
+.part-done{display:none;position:fixed;inset:0;z-index:2000;background:var(--bg);
+  align-items:center;justify-content:center;padding:2rem;transition:background .4s;}
+.part-done.active{display:flex;animation:fadeUp .5s ease;}
+.part-done-inner{text-align:center;max-width:420px;width:100%;}
+.pd-check{width:72px;height:72px;border-radius:50%;border:3px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;
+  font:800 1.8rem Arial,sans-serif;color:var(--accent);}
+.pd-badge{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin-bottom:.7rem;}
+.pd-title{font-family:Arial,'Arial Black',Helvetica,sans-serif;
+  font-size:clamp(2.4rem,8vw,3.8rem);font-weight:800;line-height:1;
+  margin-bottom:.8rem;color:var(--ink);transition:color .4s;}
+.pd-title em{font-style:italic;color:var(--accent);}
+.pd-body{font-size:.88rem;color:var(--muted);margin-bottom:1.1rem;line-height:1.65;}
+.pd-id{font-family:'Courier New',monospace;font-size:.85rem;font-weight:700;
+  letter-spacing:.08em;background:rgba(42,102,68,.07);border:2px solid var(--line);
+  border-radius:12px;padding:.55rem 1rem;color:var(--ink);
+  margin-bottom:1.4rem;transition:background .4s,border-color .4s,color .4s;}
+.pd-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;
+  width:100%;background:var(--accent);color:#fff;border:none;border-radius:999px;
+  font:700 1rem Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;
+  padding:1.1rem 2rem;cursor:pointer;transition:opacity .2s,transform .2s;margin-bottom:.8rem;}
+.pd-btn:hover{opacity:.88;transform:translateY(-1px);}
+.pd-note{font-size:.73rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
 .submit-btn{background:var(--accent);border:none;border-radius:999px;color:#fff;font:700 1rem Arial,sans-serif;letter-spacing:.16em;text-transform:uppercase;padding:1.1rem 2.6rem;cursor:pointer;transition:opacity .2s,transform .2s;display:inline-flex;align-items:center;gap:.6rem}
 .submit-btn:hover{opacity:.88;transform:translateY(-1px)}
 .submit-note{font-size:.8rem;color:var(--muted);margin-top:.8rem;line-height:1.6}
@@ -381,6 +406,21 @@ textarea.fi{resize:vertical;min-height:72px}
     <p class="submit-note" id="submitNote">Saved locally in your browser. Auto-linked to both STQ-77 and SEP-STQ. Filling this once is enough.</p>
   </div>
 </div>
+</div>
+
+<!-- ── PART 1 COMPLETE SCREEN ── -->
+<div class="part-done" id="partDone">
+  <div class="part-done-inner">
+    <div class="pd-check">✓</div>
+    <div class="pd-badge" id="pdBadge">Part 1 of 3 — Complete</div>
+    <h1 class="pd-title" id="pdTitle">Thank <em>You</em></h1>
+    <p class="pd-body" id="pdBody">Your information has been saved. You're ready for Part 2.</p>
+    <div class="pd-id" id="pdId"></div>
+    <button class="pd-btn" id="pdBtn" onclick="window.location.href='stq77-form.html'">
+      <span id="pdBtnTxt">Continue to Part 2 (STQ-77)</span> <span>→</span>
+    </button>
+    <p class="pd-note" id="pdNote">77 questions · approx. 10–15 min</p>
+  </div>
 </div>
 
 <!-- DONE -->
@@ -982,11 +1022,31 @@ function submitPart1ToSheets(){
 function saveAndProceed(){
   autosave();
   submitPart1ToSheets();
-  if(window.parent !== window){
-    window.parent.postMessage('participant-done', '*');
-  } else {
-    window.location.href = RETURN_URL || 'index.html';
-  }
+
+  // Show Part 1 complete screen
+  const saved = getSaved();
+  const pid = saved?.participantID || '';
+  const t = T[lang] || T['en'];
+
+  // Update texts based on language
+  const titles = { en:'Thank <em>You</em>', fa:'ممنون <em>از شما</em>', ar:'<em>شكراً</em> لك', ru:'<em>Спасибо</em> Вам' };
+  const bodies  = { en:'Your information has been saved. You\'re ready for Part 2.', fa:'اطلاعات شما ذخیره شد. آماده بخش دوم هستید.', ar:'تم حفظ معلوماتك. أنت مستعد للجزء الثاني.', ru:'Ваша информация сохранена. Вы готовы ко второй части.' };
+  const btns    = { en:'Continue to Part 2 (STQ-77)', fa:'ادامه به بخش دوم (STQ-77)', ar:'متابعة إلى الجزء الثاني (STQ-77)', ru:'Перейти ко второй части (STQ-77)' };
+  const notes   = { en:'77 questions · approx. 10–15 min', fa:'۷۷ سوال · حدود ۱۰–۱۵ دقیقه', ar:'٧٧ سؤالاً · حوالي ١٠–١٥ دقيقة', ru:'77 вопросов · около 10–15 мин' };
+  const badges  = { en:'Part 1 of 3 — Complete', fa:'بخش ۱ از ۳ — تکمیل شد', ar:'الجزء ١ من ٣ — مكتمل', ru:'Часть 1 из 3 — Завершено' };
+
+  document.getElementById('pdTitle').innerHTML  = titles[lang]  || titles.en;
+  document.getElementById('pdBody').textContent  = bodies[lang]  || bodies.en;
+  document.getElementById('pdBtnTxt').textContent = btns[lang]   || btns.en;
+  document.getElementById('pdNote').textContent  = notes[lang]  || notes.en;
+  document.getElementById('pdBadge').textContent = badges[lang] || badges.en;
+  document.getElementById('pdId').textContent    = pid ? '🆔  ' + pid : '';
+
+  // RTL support
+  const dir = (lang === 'fa' || lang === 'ar') ? 'rtl' : 'ltr';
+  document.getElementById('partDone').setAttribute('dir', dir);
+
+  document.getElementById('partDone').classList.add('active');
 }
 
 function resetAll(){
