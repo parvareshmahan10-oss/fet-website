@@ -1450,47 +1450,52 @@ function saveProgress(){
 }
 function clearProgress(){ localStorage.removeItem(SEP_KEY); }
 function checkSaved(){
-  // If participant info exists — skip lang modal entirely
+  // Always show the language modal — never auto-start
+  // Just pre-select language and optionally show resume block
+
   const p = getParticipant();
-  if(p && p.data && p.data.fname){
-    const pl = p.lang || 'en';
-    const savedSEP = localStorage.getItem(SEP_KEY);
-    if(savedSEP){
-      try{
-        const s = JSON.parse(savedSEP);
-        if(s.lang && s.answers !== undefined){ restoreProgress(); return; }
-      }catch(e){}
-    }
-    // Pre-select language but always show the modal — don't auto-start
-    const sel = document.getElementById('langSelect');
-    if(sel) sel.value = pl;
-    return;
-  }
-  // No participant info — show lang modal with optional resume block
+  const preferredLang = p?.lang || null;
+
+  // Check for saved SEP progress with actual answers
   try {
     const raw = localStorage.getItem(SEP_KEY);
-    if(!raw) return;
-    const s = JSON.parse(raw);
-    if(!s.lang || s.currentQ === undefined) return;
-    const answered = Object.keys(s.answers || {}).length;
-    if(answered === 0) return;
-    const modal = document.querySelector('.lang-modal');
-    const cont = document.createElement('div');
-    cont.innerHTML = `
-      <div class="resume-block">
-        <div class="resume-badge">Saved session</div>
-        <div class="resume-progress">
-          Question <em>${(s.currentQ || 0) + 1}</em> / ${TOTAL}
-          &nbsp;·&nbsp; <em>${answered}</em> answered
-          &nbsp;·&nbsp; ${s.lang.toUpperCase()}
-        </div>
-        <button class="resume-btn" onclick="restoreProgress()">
-          Continue from Q${(s.currentQ || 0) + 1} &nbsp;→
-        </button>
-      </div>
-      <div class="resume-divider">— or start fresh —</div>`;
-    modal.insertBefore(cont, modal.querySelector('.lang-options'));
+    if(raw){
+      const s = JSON.parse(raw);
+      const answered = Object.keys(s.answers || {}).length;
+      if(s.lang && answered > 0){
+        // Show resume block in modal
+        const modal = document.querySelector('.lang-modal');
+        if(modal && !document.querySelector('.resume-block')){
+          const cont = document.createElement('div');
+          cont.innerHTML = `
+            <div class="resume-block">
+              <div class="resume-badge">Saved session</div>
+              <div class="resume-progress">
+                Question <em>${(s.currentQ || 0) + 1}</em> / ${TOTAL}
+                &nbsp;·&nbsp; <em>${answered}</em> answered
+                &nbsp;·&nbsp; ${s.lang.toUpperCase()}
+              </div>
+              <button class="resume-btn" onclick="restoreProgress()">
+                Continue from Q${(s.currentQ || 0) + 1} &nbsp;→
+              </button>
+            </div>
+            <div class="resume-divider">— or start fresh —</div>`;
+          modal.insertBefore(cont, modal.querySelector('.lang-options'));
+        }
+        // Pre-select the saved language
+        const sel = document.getElementById('langSelect');
+        if(sel) sel.value = s.lang;
+        return;
+      }
+    }
   } catch(e){}
+
+  // No saved progress — just pre-select language from participant info if available
+  if(preferredLang){
+    const sel = document.getElementById('langSelect');
+    if(sel) sel.value = preferredLang;
+  }
+  // Modal stays visible — user clicks Begin when ready
 }
 function restoreProgress(){
   try {
