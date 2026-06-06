@@ -121,9 +121,16 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAL92zy9aSMeQwrbAeloaQCjyOOA5Fz4cZ4SxODjhPxGouuRhQNQ0k48URW2XTfSjlMw/exec";
 
 function buildSubmissionPayload(){
-  // Read participantID from localStorage
-  const participantData = getParticipant();
-  const participantID = participantData?.participantID || participantData?.data?.id || 'UNKNOWN';
+  // Read participantID from active session first, then fallback to participant data
+  let participantID = 'UNKNOWN';
+  try {
+    const session = localStorage.getItem('fet_active_session');
+    if(session) participantID = JSON.parse(session).participantID || 'UNKNOWN';
+  } catch(e){}
+  if(participantID === 'UNKNOWN'){
+    const p = getParticipant();
+    participantID = p?.participantID || p?.data?.id || 'UNKNOWN';
+  }
   return {
     form: "STQ-77",
     participantID: participantID,
