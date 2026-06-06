@@ -1753,8 +1753,17 @@ document.addEventListener('keydown', e => {
 
 let hasSubmittedSEPToSheets = false;
 function submitSEPToSheets(){
-  const participantData = getParticipant();
-  const participantID = participantData?.participantID || participantData?.data?.id || 'UNKNOWN';
+  // Read participantID from active session first
+  let participantID = 'UNKNOWN';
+  try {
+    const session = localStorage.getItem('fet_active_session');
+    if(session) participantID = JSON.parse(session).participantID || 'UNKNOWN';
+  } catch(e){}
+  if(participantID === 'UNKNOWN'){
+    const p = getParticipant();
+    participantID = p?.participantID || p?.data?.id || 'UNKNOWN';
+  }
+
   const payload = {
     form: 'SEP-STQ',
     participantID: participantID,
@@ -1769,7 +1778,14 @@ function submitSEPToSheets(){
     if(navigator.sendBeacon){
       const blob = new Blob([body.toString()], {type:'application/x-www-form-urlencoded;charset=UTF-8'});
       const sent = navigator.sendBeacon(GOOGLE_SCRIPT_URL, blob);
-      if(sent){ console.log('SEP-STQ sent via sendBeacon'); return; }
+      if(sent){
+        // All 3 parts done — clear session so next participant starts fresh
+        localStorage.removeItem('fet_active_session');
+        localStorage.removeItem('stq77_progress');
+        localStorage.removeItem('sep_stq_progress');
+        console.log('SEP-STQ sent, session cleared');
+        return;
+      }
     }
   } catch(e){ console.warn('sendBeacon failed', e); }
   try {
@@ -1778,7 +1794,10 @@ function submitSEPToSheets(){
       headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
       body: body.toString(), keepalive: true
     });
-    console.log('SEP-STQ sent via fetch');
+    localStorage.removeItem('fet_active_session');
+    localStorage.removeItem('stq77_progress');
+    localStorage.removeItem('sep_stq_progress');
+    console.log('SEP-STQ sent via fetch, session cleared');
   } catch(e){ console.error('SEP-STQ Sheets error:', e); }
 }
 
