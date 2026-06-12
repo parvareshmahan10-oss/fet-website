@@ -412,6 +412,7 @@ body::before {
       </select>
       <button class="lang-confirm" onclick="var v=document.getElementById('langSelect').value;if(v)startForm(v);">Begin →</button>
     </div>
+    <p style="font-size:.72rem;color:var(--muted);margin-top:1.2rem;line-height:1.7;text-align:center;max-width:340px;margin-left:auto;margin-right:auto">⏱ <span id="time-warning-sep">For research purposes, the time required to complete this questionnaire is recorded.</span></p>
   </div>
 </div>
 
@@ -1526,7 +1527,16 @@ function restoreProgress(){
 }
 
 // ===== INIT =====
+// ─── TIME TRACKING ───
+let sepStartTime = null;
+let sepEndTime   = null;
+
 function startForm(selectedLang) {
+  // Translate time warning
+  const tw = document.getElementById('time-warning-sep');
+  const timeWarnT = {'en': 'For research purposes, the time required to complete this questionnaire is recorded.', 'fa': 'برای اهداف پژوهشی، زمان لازم برای تکمیل این پرسشنامه ثبت می\u200cشود.', 'ar': 'لأغراض البحث العلمي، يتم تسجيل الوقت اللازم لإكمال هذا الاستبيان.', 'ru': 'В исследовательских целях فيتم تسجيل الوقت اللازم لإكمال هذا الاستبيان.'};
+  if(tw) tw.textContent = timeWarnT[selectedLang] || timeWarnT.en;
+  sepStartTime = Date.now(); // ← start timer
   lang = selectedLang;
   document.documentElement.setAttribute('lang', lang);
   document.documentElement.setAttribute('dir', T[lang].dir);
@@ -1753,7 +1763,11 @@ document.addEventListener('keydown', e => {
 
 let hasSubmittedSEPToSheets = false;
 function submitSEPToSheets(){
-  // Read participantID from active session first
+  sepEndTime = Date.now();
+  const durationMin = sepStartTime
+    ? Math.round((sepEndTime - sepStartTime) / 60000 * 10) / 10
+    : null;
+
   let participantID = 'UNKNOWN';
   try {
     const session = localStorage.getItem('fet_active_session');
@@ -1766,10 +1780,13 @@ function submitSEPToSheets(){
 
   const payload = {
     form: 'SEP-STQ',
-    participantID: participantID,
+    participantID,
     language: lang,
-    demographics: demographics,
-    answers: answers,
+    demographics,
+    answers,
+    testStartTime:   sepStartTime ? new Date(sepStartTime).toISOString() : null,
+    testEndTime:     new Date(sepEndTime).toISOString(),
+    testDurationMin: durationMin,
     submittedAt: new Date().toISOString()
   };
   const body = new URLSearchParams();
