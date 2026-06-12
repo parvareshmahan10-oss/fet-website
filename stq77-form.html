@@ -112,7 +112,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear
   <div class="toggle-track"><div class="toggle-knob"></div></div>
 </button>
 <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div><div class="progress-info" id="progressInfo"></div>
-<div class="lang-overlay" id="langOverlay"><div class="lang-modal"><h1 class="lang-title" style="color:var(--accent)">STQ-<em>77</em></h1><p class="lang-subtitle">Structure of Temperament Questionnaire<br>Select your language — اختر لغتك — زبان خود را انتخاب کنید</p><div class="lang-options"><select class="lang-select" id="langSelect"><option value="" disabled selected>Select language / Выберите язык…</option><option value="en">English</option><option value="ar">العربية</option><option value="fa">فارسی</option><option value="ru">Русский</option></select><button class="lang-confirm" onclick="var v=document.getElementById('langSelect').value;if(v)startForm(v);">Begin →</button></div></div></div>
+<div class="lang-overlay" id="langOverlay"><div class="lang-modal"><h1 class="lang-title" style="color:var(--accent)">STQ-<em>77</em></h1><p class="lang-subtitle">Structure of Temperament Questionnaire<br>Select your language — اختر لغتك — زبان خود را انتخاب کنید</p><div class="lang-options"><select class="lang-select" id="langSelect"><option value="" disabled selected>Select language / Выберите язык…</option><option value="en">English</option><option value="ar">العربية</option><option value="fa">فارسی</option><option value="ru">Русский</option></select><button class="lang-confirm" onclick="var v=document.getElementById('langSelect').value;if(v)startForm(v);">Begin →</button></div><p style="font-size:.72rem;color:var(--muted);margin-top:1.2rem;line-height:1.7;text-align:center;max-width:340px;margin-left:auto;margin-right:auto">⏱ <span id="time-warning-stq">For research purposes, the time required to complete this questionnaire is recorded.</span></p></div></div>
 <div class="form-container" id="demoContainer"><div class="section-header"><div class="section-badge" id="demoBadge"></div><h2 class="section-title" id="demoTitle"></h2></div><div class="panel"><div class="demo-section-title" id="demoSec1"></div><div class="demo-grid" id="demoGrid"></div><button class="nav-btn primary" id="beginBtn" style="width:100%;margin-top:1.4rem" onclick="startQuestions()"></button><p class="notice" id="demoNotice"></p></div></div>
 <div class="form-container" id="qContainer"><div class="question-card"><div class="q-panel"><div class="q-section-label" id="qSectionLabel"></div><div class="q-text" id="qText"></div><div class="rating-wrap"><div class="rating-labels"><span id="ratingLabelLeft"></span><span id="ratingLabelRight"></span></div><div class="rating-buttons" id="ratingButtons"></div></div><div class="q-nav"><button class="nav-btn" id="btnBack" onclick="goBack()"></button><button class="nav-btn primary" id="btnNext" onclick="goNext()"></button></div><p class="skip-note" id="skipNote"></p></div></div></div>
 <div class="thankyou" id="thankYou"><h1 class="ty-title" id="tyTitle"></h1><p class="ty-body" id="tyBody"></p><button class="ty-btn" id="downloadBtn" onclick="downloadCSV()" style="margin-bottom:.8rem"></button><button class="ty-btn" id="nextPartBtn" onclick="window.location.href='sep-stq-form.html'" style="display:none;margin-top:.6rem"></button></div>
@@ -121,7 +121,11 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAL92zy9aSMeQwrbAeloaQCjyOOA5Fz4cZ4SxODjhPxGouuRhQNQ0k48URW2XTfSjlMw/exec";
 
 function buildSubmissionPayload(){
-  // Read participantID from active session first, then fallback to participant data
+  testEndTime = Date.now();
+  const durationMin = testStartTime
+    ? Math.round((testEndTime - testStartTime) / 60000 * 10) / 10
+    : null;
+
   let participantID = 'UNKNOWN';
   try {
     const session = localStorage.getItem('fet_active_session');
@@ -133,10 +137,13 @@ function buildSubmissionPayload(){
   }
   return {
     form: "STQ-77",
-    participantID: participantID,
+    participantID,
     language: lang,
     demographics: demo,
-    answers: answers,
+    answers,
+    testStartTime: testStartTime ? new Date(testStartTime).toISOString() : null,
+    testEndTime:   new Date(testEndTime).toISOString(),
+    testDurationMin: durationMin,
     submittedAt: new Date().toISOString()
   };
 }
@@ -272,9 +279,18 @@ function restoreProgress(){
   } catch(e){}
 }
 function $(id){return document.getElementById(id)}
+// ─── TIME TRACKING ───
+let testStartTime = null;
+let testEndTime   = null;
+
 function startForm(l){
   lang=l; const u=UI[l];
+  testStartTime = Date.now(); // ← start timer when Begin is clicked
   document.documentElement.lang=l; document.documentElement.dir=u.dir;
+  // Translate time warning
+  const tw = document.getElementById('time-warning-stq');
+  const timeWarnT = {'en': 'For research purposes, the time required to complete this questionnaire is recorded.', 'fa': 'برای اهداف پژوهشی، زمان لازم برای تکمیل این پرسشنامه ثبت می\u200cشود.', 'ar': 'لأغراض البحث العلمي، يتم تسجيل الوقت اللازم لإكمال هذا الاستبيان.', 'ru': 'В исследовательских целях фиксируется время, необходимое для заполнения анкеты.'};
+  if(tw) tw.textContent = timeWarnT[l] || timeWarnT.en;
   $('langOverlay').style.display='none';
   loadParticipantIntoDemo();
   if(DEV_MODE || (getParticipant()&&getParticipant().data&&getParticipant().data.fname)){
