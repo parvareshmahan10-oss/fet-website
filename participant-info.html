@@ -184,6 +184,50 @@ textarea.fi{resize:vertical;min-height:72px}
   .sig-grid{grid-template-columns:1fr}
   .page-wrap{padding:4rem 1rem 3rem}
 }
+
+/* ── LANG MULTI-SELECT ── */
+.lang-multi{position:relative;width:100%;}
+.lang-trigger{
+  display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+  border:1.5px solid var(--line);border-radius:10px;
+  padding:.6rem .9rem;cursor:pointer;background:var(--surface);
+  min-height:2.75rem;transition:border-color .2s;
+}
+.lang-trigger:hover,.lang-trigger.open{border-color:var(--accent);}
+.lang-trigger-inner{display:flex;flex-wrap:wrap;gap:.3rem;flex:1;}
+.lang-tag{
+  background:rgba(42,102,68,.13);color:var(--accent);
+  border-radius:999px;padding:.12rem .55rem;
+  font-size:.76rem;font-weight:700;letter-spacing:.02em;white-space:nowrap;
+}
+.lang-placeholder{color:var(--muted);font-size:.9rem;}
+.lang-arrow{color:var(--muted);font-size:.75rem;flex-shrink:0;transition:transform .2s;}
+.lang-trigger.open .lang-arrow{transform:rotate(180deg);}
+.lang-menu{
+  display:none;position:absolute;top:calc(100% + 5px);left:0;right:0;
+  background:var(--surface);border:1.5px solid var(--accent);
+  border-radius:14px;z-index:200;max-height:220px;overflow-y:auto;
+  box-shadow:0 8px 28px rgba(0,0,0,.13);padding:.35rem;
+}
+.lang-menu.open{display:block;animation:fadeUp .18s ease;}
+.lang-opt{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.45rem .7rem;border-radius:8px;cursor:pointer;
+  font-size:.88rem;color:var(--ink);transition:background .12s;
+  user-select:none;
+}
+.lang-opt:hover{background:rgba(42,102,68,.08);}
+.lang-opt input[type=checkbox]{
+  accent-color:var(--accent);width:15px;height:15px;flex-shrink:0;cursor:pointer;
+}
+/* ── SMOKING TOGGLE ── */
+.smoke-detail{
+  margin-top:.55rem;padding:.7rem .9rem;
+  border:1.5px solid var(--line);border-radius:10px;
+  background:rgba(42,102,68,.04);
+}
+.smoke-detail label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:.3rem;}
+
 </style>
 </head>
 <body>
@@ -239,7 +283,7 @@ textarea.fi{resize:vertical;min-height:72px}
     </div>
     <div class="fg4" style="margin-top:.85rem">
       <div class="field"><label class="lbl" id="l-gender">Gender</label>
-        <div class="rg"><div class="ro" id="gender-m" onclick="pick('gender','m')">M</div><div class="ro" id="gender-f" onclick="pick('gender','f')">F</div></div>
+        <div class="rg"><div class="ro" id="gender-m" onclick="pick('gender','1')"><span id="gm-lbl">M</span></div><div class="ro" id="gender-f" onclick="pick('gender','2')"><span id="gf-lbl">F</span></div><div class="ro" id="gender-o" onclick="pick('gender','3')"><span id="go-lbl">Other</span></div></div>
       </div>
       <div class="field"><label class="lbl" id="l-hand">Dominant Hand</label>
         <div class="rg"><div class="ro" id="hand-r" onclick="pick('hand','r')">R</div><div class="ro" id="hand-l" onclick="pick('hand','l')">L</div></div>
@@ -248,14 +292,68 @@ textarea.fi{resize:vertical;min-height:72px}
       <div class="field"><label class="lbl" id="l-age">Age</label><input class="fi" id="i-age" type="number" min="16" max="99"></div>
     </div>
     <div class="fg" style="margin-top:.85rem">
-      <div class="field full"><label class="lbl" id="l-address">Address</label><input class="fi" id="i-address" type="text" autocomplete="address-line1"></div>
-      <div class="field"><label class="lbl" id="l-postal">Postal Code</label><input class="fi" id="i-postal" type="text"></div>
+
       <div class="field"><label class="lbl" id="l-pob">Place of Birth</label><input class="fi" id="i-pob" type="text"></div>
-      <div class="field"><label class="lbl" id="l-nat">Nationality</label><input class="fi" id="i-nat" type="text"></div>
-      <div class="field"><label class="lbl" id="l-tel1">Tel. Daytime</label><input class="fi" id="i-tel1" type="tel"></div>
-      <div class="field"><label class="lbl" id="l-tel2">Tel. Evening</label><input class="fi" id="i-tel2" type="tel"></div>
-      <div class="field full"><label class="lbl" id="l-langs">Languages Spoken</label><input class="fi" id="i-langs" type="text" placeholder="e.g. English, Farsi, Arabic"></div>
-      <div class="field full"><label class="lbl" id="l-immigrated">If immigrated — when / from where / at what age</label><input class="fi" id="i-immigrated" type="text" placeholder="e.g. 2010 / Iran / age 22"></div>
+      <div class="field"><label class="lbl" id="l-nat">Nationality</label>
+        <select class="fs" id="i-nat">
+          <option value="">Select…</option>
+          <option value="1">American / Canadian</option>
+          <option value="2">Indian / Bangladeshi / Pakistani</option>
+          <option value="3">African / African-American</option>
+          <option value="4">East Asian (Chinese / Korean / Japanese)</option>
+          <option value="5">Middle Eastern (Arab / Persian / Turkish / Jewish)</option>
+          <option value="6">Russian</option>
+          <option value="7">Ukrainian / Slavic / Polish</option>
+          <option value="8">Italian / French</option>
+          <option value="9">European (other)</option>
+          <option value="10">British / UK</option>
+          <option value="11">Malaysian / Indonesian / Australian / NZ</option>
+          <option value="12">South American / Latino</option>
+        </select>
+      </div>
+      <div class="field full">
+        <label class="lbl" id="l-langs">Languages Spoken</label>
+        <div class="lang-multi" id="langs-widget">
+          <div class="lang-trigger" id="langs-trigger" onclick="toggleLangMenu(event)">
+            <div class="lang-trigger-inner" id="langs-display"><span class="lang-placeholder" id="langs-ph">Select languages…</span></div>
+            <span class="lang-arrow">▾</span>
+          </div>
+          <div class="lang-menu" id="langs-menu"></div>
+        </div>
+        <input type="hidden" id="i-langs">
+      </div>
+      <div class="field" id="immigWrap">
+        <label class="lbl" id="l-immigrated">Immigrated?</label>
+        <div class="rg">
+          <div class="ro" id="immig-n" onclick="pickImmig('n')"><span id="immig-n-lbl">No</span></div>
+          <div class="ro" id="immig-y" onclick="pickImmig('y')"><span id="immig-y-lbl">Yes</span></div>
+        </div>
+        <div id="immig-detail" style="display:none;margin-top:.55rem">
+          <div class="fg" style="gap:.6rem">
+            <div class="field"><label class="lbl" id="l-immigYear" style="font-size:.8rem">Year</label><input class="fi" id="i-immigYear" type="number" min="1900" max="2026" placeholder="e.g. 2010"></div>
+            <div class="field"><label class="lbl" id="l-immigFrom" style="font-size:.8rem">From where</label><input class="fi" id="i-immigFrom" type="text" placeholder="e.g. Iran"></div>
+            <div class="field"><label class="lbl" id="l-immigAge" style="font-size:.8rem">Age at immigration</label><input class="fi" id="i-immigAge" type="number" min="0" max="100" placeholder="e.g. 22"></div>
+            <div class="field full"><label class="lbl" id="l-birthNat" style="font-size:.8rem">Birth country — nationality code</label>
+              <select class="fs" id="i-birthNat">
+                <option value="">Select…</option>
+                <option value="1">American / Canadian</option>
+                <option value="2">Indian / Bangladeshi / Pakistani</option>
+                <option value="3">African / African-American</option>
+                <option value="4">East Asian (Chinese / Korean / Japanese)</option>
+                <option value="5">Middle Eastern (Arab / Persian / Turkish / Jewish)</option>
+                <option value="6">Russian</option>
+                <option value="7">Ukrainian / Slavic / Polish</option>
+                <option value="8">Italian / French</option>
+                <option value="9">European (other)</option>
+                <option value="10">British / UK</option>
+                <option value="11">Malaysian / Indonesian / Australian / NZ</option>
+                <option value="12">South American / Latino</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <input type="hidden" id="i-immigrated">
+      </div>
     </div>
   </div>
 
@@ -269,36 +367,134 @@ textarea.fi{resize:vertical;min-height:72px}
       <div class="field full"><label class="lbl" id="l-parentProf">Profession: Father / Mother / Siblings</label><input class="fi" id="i-parentProf" type="text"></div>
     </div>
     <div class="fg" style="margin-top:.85rem">
-      <div class="field"><label class="lbl" id="l-relParents">Childhood relationship — between parents</label><input class="fi" id="i-relParents" type="text"></div>
-      <div class="field"><label class="lbl" id="l-relParYou">Childhood relationship — parents and you</label><input class="fi" id="i-relParYou" type="text"></div>
-      <div class="field"><label class="lbl" id="l-relParSib">Childhood relationship — parents and your siblings</label><input class="fi" id="i-relParSib" type="text"></div>
-      <div class="field"><label class="lbl" id="l-relSibYou">Childhood relationship — your siblings and you</label><input class="fi" id="i-relSibYou" type="text"></div>
+      <div class="field"><label class="lbl" id="l-relParents">Childhood relationship — between parents</label>
+        <select class="fs" id="i-relParents"><option value="">Select…</option>
+          <option value="5">Fine / Good</option>
+          <option value="4">OK — like any other family</option>
+          <option value="3">Verbal abuse</option>
+          <option value="2">Physical abuse</option>
+          <option value="1">Sexual / combined abuse</option>
+          <option value="0">No information</option></select></div>
+      <div class="field"><label class="lbl" id="l-relParYou">Childhood relationship — parents and you</label>
+        <select class="fs" id="i-relParYou"><option value="">Select…</option>
+          <option value="5">Fine / Good</option>
+          <option value="4">OK — like any other family</option>
+          <option value="3">Verbal abuse</option>
+          <option value="2">Physical abuse</option>
+          <option value="1">Sexual / combined abuse</option>
+          <option value="0">No information</option></select></div>
+      <div class="field"><label class="lbl" id="l-relParSib">Childhood relationship — parents and your siblings</label>
+        <select class="fs" id="i-relParSib"><option value="">Select…</option>
+          <option value="5">Fine / Good</option>
+          <option value="4">OK — like any other family</option>
+          <option value="3">Verbal abuse</option>
+          <option value="2">Physical abuse</option>
+          <option value="1">Sexual / combined abuse</option>
+          <option value="0">No information</option></select></div>
+      <div class="field"><label class="lbl" id="l-relSibYou">Childhood relationship — your siblings and you</label>
+        <select class="fs" id="i-relSibYou"><option value="">Select…</option>
+          <option value="5">Fine / Good</option>
+          <option value="4">OK — like any other family</option>
+          <option value="3">Verbal abuse</option>
+          <option value="2">Physical abuse</option>
+          <option value="1">Sexual / combined abuse</option>
+          <option value="0">No information</option></select></div>
     </div>
     <div class="fg" style="margin-top:.85rem">
       <div class="field"><label class="lbl" id="l-marital">Marital Status</label>
         <select class="fs" id="i-marital">
           <option value="">Select…</option>
-          <option value="married">Married</option>
-          <option value="common_law">Common Law</option>
-          <option value="separated">Separated</option>
-          <option value="divorced">Divorced</option>
-          <option value="widowed">Widowed</option>
-          <option value="single">Single</option>
+          <option value="1">Single</option>
+          <option value="2">Married / Common Law</option>
+          <option value="3">Divorced / Separated</option>
+          <option value="4">Widowed</option>
         </select>
       </div>
-      <div class="field"><label class="lbl" id="l-maritalHow">If married/common law — how long &amp; partner's age/occupation</label><input class="fi" id="i-maritalHow" type="text"></div>
-      <div class="field"><label class="lbl" id="l-children">Children (ages and gender)</label><input class="fi" id="i-children" type="text" placeholder="e.g. boy 5, girl 8"></div>
-      <div class="field"><label class="lbl" id="l-pets">Pets?</label><input class="fi" id="i-pets" type="text"></div>
+      <div class="field"><label class="lbl" id="l-maritalHow">Relationship duration (if married/common-law)</label><input class="fi" id="i-maritalHow" type="text" placeholder="e.g. 3 years"></div>
+      <div class="field"><label class="lbl" id="l-partnerAge">Partner's age</label><input class="fi" id="i-partnerAge" type="number" min="16" max="100" placeholder="years"></div>
+      <div class="field"><label class="lbl" id="l-partnerOcc">Partner's occupation</label>
+        <select class="fs" id="i-partnerOcc">
+          <option value="">Select…</option>
+          <option value="1">Art &amp; Design</option>
+          <option value="2">Nature &amp; Animals</option>
+          <option value="3">Homemaker / Housewife</option>
+          <option value="4">Mechanical / Technical</option>
+          <option value="5">Physical contact with people (doctor, nurse)</option>
+          <option value="6">Physical labor</option>
+          <option value="7">Analytical / Symbols (scientist, programmer)</option>
+          <option value="8">Analytical + Social (lawyer, teacher, manager)</option>
+          <option value="9">Social, no symbols (waitress, coach, DJ)</option>
+          <option value="10">Student / Too young to decide</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="lbl" id="l-children">Children</label>
+        <div class="rg">
+          <div class="ro" id="child-n" onclick="pickChildren('n')"><span id="child-n-lbl">None</span></div>
+          <div class="ro" id="child-y" onclick="pickChildren('y')"><span id="child-y-lbl">Yes</span></div>
+        </div>
+        <div id="child-detail" style="display:none;margin-top:.55rem">
+          <input class="fi" id="i-children" type="number" min="1" max="20" placeholder="How many?">
+        </div>
+        <input type="hidden" id="i-childrenHidden">
+      </div>
+      <div class="field"><label class="lbl" id="l-pets">Pets?</label>
+        <select class="fs" id="i-pets">
+          <option value="0">None</option>
+          <option value="1">Cat</option>
+          <option value="2">Dog</option>
+          <option value="3">Bird(s)</option>
+          <option value="4">Turtle</option>
+          <option value="5">Hamster / Rat / Rabbit</option>
+          <option value="6">Exotic (iguana, snake)</option>
+          <option value="7">Other</option>
+        </select>
+      </div>
       <div class="field"><label class="lbl" id="l-living">Living Arrangements</label>
         <select class="fs" id="i-living">
           <option value="">Select…</option>
-          <option value="with_parents">Live with parent(s)</option>
-          <option value="rent">Rent</option>
-          <option value="own_apt">Own an apartment</option>
-          <option value="own_house">Own a house</option>
+          <option value="1">Own place — alone or with partner</option>
+          <option value="2">Live in spouse / partner's place</option>
+          <option value="3">Rent — alone or with partner</option>
+          <option value="4">Live with parents (no own place)</option>
+          <option value="5">Live with parents &amp; rent out own place</option>
+          <option value="6">In transit (hotel / friends / shelter)</option>
         </select>
       </div>
       <div class="field"><label class="lbl" id="l-edu">Education completed (when, program)</label><input class="fi" id="i-edu" type="text" placeholder="e.g. B.Sc. Psychology, 2022"></div>
+      <div class="field"><label class="lbl" id="l-grade1" style="font-size:.8rem">School grades — overall estimate (secondary / high school)</label>
+        <select class="fs" id="i-grade1">
+          <option value="">Select…</option>
+          <option value="5">Excellent (A / 90–100%)</option>
+          <option value="4">Good (B / 75–89%)</option>
+          <option value="3">Average (C / 60–74%)</option>
+          <option value="2">Below average (D / 50–59%)</option>
+          <option value="1">Poor / Failed</option>
+          <option value="0">N/A</option>
+        </select>
+      </div>
+      <div class="field"><label class="lbl" id="l-grade2" style="font-size:.8rem">School grades — sciences &amp; math</label>
+        <select class="fs" id="i-grade2">
+          <option value="">Select…</option>
+          <option value="5">Excellent (A / 90–100%)</option>
+          <option value="4">Good (B / 75–89%)</option>
+          <option value="3">Average (C / 60–74%)</option>
+          <option value="2">Below average (D / 50–59%)</option>
+          <option value="1">Poor / Failed</option>
+          <option value="0">N/A</option>
+        </select>
+      </div>
+      <div class="field"><label class="lbl" id="l-grade3" style="font-size:.8rem">School grades — humanities &amp; arts</label>
+        <select class="fs" id="i-grade3">
+          <option value="">Select…</option>
+          <option value="5">Excellent (A / 90–100%)</option>
+          <option value="4">Good (B / 75–89%)</option>
+          <option value="3">Average (C / 60–74%)</option>
+          <option value="2">Below average (D / 50–59%)</option>
+          <option value="1">Poor / Failed</option>
+          <option value="0">N/A</option>
+        </select>
+      </div>
       <div class="field"><label class="lbl" id="l-hobbyPre">Hobby before age 16</label><input class="fi" id="i-hobbyPre" type="text"></div>
       <div class="field"><label class="lbl" id="l-hobbyNow">Hobby now</label><input class="fi" id="i-hobbyNow" type="text"></div>
     </div>
@@ -310,32 +506,99 @@ textarea.fi{resize:vertical;min-height:72px}
     <div class="fg3">
       <div class="field"><label class="lbl" id="l-weight">Weight</label><input class="fi" id="i-weight" type="text" placeholder="e.g. 70 kg"></div>
       <div class="field"><label class="lbl" id="l-height">Height</label><input class="fi" id="i-height" type="text" placeholder="e.g. 175 cm"></div>
-      <div class="field"><label class="lbl" id="l-blood">Blood Type</label><input class="fi" id="i-blood" type="text" placeholder="e.g. A+"></div>
+      <div class="field"><label class="lbl" id="l-blood">Blood Type</label>
+        <select class="fs" id="i-blood">
+          <option value="">Select…</option>
+          <option value="A+">A+</option><option value="A-">A−</option>
+          <option value="B+">B+</option><option value="B-">B−</option>
+          <option value="AB+">AB+</option><option value="AB-">AB−</option>
+          <option value="O+">O+</option><option value="O-">O−</option>
+          <option value="?">Unknown</option>
+        </select>
+      </div>
     </div>
     <div class="fg" style="margin-top:.85rem">
       <div class="field full"><label class="lbl" id="l-traumas">Traumas / accidents in the past (year)</label><input class="fi" id="i-traumas" type="text"></div>
-      <div class="field full"><label class="lbl" id="l-surgeries">Past surgeries</label><input class="fi" id="i-surgeries" type="text"></div>
-      <div class="field full"><label class="lbl" id="l-healthHist">Health history (frequent sinus infection, guts problems, asthma, diabetes, balance problems, epilepsy, migraine, hearing/vision, heart, hepatitis, high BP, kidney, loss of smell/taste, psychiatric, skin, thyroid, sleep, ulcers, etc.) — when did it start?</label><textarea class="fi" id="i-healthHist" rows="3"></textarea></div>
-      <div class="field"><label class="lbl" id="l-alcohol">Alcohol use (how long &amp; how much)</label><input class="fi" id="i-alcohol" type="text"></div>
-      <div class="field"><label class="lbl" id="l-smoking">Smoking</label><input class="fi" id="i-smoking" type="text"></div>
+      <div class="field full"><label class="lbl" id="l-healthHist">Health history &amp; past surgeries (asthma, diabetes, epilepsy, migraine, heart, hepatitis, psychiatric, thyroid, sleep, ulcers, etc. — include surgeries and when started)</label><textarea class="fi" id="i-healthHist" rows="3"></textarea></div>
+      <div class="field"><label class="lbl" id="l-ses">Socio-economic Status</label>
+        <select class="fs" id="i-ses">
+          <option value="">Select…</option>
+          <option value="1">1 — Low</option>
+          <option value="2">2 — Low to Middle</option>
+          <option value="3">3 — Middle / OK</option>
+          <option value="4">4 — High</option>
+        </select>
+      </div>
+      <div class="field"><label class="lbl" id="l-alcohol">Alcohol</label>
+        <input class="fi" id="i-alcohol" type="number" min="0" max="200" placeholder="drinks / week">
+      </div>
+      <div class="field">
+        <label class="lbl" id="l-smoking">Smoking</label>
+        <div class="rg">
+          <div class="ro" id="smoke-n" onclick="pickSmoke('n')"><span id="smoke-n-lbl">No</span></div>
+          <div class="ro" id="smoke-y" onclick="pickSmoke('y')"><span id="smoke-y-lbl">Yes</span></div>
+        </div>
+        <div class="smoke-detail" id="smoke-detail" style="display:none">
+          <label id="l-smoking-n">Cigarettes per day (average)</label>
+          <input class="fi" id="i-smoking-n" type="number" min="0" max="300" placeholder="e.g. 10" oninput="document.getElementById('i-smoking').value=this.value">
+        </div>
+        <input type="hidden" id="i-smoking">
+      </div>
       <div class="field full"><label class="lbl" id="l-drugs">Other drugs (what drug, when, how much)</label><input class="fi" id="i-drugs" type="text"></div>
-      <div class="field full"><label class="lbl" id="l-meds">Medication and dosage (present time)</label><input class="fi" id="i-meds" type="text"></div>
-      <div class="field full"><label class="lbl" id="l-diet">Diet restrictions (Vegetarian? Religious? Due to limited finances?)</label><input class="fi" id="i-diet" type="text"></div>
-      <div class="field full"><label class="lbl" id="l-meals">Meal times — circle your largest meal: breakfast / lunch / dinner</label><input class="fi" id="i-meals" type="text" placeholder="e.g. 8am / 1pm / 7pm — largest: dinner"></div>
+      <div class="field full"><label class="lbl" id="l-diet">Diet Restrictions</label>
+        <select class="fs" id="i-diet">
+          <option value="0">No restrictions</option>
+          <option value="1">Gluten-free</option>
+          <option value="2">Vegetarian (non-vegan)</option>
+          <option value="3">Vegan</option>
+          <option value="4">No pork</option>
+          <option value="5">Other religious / non-specific</option>
+        </select>
+      </div>
+      <div class="field"><label class="lbl" id="l-meals">Largest / main meal of the day</label>
+        <select class="fs" id="i-meals">
+          <option value="">Select…</option>
+          <option value="1">Breakfast</option>
+          <option value="2">Lunch</option>
+          <option value="3">Dinner</option>
+        </select>
+      </div>
       <div class="field"><label class="lbl" id="l-exercise">Hours/week on hiking &amp; physical exercise</label><input class="fi" id="i-exercise" type="number" min="0" max="60"></div>
+      <div class="field" id="cycleWrap" style="display:none">
+        <label class="lbl" id="l-cycleDay"></label>
+        <select class="fs" id="i-cycleDay">
+          <option value="" id="cycle-ph">Select…</option>
+          <optgroup label="Days since cycle started" id="cycle-grp1">
+            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+            <option value="13">13</option><option value="14">14</option><option value="15">15</option>
+            <option value="16">16</option><option value="17">17</option><option value="18">18</option>
+            <option value="19">19</option><option value="20">20</option><option value="21">21</option>
+            <option value="22">22</option><option value="23">23</option><option value="24">24</option>
+            <option value="25">25</option><option value="26">26</option><option value="27">27</option>
+            <option value="28">28</option><option value="29">29</option><option value="30">30</option>
+          </optgroup>
+          <optgroup label="Other" id="cycle-grp2">
+            <option value="100" id="cycle-pregnant">Pregnant</option>
+            <option value="200" id="cycle-menopause">Menopausal</option>
+          </optgroup>
+        </select>
+      </div>
       <div class="field"><label class="lbl" id="l-testDate">Date of Testing</label><input class="fi" id="i-testDate" type="date"></div>
     </div>
     <!-- SLEEP -->
     <div style="margin-top:.85rem;padding:1rem;border:1px solid var(--line);border-radius:12px;background:rgba(42,102,68,.04)">
       <div class="lbl" id="l-sleep" style="margin-bottom:.7rem">Sleep Pattern</div>
       <div class="fg">
-        <div class="field"><label class="lbl" id="l-wakeP" style="font-size:.68rem;opacity:.75">Waking-up preferred</label><input class="fi" id="i-wakeP" type="text" placeholder="e.g. 7:00am"></div>
-        <div class="field"><label class="lbl" id="l-wakeA" style="font-size:.68rem;opacity:.75">Waking-up actual</label><input class="fi" id="i-wakeA" type="text" placeholder="e.g. 8:00am"></div>
-        <div class="field"><label class="lbl" id="l-bedP" style="font-size:.68rem;opacity:.75">Bed time preferred</label><input class="fi" id="i-bedP" type="text" placeholder="e.g. 11:00pm"></div>
-        <div class="field"><label class="lbl" id="l-bedA" style="font-size:.68rem;opacity:.75">Bed time actual</label><input class="fi" id="i-bedA" type="text" placeholder="e.g. 12:30am"></div>
-        <div class="field"><label class="lbl" id="l-fallAsleep" style="font-size:.68rem;opacity:.75">Time to fall asleep</label><input class="fi" id="i-fallAsleep" type="text" placeholder="e.g. 15 min"></div>
-        <div class="field"><label class="lbl" id="l-hoursP" style="font-size:.68rem;opacity:.75">Hours of sleep preferred</label><input class="fi" id="i-hoursP" type="text" placeholder="e.g. 8h"></div>
-        <div class="field"><label class="lbl" id="l-hoursA" style="font-size:.68rem;opacity:.75">Hours of sleep actual</label><input class="fi" id="i-hoursA" type="text" placeholder="e.g. 6.5h"></div>
+        <div class="field"><label class="lbl" id="l-wakeP" style="font-size:.68rem;opacity:.75">Wake time — preferred</label><input class="fi" id="i-wakeP" type="time"></div>
+        <div class="field"><label class="lbl" id="l-wakeA" style="font-size:.68rem;opacity:.75">Wake time — actual</label><input class="fi" id="i-wakeA" type="time"></div>
+        <div class="field"><label class="lbl" id="l-bedP" style="font-size:.68rem;opacity:.75">Bed time — preferred</label><input class="fi" id="i-bedP" type="time"></div>
+        <div class="field"><label class="lbl" id="l-bedA" style="font-size:.68rem;opacity:.75">Bed time — actual</label><input class="fi" id="i-bedA" type="time"></div>
+        <div class="field"><label class="lbl" id="l-fallAsleep" style="font-size:.68rem;opacity:.75">Time to fall asleep <span style="opacity:.6">(min)</span></label><input class="fi" id="i-fallAsleep" type="number" min="0" max="240" placeholder="minutes"></div>
+        <div class="field"><label class="lbl" id="l-hoursP" style="font-size:.68rem;opacity:.75">Sleep hours — preferred</label><input class="fi" id="i-hoursP" type="number" min="0" max="24" step="0.5" placeholder="e.g. 8"></div>
+        <div class="field"><label class="lbl" id="l-hoursA" style="font-size:.68rem;opacity:.75">Sleep hours — actual</label><input class="fi" id="i-hoursA" type="number" min="0" max="24" step="0.5" placeholder="e.g. 6.5"></div>
       </div>
     </div>
     <div class="fg" style="margin-top:.85rem">
@@ -361,10 +624,38 @@ textarea.fi{resize:vertical;min-height:72px}
   <div class="fsec">
     <div class="sec-head" id="s5h">Functional Activities</div>
     <div class="fg">
-      <div class="field"><label class="lbl" id="l-workPos">Work position / title</label><input class="fi" id="i-workPos" type="text"></div>
+      <div class="field"><label class="lbl" id="l-workPos">Professional Orientation</label>
+        <select class="fs" id="i-workPos">
+          <option value="">Select…</option>
+          <option value="1">Art &amp; Design (decoration, drawing, graphic)</option>
+          <option value="2">Nature &amp; Animals (biologist, farmer, geologist)</option>
+          <option value="3">Homemaker / Housewife</option>
+          <option value="4">Mechanical / Technical (driver, pilot, technician, hairdresser)</option>
+          <option value="5">Physical contact with people (doctor, nurse, physiotherapist)</option>
+          <option value="6">Physical labor (laborer, sportsman, fireman, cleaner)</option>
+          <option value="7">Analytical / Symbols (scientist, programmer, engineer, banker)</option>
+          <option value="8">Analytical + Social (lawyer, psychologist, teacher, manager)</option>
+          <option value="9">Social, no symbols (waitress, teller, coach, DJ)</option>
+          <option value="10">Student / Too young to decide</option>
+        </select>
+      </div>
       <div class="field"><label class="lbl" id="l-workStart">Started this work (when)</label><input class="fi" id="i-workStart" type="text" placeholder="e.g. 2019"></div>
       <div class="field full"><label class="lbl" id="l-workTasks">Tasks and responsibilities</label><textarea class="fi" id="i-workTasks" rows="2"></textarea></div>
-      <div class="field full"><label class="lbl" id="l-workPrev">Jobs before (what and when)</label><textarea class="fi" id="i-workPrev" rows="2"></textarea></div>
+      <div class="field"><label class="lbl" id="l-workPrev">Previous job(s) — main type</label>
+        <select class="fs" id="i-workPrev">
+          <option value="">Select…</option>
+          <option value="1">Art &amp; Design</option>
+          <option value="2">Nature &amp; Animals</option>
+          <option value="3">Homemaker / Housewife</option>
+          <option value="4">Mechanical / Technical</option>
+          <option value="5">Physical contact with people (doctor, nurse)</option>
+          <option value="6">Physical labor</option>
+          <option value="7">Analytical / Symbols (scientist, programmer)</option>
+          <option value="8">Analytical + Social (lawyer, teacher, manager)</option>
+          <option value="9">Social, no symbols (waitress, coach, DJ)</option>
+          <option value="10">Student / Too young to decide</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -384,17 +675,12 @@ textarea.fi{resize:vertical;min-height:72px}
   <div class="fsec">
     <div class="sec-head" id="s7h">Informed Consent</div>
     <div class="consent-box">
-      <div class="consent-title" id="consentTitle">Title of the Study:</div>
-      <input class="fi" id="i-studyTitle" type="text" style="margin-bottom:1rem" placeholder="(to be filled by researcher if applicable)">
+
       <p style="font-size:.82rem;color:var(--muted);margin-bottom:.9rem;line-height:1.6" id="consentIntro">By signing this consent form, I understand and confirm that:</p>
       <div class="consent-items" id="consentItems">
         <!-- built by JS -->
       </div>
-      <div class="sig-grid">
-        <div class="sig-field"><label class="sig-lbl" id="sl1">Printed name of participant</label><input class="fi" id="i-sigName" type="text"></div>
-        <div class="sig-field"><label class="sig-lbl" id="sl2">Date (DD/MM/YYYY)</label><input class="fi" id="i-sigDate" type="text" placeholder="DD/MM/YYYY"></div>
-        <div class="sig-field"><label class="sig-lbl" id="sl3">Signature</label><input class="fi" id="i-sigSig" type="text" placeholder="Type full name as signature"></div>
-      </div>
+
     </div>
   </div>
 
@@ -483,7 +769,7 @@ const T = {
     doneBody:'Participant information saved. Take either assessment — your background will be included automatically.',
     doneSTQ:'Take the STQ-77 →', doneSEP:'Take the SEP-STQ →',
     doneReset:'Clear all saved data and start over',
-    savedMeta:'Saved participant info', genderM:'M', genderF:'F', handR:'R', handL:'L',
+    savedMeta:'Saved participant info', genderM:'M', genderF:'F', genderO:'Other', handR:'R', handL:'L',
     sl1:'Printed name of participant', sl2:'Date (DD/MM/YYYY)', sl3:'Signature',
     useSaved:'Use saved info →', startFresh:'— or start fresh —',
     sleepLabel:'Sleep Pattern',
@@ -507,7 +793,7 @@ const T = {
     doneBody:'اطلاعات شرکت‌کننده ذخیره شد. هر یک از ارزیابی‌ها را انتخاب کنید — پس‌زمینه شما به‌طور خودکار لحاظ می‌شود.',
     doneSTQ:'← شروع STQ-77', doneSEP:'← شروع SEP-STQ',
     doneReset:'پاک کردن همه داده‌ها و شروع مجدد',
-    savedMeta:'اطلاعات ذخیره‌شده', genderM:'مرد', genderF:'زن', handR:'راست', handL:'چپ',
+    savedMeta:'اطلاعات ذخیره‌شده', genderM:'مرد', genderF:'زن', genderO:'سایر', handR:'راست', handL:'چپ',
     sl1:'نام کامل شرکت‌کننده', sl2:'تاریخ (DD/MM/YYYY)', sl3:'امضا',
     useSaved:'استفاده از اطلاعات ذخیره‌شده →', startFresh:'— یا از ابتدا شروع کنید —',
     sleepLabel:'الگوی خواب',
@@ -531,7 +817,7 @@ const T = {
     doneBody:'تم حفظ معلومات المشارك. اختر أي تقييم — ستُدرج خلفيتك تلقائيًا.',
     doneSTQ:'← إجراء STQ-77', doneSEP:'← إجراء SEP-STQ',
     doneReset:'مسح جميع البيانات المحفوظة والبدء من جديد',
-    savedMeta:'معلومات المشارك المحفوظة', genderM:'ذكر', genderF:'أنثى', handR:'اليمنى', handL:'اليسرى',
+    savedMeta:'معلومات المشارك المحفوظة', genderM:'ذكر', genderF:'أنثى', genderO:'آخر', handR:'اليمنى', handL:'اليسرى',
     sl1:'الاسم المطبوع للمشارك', sl2:'التاريخ (DD/MM/YYYY)', sl3:'التوقيع',
     useSaved:'استخدام المعلومات المحفوظة →', startFresh:'— أو ابدأ من جديد —',
     sleepLabel:'نمط النوم',
@@ -556,7 +842,7 @@ const T = {
     doneBody:'Информация об участнике сохранена. Пройдите любую оценку — ваш анамнез будет включён автоматически.',
     doneSTQ:'Пройти STQ-77 →', doneSEP:'Пройти SEP-STQ →',
     doneReset:'Очистить все сохранённые данные и начать сначала',
-    savedMeta:'Сохранённая информация', genderM:'М', genderF:'Ж', handR:'Правая', handL:'Левая',
+    savedMeta:'Сохранённая информация', genderM:'М', genderF:'Ж', genderO:'Другое', handR:'Правая', handL:'Левая',
     sl1:'Печатное имя участника', sl2:'Дата (ДД/ММ/ГГГГ)', sl3:'Подпись',
     useSaved:'Использовать сохранённые данные →', startFresh:'— или начать заново —',
     sleepLabel:'Режим сна',
@@ -568,16 +854,16 @@ const T = {
 
 // ─── ALL TEXT FIELD IDs ───
 const FIDS = [
-  'id','fname','lname','dob','age','address','postal','pob','nat','tel1','tel2','langs','immigrated',
+  'id','fname','lname','dob','age','pob','nat','langs','immigrated','immigYear','immigFrom','immigAge','birthNat',
   'parentsAge','birthOrder','sibDiff','parentProf','relParents','relParYou','relParSib','relSibYou',
-  'marital','maritalHow','children','pets','living','edu','hobbyPre','hobbyNow',
-  'weight','height','blood','traumas','surgeries','healthHist','alcohol','smoking','drugs','meds',
-  'diet','meals','exercise','testDate',
+  'marital','maritalHow','partnerAge','partnerOcc','pets','living','edu','grade1','grade2','grade3','hobbyPre','hobbyNow',
+  'weight','height','blood','traumas','healthHist','ses','alcohol','smoking','drugs',
+  'diet','meals','exercise','testDate','cycleDay',
   'wakeP','wakeA','bedP','bedA','fallAsleep','hoursP','hoursA',
   'consciousness','psychEp',
   'famFather','famMother','famGrand','famSib','famChild',
   'workPos','workStart','workTasks','workPrev',
-  'n1','studyTitle','sigName','sigDate','sigSig'
+  'n1'
 ];
 
 let lang = 'en';
@@ -604,7 +890,19 @@ function startForm(l){
     idField.style.letterSpacing = '.05em';
   }
 
-  // Save lang + participantID immediately
+  // Auto-fill testing date with today (editable)
+  const tdEl = document.getElementById('i-testDate');
+  if(tdEl && !tdEl.value){
+    tdEl.value = new Date().toISOString().slice(0,10);
+  }
+
+  // Update gender button labels from translations
+  const t2 = T[l];
+  if(t2){
+    const gm = document.getElementById('gm-lbl'); if(gm) gm.textContent = t2.genderM;
+    const gf = document.getElementById('gf-lbl'); if(gf) gf.textContent = t2.genderF;
+    const go = document.getElementById('go-lbl'); if(go) go.textContent = t2.genderO || 'Other';
+  }
   try {
     const existing = existingSaved || {};
     existing.lang = l;
@@ -650,9 +948,19 @@ function useSaved(){
 
 function fillFromSaved(saved){
   const d = saved.data || {};
-  FIDS.forEach(id=>{ const el=document.getElementById('i-'+id); if(el&&d[id]!==undefined) el.value=d[id]; });
+  FIDS.forEach(id=>{
+    if(id==='langs' || id==='smoking') return; // handled separately
+    const el=document.getElementById('i-'+id);
+    if(el&&d[id]!==undefined) el.value=d[id];
+  });
   if(saved.radioState?.gender) pick('gender', saved.radioState.gender);
   if(saved.radioState?.hand) pick('hand', saved.radioState.hand);
+  if(d.langs) restoreLangs(d.langs);
+  if(d.smoking !== undefined) restoreSmoke(d.smoking);
+  if(d.immigrated !== undefined) restoreImmig(d.immigrated);
+  if(d.childrenHidden !== undefined) restoreChildren(d.childrenHidden);
+  else if(d.children !== undefined) restoreChildren(d.children);
+  updateCycleVisibility();
   (saved.concerns||[]).forEach(i=>checkedConcerns.add(i));
   (saved.consent||[]).forEach(i=>checkedConsent.add(i));
   buildConcerns(); buildConsent();
@@ -662,6 +970,8 @@ function fillFromSaved(saved){
 function autosave(){
   const data={};
   FIDS.forEach(id=>{ const el=document.getElementById('i-'+id); if(el) data[id]=el.value; });
+  // Capture children state
+  const chHidden=document.getElementById('i-childrenHidden'); if(chHidden) data.childrenHidden=chHidden.value;
   const existing = getSaved() || {};
   // Preserve generated participantID — never overwrite with empty field value
   const participantID = existing.participantID || data.id || generateParticipantID();
@@ -694,8 +1004,11 @@ function updateProgress(){
 // ─── RADIO ───
 function pick(group, val){
   radioState[group]=val;
-  const opts = group==='gender'?['m','f']:['r','l'];
-  opts.forEach(o=>document.getElementById(group+'-'+o).classList.toggle('sel', o===val));
+  const opts = group==='gender' ? ['1','2','3'] : ['r','l'];
+  opts.forEach(o=>{
+    const el=document.getElementById(group+'-'+o);
+    if(el) el.classList.toggle('sel', o===val);
+  });
   autosave();
 }
 
@@ -745,8 +1058,8 @@ const LABELS = {
   en: {
     'l-id':'Participant ID','l-fname':'First Name(s)','l-lname':'Last Name',
     'l-gender':'Gender','l-hand':'Dominant Hand','l-dob':'Date of Birth','l-age':'Age',
-    'l-address':'Address','l-postal':'Postal Code','l-pob':'Place of Birth','l-nat':'Nationality',
-    'l-tel1':'Tel. Daytime','l-tel2':'Tel. Evening','l-langs':'Languages Spoken',
+    'l-pob':'Place of Birth','l-nat':'Nationality',
+    'l-langs':'Languages Spoken',
     'l-immigrated':'If immigrated — when / from where / at what age',
     'l-parentsAge':"Parents' age at your birth (Father / Mother)",
     'l-birthOrder':'Birth order (# out of how many children)',
@@ -757,15 +1070,23 @@ const LABELS = {
     'l-relParSib':'Childhood relationship — parents and your siblings',
     'l-relSibYou':'Childhood relationship — your siblings and you',
     'l-marital':'Marital Status','l-maritalHow':'If married/common law — how long & partner\'s age/occupation',
-    'l-children':'Children (ages and gender)','l-pets':'Pets?',
+        'l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation',
+    'l-maritalHow':'Relationship duration (if married / common-law)',
+    'l-grade1':'School grades — overall (secondary)','l-grade2':'School grades — sciences & math','l-grade3':'School grades — humanities & arts',
+    'l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)',
+    'l-ses':'Socio-economic Status',
+    'l-immigrated':'Immigrated?','immig-n-lbl':'No','immig-y-lbl':'Yes',
+    'l-immigYear':'Year','l-immigFrom':'From where','l-immigAge':'Age at immigration','l-birthNat':'Birth country nationality',
+    'child-n-lbl':'None','child-y-lbl':'Yes',
+    'l-children':'Children','l-grade1':'School grades — overall (secondary)','l-grade2':'School grades — sciences & math','l-grade3':'School grades — humanities & arts','l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation','l-maritalHow':'Relationship duration (if married/common-law)','l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)','l-pets':'Pets?',
     'l-living':'Living Arrangements','l-edu':'Education completed (when, program)',
     'l-hobbyPre':'Hobby before age 16','l-hobbyNow':'Hobby now',
     'l-weight':'Weight','l-height':'Height','l-blood':'Blood Type',
-    'l-traumas':'Traumas / accidents in the past (year)','l-surgeries':'Past surgeries',
+    'l-traumas':'Traumas / accidents in the past (year)',
     'l-healthHist':'Health history (frequent sinus infection, guts problems, asthma, diabetes, balance problems, epilepsy, migraine, hearing/vision, heart, hepatitis, high BP, kidney, loss of smell/taste, psychiatric, skin, thyroid, sleep, ulcers, etc.) — when did it start?',
-    'l-alcohol':'Alcohol use (how long & how much)','l-smoking':'Smoking',
+    'l-ses':'Socio-economic Status','l-alcohol':'Alcohol (drinks / week)','l-smoking':'Smoking','l-smoking-n':'Cigarettes per day (average)','smoke-n-lbl':'No','smoke-y-lbl':'Yes',
     'l-drugs':'Other drugs (what drug, when, how much)',
-    'l-meds':'Medication and dosage (present time)',
+    
     'l-diet':'Diet restrictions (Vegetarian? Religious? Due to limited finances?)',
     'l-meals':'Meal times — circle your largest meal: breakfast / lunch / dinner',
     'l-exercise':'Hours/week on hiking & physical exercise','l-testDate':'Date of Testing',
@@ -780,15 +1101,12 @@ const LABELS = {
     'l-workPos':'Work position / title','l-workStart':'Started this work (when)',
     'l-workTasks':'Tasks and responsibilities','l-workPrev':'Jobs before (what and when)',
     'l-n1':'My Number 1 problem is:',
-    'sl1':'Printed name of participant','sl2':'Date (DD/MM/YYYY)','sl3':'Signature',
-    'maritalOpts':['Select…','Married','Common Law','Separated','Divorced','Widowed','Single'],
-    'livingOpts':['Select…','Live with parent(s)','Rent','Own an apartment','Own a house'],
   },
   fa: {
     'l-id':'شناسه شرکت‌کننده','l-fname':'نام(های) کوچک','l-lname':'نام خانوادگی',
     'l-gender':'جنسیت','l-hand':'دست غالب','l-dob':'تاریخ تولد','l-age':'سن',
-    'l-address':'آدرس','l-postal':'کد پستی','l-pob':'محل تولد','l-nat':'ملیت',
-    'l-tel1':'تلفن روز','l-tel2':'تلفن شب','l-langs':'زبان‌های گفتاری',
+    'l-pob':'محل تولد','l-nat':'ملیت',
+    'l-langs':'زبان‌های گفتاری',
     'l-immigrated':'اگر مهاجرت کرده‌اید — چه زمانی / از کجا / در چه سنی',
     'l-parentsAge':'سن والدین هنگام تولد شما (پدر / مادر)',
     'l-birthOrder':'ترتیب تولد (شماره از چند فرزند)',
@@ -799,13 +1117,21 @@ const LABELS = {
     'l-relParSib':'رابطه دوران کودکی — والدین و خواهر/برادرانتان',
     'l-relSibYou':'رابطه دوران کودکی — خواهر/برادران و شما',
     'l-marital':'وضعیت تأهل','l-maritalHow':'اگر متأهل/همسر قانونی — چه مدت و سن و شغل همسر',
-    'l-children':'فرزندان (سن و جنسیت)','l-pets':'حیوان خانگی؟',
+    'l-children':'فرزندان','child-n-lbl':'هیچ','child-y-lbl':'بله',
+    'l-grade1':'نمرات مدرسه — کلی (متوسطه)','l-grade2':'نمرات مدرسه — علوم و ریاضی','l-grade3':'نمرات مدرسه — انسانی و هنر',
+    'l-partnerAge':'سن همسر/شریک','l-partnerOcc':'شغل همسر/شریک',
+    'l-maritalHow':'مدت رابطه (اگر متأهل)','l-cycleDay':'سیکل قاعدگی',
+    'l-cycleNote':'(فقط زنان — روزهای گذشته از آخرین سیکل؛ ۱۰۰=باردار، ۲۰۰=یائسه)',
+    'l-ses':'وضعیت اقتصادی-اجتماعی',
+    'l-immigrated':'مهاجرت کرده‌اید؟','immig-n-lbl':'خیر','immig-y-lbl':'بله',
+    'l-immigYear':'سال','l-immigFrom':'از کجا','l-immigAge':'سن موقع مهاجرت','l-birthNat':'ملیت کشور مبدا',
+    'l-pets':'حیوان خانگی؟',
     'l-living':'وضعیت سکونت','l-edu':'تحصیلات تکمیل‌شده (چه زمانی، رشته)',
     'l-hobbyPre':'سرگرمی قبل از ۱۶ سالگی','l-hobbyNow':'سرگرمی فعلی',
     'l-weight':'وزن','l-height':'قد','l-blood':'گروه خونی',
     'l-traumas':'تروما / تصادفات گذشته (سال)','l-surgeries':'عمل‌های جراحی گذشته',
     'l-healthHist':'سابقه سلامتی (عفونت سینوس، مشکلات گوارشی، آسم، دیابت، تعادل، صرع، میگرن، شنوایی/بینایی، قلب، هپاتیت، فشار خون، کلیه، از دست دادن بو/چشایی، روانپزشکی، پوست، تیروئید، خواب، زخم، و غیره) — چه زمانی شروع شد؟',
-    'l-alcohol':'مصرف الکل (چه مدت و چقدر)','l-smoking':'سیگار',
+    'l-ses':'وضعیت اقتصادی-اجتماعی','l-alcohol':'الکل (نوشیدنی در هفته)','l-smoking':'سیگار','l-smoking-n':'سیگار در روز (میانگین)','smoke-n-lbl':'خیر','smoke-y-lbl':'بله',
     'l-drugs':'سایر مواد (چه ماده‌ای، چه زمانی، چقدر)',
     'l-meds':'داروهای فعلی و دوز مصرفی',
     'l-diet':'محدودیت‌های غذایی (گیاه‌خوار؟ مذهبی؟ به دلیل مشکل مالی؟)',
@@ -822,15 +1148,12 @@ const LABELS = {
     'l-workPos':'سمت / عنوان شغلی','l-workStart':'شروع این کار (چه زمانی)',
     'l-workTasks':'وظایف و مسئولیت‌ها','l-workPrev':'مشاغل قبلی (چه کاری و چه زمانی)',
     'l-n1':'مشکل اصلی من:',
-    'sl1':'نام کامل شرکت‌کننده','sl2':'تاریخ (DD/MM/YYYY)','sl3':'امضا',
-    'maritalOpts':['انتخاب کنید…','متأهل','همسر قانونی','جدا','طلاق گرفته','بیوه','مجرد'],
-    'livingOpts':['انتخاب کنید…','با والدین زندگی می‌کنم','اجاره','صاحب آپارتمان','صاحب خانه'],
   },
   ar: {
     'l-id':'رمز المشارك','l-fname':'الاسم الأول','l-lname':'اسم العائلة',
     'l-gender':'الجنس','l-hand':'اليد المسيطرة','l-dob':'تاريخ الميلاد','l-age':'العمر',
-    'l-address':'العنوان','l-postal':'الرمز البريدي','l-pob':'مكان الولادة','l-nat':'الجنسية',
-    'l-tel1':'هاتف النهار','l-tel2':'هاتف المساء','l-langs':'اللغات المتحدثة',
+    'l-pob':'مكان الولادة','l-nat':'الجنسية',
+    'l-langs':'اللغات المتحدثة',
     'l-immigrated':'في حال الهجرة — متى / من أين / في أي عمر',
     'l-parentsAge':'عمر الوالدين عند ولادتك (الأب / الأم)',
     'l-birthOrder':'ترتيب الولادة (رقم من كم طفل)',
@@ -841,13 +1164,21 @@ const LABELS = {
     'l-relParSib':'علاقة الطفولة — الوالدان وإخوتك',
     'l-relSibYou':'علاقة الطفولة — إخوتك وأنت',
     'l-marital':'الحالة الاجتماعية','l-maritalHow':'إذا متزوج/علاقة قانونية — منذ متى وعمر ومهنة الشريك',
-    'l-children':'الأبناء (الأعمار والجنس)','l-pets':'حيوانات أليفة؟',
+    'l-children':'الأطفال','child-n-lbl':'لا','child-y-lbl':'نعم',
+    'l-grade1':'درجات المدرسة — عام','l-grade2':'درجات المدرسة — علوم ورياضيات','l-grade3':'درجات المدرسة — إنسانيات وفنون',
+    'l-partnerAge':'عمر الشريك','l-partnerOcc':'مهنة الشريك',
+    'l-maritalHow':'مدة العلاقة (إذا متزوج)','l-cycleDay':'الدورة الشهرية',
+    'l-cycleNote':'(للنساء فقط — أيام منذ آخر دورة؛ 100=حامل، 200=انقطاع الطمث)',
+    'l-ses':'الوضع الاجتماعي والاقتصادي',
+    'l-immigrated':'هل هاجرت؟','immig-n-lbl':'لا','immig-y-lbl':'نعم',
+    'l-immigYear':'السنة','l-immigFrom':'من أين','l-immigAge':'العمر عند الهجرة','l-birthNat':'جنسية بلد المنشأ',
+    'l-pets':'حيوانات أليفة؟',
     'l-living':'وضع السكن','l-edu':'التعليم المكتمل (متى، البرنامج)',
     'l-hobbyPre':'الهواية قبل سن 16','l-hobbyNow':'الهواية الحالية',
     'l-weight':'الوزن','l-height':'الطول','l-blood':'فصيلة الدم',
     'l-traumas':'الصدمات / الحوادث السابقة (السنة)','l-surgeries':'العمليات الجراحية السابقة',
     'l-healthHist':'السجل الصحي (التهاب الجيوب الأنفية، مشاكل الجهاز الهضمي، الربو، السكري، مشاكل التوازن، الصرع، الشقيقة، السمع/البصر، القلب، التهاب الكبد، ضغط الدم، الكلى، فقدان الشم/التذوق، الطب النفسي، الجلد، الغدة الدرقية، النوم، القرحة، إلخ) — متى بدأت؟',
-    'l-alcohol':'تناول الكحول (منذ متى وكم)','l-smoking':'التدخين',
+    'l-ses':'الوضع الاجتماعي والاقتصادي','l-alcohol':'الكحول (مشروب / أسبوع)','l-smoking':'التدخين','l-smoking-n':'سجائر في اليوم (المتوسط)','smoke-n-lbl':'لا','smoke-y-lbl':'نعم',
     'l-drugs':'مواد أخرى (ما الدواء، متى، كم)',
     'l-meds':'الأدوية الحالية والجرعة',
     'l-diet':'القيود الغذائية (نباتي؟ ديني؟ بسبب محدودية مالية؟)',
@@ -864,16 +1195,13 @@ const LABELS = {
     'l-workPos':'المنصب / المسمى الوظيفي','l-workStart':'بدأ هذا العمل (متى)',
     'l-workTasks':'المهام والمسؤوليات','l-workPrev':'الوظائف السابقة (ماذا ومتى)',
     'l-n1':'مشكلتي الأولى:',
-    'sl1':'الاسم المطبوع للمشارك','sl2':'التاريخ (DD/MM/YYYY)','sl3':'التوقيع',
-    'maritalOpts':['اختر…','متزوج','علاقة قانونية','منفصل','مطلق','أرمل','أعزب'],
-    'livingOpts':['اختر…','أسكن مع والديّ','إيجار','أمتلك شقة','أمتلك منزلاً'],
   }
 ,
   ru: {
     'l-id':'ID участника','l-fname':'Имя(имена)','l-lname':'Фамилия',
     'l-gender':'Пол','l-hand':'Ведущая рука','l-dob':'Дата рождения','l-age':'Возраст',
-    'l-address':'Адрес','l-postal':'Почтовый индекс','l-pob':'Место рождения','l-nat':'Национальность',
-    'l-tel1':'Тел. (дневное)','l-tel2':'Тел. (вечернее)','l-langs':'Языки общения',
+    'l-pob':'Место рождения','l-nat':'Национальность',
+    'l-langs':'Языки общения',
     'l-immigrated':'Если эмигрировали — когда / откуда / в каком возрасте',
     'l-parentsAge':'Возраст родителей при вашем рождении (отец / мать)',
     'l-birthOrder':'Порядок рождения (№ из скольких детей)',
@@ -884,13 +1212,21 @@ const LABELS = {
     'l-relParSib':'Отношения в детстве — родители и ваши братья/сёстры',
     'l-relSibYou':'Отношения в детстве — ваши братья/сёстры и вы',
     'l-marital':'Семейное положение','l-maritalHow':'Если в браке/гражданском браке — как долго и возраст/профессия партнёра',
-    'l-children':'Дети (возраст и пол)','l-pets':'Домашние животные?',
+        'l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра',
+    'l-maritalHow':'Продолжительность отношений (если в браке)',
+    'l-grade1':'Оценки — общий балл (средняя школа)','l-grade2':'Оценки — точные науки и математика','l-grade3':'Оценки — гуманитарные и искусство',
+    'l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)',
+    'l-ses':'Социально-экономический статус',
+    'l-immigrated':'Вы иммигрировали?','immig-n-lbl':'Нет','immig-y-lbl':'Да',
+    'l-immigYear':'Год','l-immigFrom':'Откуда','l-immigAge':'Возраст при иммиграции','l-birthNat':'Национальность страны рождения',
+    'child-n-lbl':'Нет','child-y-lbl':'Да',
+    'l-children':'Дети','l-grade1':'Оценки — общий балл (средняя школа)','l-grade2':'Оценки — точные науки и математика','l-grade3':'Оценки — гуманитарные и искусство','l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра','l-maritalHow':'Продолжительность отношений','l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)','l-pets':'Домашние животные?',
     'l-living':'Жилищные условия','l-edu':'Образование (когда, специальность)',
     'l-hobbyPre':'Хобби до 16 лет','l-hobbyNow':'Хобби сейчас',
     'l-weight':'Вес','l-height':'Рост','l-blood':'Группа крови',
     'l-traumas':'Травмы / несчастные случаи (год)','l-surgeries':'Операции в прошлом',
     'l-healthHist':'История болезней (частые синуситы, проблемы ЖКТ, астма, диабет, нарушения равновесия, эпилепсия, мигрень, слух/зрение, сердце, гепатит, повышенное давление, почки, потеря обоняния/вкуса, психиатрические проблемы, кожа, щитовидная железа, сон, язва и др.) — когда началось?',
-    'l-alcohol':'Употребление алкоголя (как долго и сколько)','l-smoking':'Курение',
+    'l-ses':'Социально-экономический статус','l-alcohol':'Алкоголь (напитков / нед.)','l-smoking':'Курение','l-smoking-n':'Сигарет в день (в среднем)','smoke-n-lbl':'Нет','smoke-y-lbl':'Да',
     'l-drugs':'Другие вещества (что, когда, сколько)',
     'l-meds':'Принимаемые лекарства и дозировка',
     'l-diet':'Ограничения в питании (вегетарианство? религиозные? финансовые?)',
@@ -907,9 +1243,6 @@ const LABELS = {
     'l-workPos':'Должность / название','l-workStart':'Начало этой работы (когда)',
     'l-workTasks':'Задачи и обязанности','l-workPrev':'Предыдущие должности (что и когда)',
     'l-n1':'Моя проблема № 1:',
-    'sl1':'Имя участника (печатными буквами)','sl2':'Дата (ДД/ММ/ГГГГ)','sl3':'Подпись',
-    'maritalOpts':['Выберите…','Женат/замужем','Гражданский брак','Раздельно','В разводе','Вдовец/вдова','Не в браке'],
-    'livingOpts':['Выберите…','Живу с родителями','Аренда','Своя квартира','Свой дом'],
   }
 };
 
@@ -935,25 +1268,158 @@ function applyTranslations(){
   document.getElementById('submitNote').textContent=t.submitNote;
 
   // Radio buttons
-  document.getElementById('gender-m').textContent=t.genderM;
-  document.getElementById('gender-f').textContent=t.genderF;
+  document.getElementById('gender-m').querySelector('span').textContent=t.genderM;
+  document.getElementById('gender-f').querySelector('span').textContent=t.genderF;
+  if(document.getElementById('gender-o')) document.getElementById('gender-o').querySelector('span').textContent=t.genderO||'Other';
   document.getElementById('hand-r').textContent=t.handR;
   document.getElementById('hand-l').textContent=t.handL;
 
   // ALL field labels from LABELS map
   Object.entries(L).forEach(([id, text])=>{
-    if(id==='maritalOpts'||id==='livingOpts') return; // handled below
     const el=document.getElementById(id); if(el) el.textContent=text;
   });
 
-  // Translate select options
-  const maritalSel=document.getElementById('i-marital');
-  if(maritalSel && L.maritalOpts){
-    [...maritalSel.options].forEach((opt,i)=>{ if(L.maritalOpts[i]) opt.text=L.maritalOpts[i]; });
+  // Translate all dropdown options
+  updateSelectOptions(lang);
+}
+
+// ── SELECT OPTIONS — multilingual ──
+const SELECT_OPTIONS = {
+  rel:{
+    en:['Select…','Fine / Good','OK — like any other family','Verbal abuse','Physical abuse','Sexual / combined abuse','No information'],
+    fa:['انتخاب کنید…','خوب / مناسب','معمولی — مثل هر خانواده‌ای','آزار کلامی','آزار جسمی','آزار جنسی / ترکیبی','اطلاعاتی ندارم'],
+    ar:['اختر…','جيد / ممتاز','عادي — كأي أسرة أخرى','إساءة لفظية','إساءة جسدية','إساءة جنسية / متعددة','لا معلومات'],
+    ru:['Выберите…','Хорошо / Отлично','Нормально — как в любой семье','Словесное насилие','Физическое насилие','Сексуальное / смешанное насилие','Нет информации']
+  },
+  marital:{
+    en:['Select…','Single','Married / Common Law','Divorced / Separated','Widowed'],
+    fa:['انتخاب کنید…','مجرد','متأهل / همسر قانونی','مطلقه / جدا','بیوه'],
+    ar:['اختر…','أعزب/عزباء','متزوج / مقترن قانونياً','مطلق / منفصل','أرمل/أرملة'],
+    ru:['Выберите…','Не в браке','Женат/замужем / Гражданский брак','Разведён / Раздельно','Вдовец/вдова']
+  },
+  living:{
+    en:['Select…','Own place — alone or with partner','Live in spouse / partner\'s place','Rent — alone or with partner','Live with parents (no own place)','Live with parents & rent out own place','In transit (hotel / friends / shelter)'],
+    fa:['انتخاب کنید…','مکان شخصی — تنها یا با همسر','در مکان همسر/شریک','اجاره — تنها یا با همسر','با والدین (بدون مکان شخصی)','با والدین و اجاره مکان شخصی','در حال گذار (هتل / دوستان / سرپناه)'],
+    ar:['اختر…','مسكن خاص — منفرداً أو مع الشريك','في مسكن الشريك/الزوج','إيجار — منفرداً أو مع الشريك','مع الوالدين (بدون مسكن خاص)','مع الوالدين وتأجير المسكن','عابر (فندق / أصدقاء / ملجأ)'],
+    ru:['Выберите…','Своё жильё — один или с партнёром','Жильё партнёра/супруга','Аренда — один или с партнёром','С родителями (нет своего жилья)','С родителями + сдаю своё жильё','Временно (отель / друзья / приют)']
+  },
+  pets:{
+    en:['None','Cat','Dog','Bird(s)','Turtle','Hamster / Rat / Rabbit','Exotic (iguana, snake)','Other'],
+    fa:['هیچ','گربه','سگ','پرنده','لاک‌پشت','همستر / موش / خرگوش','حیوان عجیب (ایگوانا، مار)','سایر'],
+    ar:['لا يوجد','قطة','كلب','طيور','سلحفاة','هامستر / فأر / أرنب','حيوان غريب (إيغوانا، ثعبان)','أخرى'],
+    ru:['Нет','Кошка','Собака','Птица(ы)','Черепаха','Хомяк / Крыса / Кролик','Экзотическое (игуана, змея)','Другое']
+  },
+  diet:{
+    en:['No restrictions','Gluten-free','Vegetarian (non-vegan)','Vegan','No pork','Other religious / non-specific'],
+    fa:['بدون محدودیت','بدون گلوتن','گیاه‌خوار (غیر وگان)','وگان','بدون گوشت خوک','مذهبی / سایر'],
+    ar:['بدون قيود','خالٍ من الغلوتين','نباتي (غير نباتي صارم)','نباتي صارم','بدون لحم خنزير','ديني / غير محدد'],
+    ru:['Без ограничений','Без глютена','Вегетарианец (не веган)','Веган','Без свинины','Религиозное / прочее']
+  },
+  meals:{
+    en:['Select…','Breakfast','Lunch','Dinner'],
+    fa:['انتخاب کنید…','صبحانه','ناهار','شام'],
+    ar:['اختر…','الإفطار','الغداء','العشاء'],
+    ru:['Выберите…','Завтрак','Обед','Ужин']
+  },
+  prof:{
+    en:['Select…','Art & Design (decoration, drawing, graphic)','Nature & Animals (biologist, farmer, geologist)','Homemaker / Housewife','Mechanical / Technical (driver, pilot, technician, hairdresser)','Physical contact with people (doctor, nurse, physiotherapist)','Physical labor (laborer, sportsman, fireman, cleaner)','Analytical / Symbols (scientist, programmer, engineer, banker)','Analytical + Social (lawyer, psychologist, teacher, manager)','Social, no symbols (waitress, teller, coach, DJ)','Student / Too young to decide'],
+    fa:['انتخاب کنید…','هنر و طراحی (نقاشی، گرافیک)','طبیعت و حیوانات (زیست‌شناس، کشاورز)','خانه‌دار','مکانیکی / فنی (راننده، خلبان، تکنسین)','تماس جسمی با مردم (پزشک، پرستار)','کار جسمی (کارگر، ورزشکار، آتش‌نشان)','تحلیلی / نمادین (دانشمند، برنامه‌نویس، مهندس)','تحلیلی + اجتماعی (وکیل، روانشناس، معلم، مدیر)','اجتماعی بدون نمادها (پیشخدمت، مربی، دی‌جی)','دانش‌آموز / خیلی جوان'],
+    ar:['اختر…','فن وتصميم (رسم، غرافيك)','طبيعة وحيوانات (بيولوجي، مزارع)','ربة منزل','ميكانيكي / تقني (سائق، طيار، تقني)','تواصل جسدي مع الناس (طبيب، ممرض)','عمل جسدي (عامل، رياضي، إطفائي)','تحليلي / رمزي (عالم، مبرمج، مهندس)','تحليلي + اجتماعي (محامٍ، معلم، مدير)','اجتماعي بدون رموز (نادل، مدرب، دي جي)','طالب / صغير جداً للقرار'],
+    ru:['Выберите…','Искусство и дизайн (рисунок, графика)','Природа и животные (биолог, фермер)','Домохозяйка','Механика / Техника (водитель, пилот, техник)','Физический контакт с людьми (врач, медсестра)','Физический труд (рабочий, спортсмен, пожарный)','Аналитика / Символы (учёный, программист, инженер)','Аналитика + Соц. (юрист, психолог, учитель, менеджер)','Социальное, без символов (официант, тренер, диджей)','Студент / Слишком молод для выбора']
+  },
+  ses:{
+    en:['Select…','1 — Low','2 — Low to Middle','3 — Middle / OK','4 — High'],
+    fa:['انتخاب کنید…','۱ — پایین','۲ — پایین تا متوسط','۳ — متوسط / قابل قبول','۴ — بالا'],
+    ar:['اختر…','1 — منخفض','2 — منخفض إلى متوسط','3 — متوسط','4 — مرتفع'],
+    ru:['Выберите…','1 — Низкий','2 — Ниже среднего','3 — Средний','4 — Высокий']
+  },
+  blood:{
+    en:['Select…','A+','A−','B+','B−','AB+','AB−','O+','O−','Unknown'],
+    fa:['انتخاب کنید…','A+','A−','B+','B−','AB+','AB−','O+','O−','نامشخص'],
+    ar:['اختر…','A+','A−','B+','B−','AB+','AB−','O+','O−','غير معروف'],
+    ru:['Выберите…','A+','A−','B+','B−','AB+','AB−','O+','O−','Неизвестно']
+  },
+  grade:{
+    en:['Select…','Excellent (A / 90–100%)','Good (B / 75–89%)','Average (C / 60–74%)','Below average (D / 50–59%)','Poor / Failed','N/A'],
+    fa:['انتخاب کنید…','عالی (۹۰–۱۰۰)','خوب (۷۵–۸۹)','متوسط (۶۰–۷۴)','زیر متوسط (۵۰–۵۹)','ضعیف / رد شده','مربوط نیست'],
+    ar:['اختر…','ممتاز (90–100)','جيد (75–89)','متوسط (60–74)','دون المتوسط (50–59)','ضعيف / راسب','لا ينطبق'],
+    ru:['Выберите…','Отлично (90–100%)','Хорошо (75–89%)','Удовлетворительно (60–74%)','Ниже нормы (50–59%)','Плохо / Не сдан','Н/П']
+  },
+  cycle:{
+    en:{
+      label:'Please kindly tell us: how many days ago did your last cycle start?',
+      ph:'Select…',
+      grp1:'Days since cycle started',
+      grp2:'Other',
+      pregnant:'Pregnant',
+      menopause:'Menopausal'
+    },
+    fa:{
+      label:'لطفاً به ما بگویید: چند روز پیش آخرین سیکل شما شروع شد؟',
+      ph:'انتخاب کنید…',
+      grp1:'روزهای گذشته از شروع سیکل',
+      grp2:'سایر',
+      pregnant:'باردار هستم',
+      menopause:'یائسه هستم'
+    },
+    ar:{
+      label:'نرجو منك بلطف إخبارنا: منذ كم يوماً بدأت دورتك الأخيرة؟',
+      ph:'اختر…',
+      grp1:'الأيام منذ بدء الدورة',
+      grp2:'أخرى',
+      pregnant:'حامل',
+      menopause:'انقطاع الطمث'
+    },
+    ru:{
+      label:'Пожалуйста, скажите нам: сколько дней назад начался ваш последний цикл?',
+      ph:'Выберите…',
+      grp1:'Дней с начала цикла',
+      grp2:'Другое',
+      pregnant:'Беременна',
+      menopause:'Менопауза'
+    }
+  },
+  nat:{
+    en:['Select…','American / Canadian','Indian / Bangladeshi / Pakistani','African / African-American','East Asian (Chinese / Korean / Japanese)','Middle Eastern (Arab / Persian / Turkish / Jewish)','Russian','Ukrainian / Slavic / Polish','Italian / French','European (other)','British / UK','Malaysian / Indonesian / Australian / NZ','South American / Latino'],
+    fa:['انتخاب کنید…','آمریکایی / کانادایی','هندی / بنگلادشی / پاکستانی','آفریقایی','آسیای شرقی (چینی / کره‌ای / ژاپنی)','خاورمیانه (عرب / ایرانی / ترک / یهودی)','روسی','اوکراینی / اسلاو / لهستانی','ایتالیایی / فرانسوی','اروپایی (سایر)','بریتانیایی','مالزیایی / اندونزیایی / استرالیایی','آمریکای لاتین'],
+    ar:['اختر…','أمريكي / كندي','هندي / بنغلاديشي / باكستاني','أفريقي','آسيوي شرقي (صيني / كوري / ياباني)','شرق أوسطي (عربي / فارسي / تركي / يهودي)','روسي','أوكراني / سلافي / بولندي','إيطالي / فرنسي','أوروبي (أخرى)','بريطاني','ماليزي / إندونيسي / أسترالي','أمريكي لاتيني'],
+    ru:['Выберите…','Американец / Канадец','Индийский / Бангладеш / Пакистан','Африканец','Восточноазиатский (Китай / Корея / Япония)','Ближний Восток (Арабы / Иранцы / Турки / Евреи)','Русский','Украинский / Славянский / Польский','Итальянский / Французский','Европейский (другой)','Британский','Малайзийский / Индонезийский / Австралийский','Латиноамериканский']
   }
-  const livingSel=document.getElementById('i-living');
-  if(livingSel && L.livingOpts){
-    [...livingSel.options].forEach((opt,i)=>{ if(L.livingOpts[i]) opt.text=L.livingOpts[i]; });
+};
+
+// Mapping: selectId → options key
+const SELECT_MAP = {
+  'i-relParents':'rel','i-relParYou':'rel','i-relParSib':'rel','i-relSibYou':'rel',
+  'i-marital':'marital','i-living':'living','i-pets':'pets',
+  'i-diet':'diet','i-meals':'meals',
+  'i-workPos':'prof','i-workPrev':'prof','i-partnerOcc':'prof',
+  'i-ses':'ses','i-blood':'blood',
+  'i-grade1':'grade','i-grade2':'grade','i-grade3':'grade',
+  'i-nat':'nat','i-birthNat':'nat'
+};
+
+function updateCycleTranslation(l){
+  const lg = l || 'en';
+  const c = SELECT_OPTIONS.cycle?.[lg] || SELECT_OPTIONS.cycle.en;
+  const lbl = document.getElementById('l-cycleDay');
+  if(lbl) lbl.textContent = c.label;
+  const ph = document.getElementById('cycle-ph'); if(ph) ph.text = c.ph;
+  const g1 = document.getElementById('cycle-grp1'); if(g1) g1.label = c.grp1;
+  const g2 = document.getElementById('cycle-grp2'); if(g2) g2.label = c.grp2;
+  const preg = document.getElementById('cycle-pregnant'); if(preg) preg.text = c.pregnant;
+  const meno = document.getElementById('cycle-menopause'); if(meno) meno.text = c.menopause;
+}
+
+function updateSelectOptions(l){
+  const lg = l || 'en';
+  updateCycleTranslation(lg);
+  for(const [selId, optKey] of Object.entries(SELECT_MAP)){
+    const sel = document.getElementById(selId);
+    const opts = SELECT_OPTIONS[optKey]?.[lg] || SELECT_OPTIONS[optKey]?.en;
+    if(!sel || !opts) continue;
+    const cur = sel.value;
+    [...sel.options].forEach((opt,i)=>{ if(opts[i]!==undefined) opt.text = opts[i]; });
+    sel.value = cur;
   }
 }
 
@@ -1053,6 +1519,170 @@ function saveAndProceed(){
 
 function resetAll(){
   if(confirm('Clear all saved participant data?')){ localStorage.removeItem(PARTICIPANT_KEY); location.reload(); }
+}
+
+
+// ─── LANGUAGE MULTI-SELECT ───
+const LANG_LIST = [
+  {code:'en', en:'English',        fa:'انگلیسی',     ar:'الإنجليزية',    ru:'Английский'},
+  {code:'fa', en:'Persian/Farsi',  fa:'فارسی',       ar:'الفارسية',      ru:'Персидский'},
+  {code:'ar', en:'Arabic',         fa:'عربی',        ar:'العربية',       ru:'Арабский'},
+  {code:'ru', en:'Russian',        fa:'روسی',        ar:'الروسية',       ru:'Русский'},
+  {code:'fr', en:'French',         fa:'فرانسوی',     ar:'الفرنسية',      ru:'Французский'},
+  {code:'es', en:'Spanish',        fa:'اسپانیایی',   ar:'الإسبانية',     ru:'Испанский'},
+  {code:'de', en:'German',         fa:'آلمانی',      ar:'الألمانية',     ru:'Немецкий'},
+  {code:'tr', en:'Turkish',        fa:'ترکی',        ar:'التركية',       ru:'Турецкий'},
+  {code:'zh', en:'Chinese',        fa:'چینی',        ar:'الصينية',       ru:'Китайский'},
+  {code:'hi', en:'Hindi / Urdu',   fa:'هندی/اردو',   ar:'الهندية/الأردية',ru:'Хинди/Урду'},
+  {code:'it', en:'Italian',        fa:'ایتالیایی',   ar:'الإيطالية',     ru:'Итальянский'},
+  {code:'ja', en:'Japanese',       fa:'ژاپنی',       ar:'اليابانية',     ru:'Японский'},
+  {code:'ko', en:'Korean',         fa:'کره‌ای',      ar:'الكورية',       ru:'Корейский'},
+  {code:'pt', en:'Portuguese',     fa:'پرتغالی',     ar:'البرتغالية',    ru:'Португальский'},
+  {code:'pl', en:'Polish',         fa:'لهستانی',     ar:'البولندية',     ru:'البولنديةPolski'},
+  {code:'uk', en:'Ukrainian',      fa:'اوکراینی',    ar:'الأوكرانية',    ru:'Украинский'},
+  {code:'he', en:'Hebrew',         fa:'عبری',        ar:'العبرية',       ru:'Иврит'},
+  {code:'nl', en:'Dutch',          fa:'هلندی',       ar:'الهولندية',     ru:'Нидерландский'},
+];
+
+let selectedLangs = new Set();
+let langMenuBuilt  = false;
+
+function buildLangMenu(){
+  if(langMenuBuilt) return;
+  langMenuBuilt = true;
+  const menu = document.getElementById('langs-menu');
+  const l = lang || 'en';
+  menu.innerHTML = LANG_LIST.map(lng => `
+    <label class="lang-opt" onclick="event.stopPropagation()">
+      <input type="checkbox" value="${lng.code}" onchange="toggleLangItem('${lng.code}')">
+      ${lng[l] || lng.en}
+    </label>`).join('');
+}
+
+function toggleLangMenu(e){
+  e.stopPropagation();
+  buildLangMenu();
+  const menu    = document.getElementById('langs-menu');
+  const trigger = document.getElementById('langs-trigger');
+  const isOpen  = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen);
+  trigger.classList.toggle('open', !isOpen);
+}
+
+function toggleLangItem(code){
+  if(selectedLangs.has(code)) selectedLangs.delete(code);
+  else selectedLangs.add(code);
+  refreshLangsDisplay();
+  autosave();
+}
+
+function refreshLangsDisplay(){
+  const inner  = document.getElementById('langs-display');
+  const hidden = document.getElementById('i-langs');
+  const ph     = document.getElementById('langs-ph');
+  if(selectedLangs.size === 0){
+    inner.innerHTML = '<span class="lang-placeholder" id="langs-ph">Select languages…</span>';
+    hidden.value = '';
+  } else {
+    const l = lang || 'en';
+    const tags = LANG_LIST.filter(x => selectedLangs.has(x.code))
+      .map(x => `<span class="lang-tag">${x[l] || x.en}</span>`).join('');
+    inner.innerHTML = tags;
+    hidden.value = Array.from(selectedLangs).join(',');
+  }
+}
+
+function restoreLangs(val){
+  if(!val) return;
+  val.split(',').forEach(c => { if(c) selectedLangs.add(c); });
+  buildLangMenu();
+  // Restore checkboxes
+  document.querySelectorAll('#langs-menu input[type=checkbox]').forEach(cb => {
+    cb.checked = selectedLangs.has(cb.value);
+  });
+  refreshLangsDisplay();
+}
+
+// Close menu on outside click
+document.addEventListener('click', function(e){
+  if(!e.target.closest('#langs-widget')){
+    document.getElementById('langs-menu')?.classList.remove('open');
+    document.getElementById('langs-trigger')?.classList.remove('open');
+  }
+});
+
+// ─── SMOKING TOGGLE ───
+let smokeState = ''; // 'y' or 'n'
+function pickSmoke(v){
+  smokeState = v;
+  document.getElementById('smoke-n').classList.toggle('selected', v==='n');
+  document.getElementById('smoke-y').classList.toggle('selected', v==='y');
+  const detail = document.getElementById('smoke-detail');
+  detail.style.display = v==='y' ? 'block' : 'none';
+  if(v==='n'){
+    document.getElementById('i-smoking').value = '0';
+    const nb = document.getElementById('i-smoking-n');
+    if(nb) nb.value = '';
+  }
+  autosave();
+}
+function restoreSmoke(val){
+  if(val === '0' || val === 'n' || val === 'no'){
+    pickSmoke('n');
+  } else if(val && val !== ''){
+    pickSmoke('y');
+    const nb = document.getElementById('i-smoking-n');
+    if(nb) nb.value = val;
+    document.getElementById('i-smoking').value = val;
+  }
+}
+
+
+// ─── IMMIGRATION TOGGLE ───
+let immigState = '';
+function pickImmig(v){
+  immigState = v;
+  document.getElementById('immig-n').classList.toggle('sel', v==='n');
+  document.getElementById('immig-y').classList.toggle('sel', v==='y');
+  document.getElementById('immig-detail').style.display = v==='y' ? 'block' : 'none';
+  document.getElementById('i-immigrated').value = v;
+  autosave();
+}
+function restoreImmig(val){
+  if(val==='n'||val==='0'||val==='no'||val==='') pickImmig('n');
+  else pickImmig('y');
+}
+
+// ─── CHILDREN TOGGLE ───
+let childrenState = '';
+function pickChildren(v){
+  childrenState = v;
+  document.getElementById('child-n').classList.toggle('sel', v==='n');
+  document.getElementById('child-y').classList.toggle('sel', v==='y');
+  document.getElementById('child-detail').style.display = v==='y' ? 'block' : 'none';
+  const hidden = document.getElementById('i-childrenHidden');
+  if(v==='n'){ if(hidden) hidden.value='0'; document.getElementById('i-children').value=''; }
+  autosave();
+}
+function restoreChildren(val){
+  if(val==='0'||val==='n'||val==='none') pickChildren('n');
+  else if(val&&val!=='') { pickChildren('y'); const el=document.getElementById('i-children'); if(el) el.value=val; }
+}
+
+// ─── MENSTRUAL CYCLE: show only for F gender ───
+function updateCycleVisibility(){
+  const wrap = document.getElementById('cycleWrap');
+  if(wrap) wrap.style.display = (radioState.gender==='2') ? 'block' : 'none';
+}
+
+// Override pick to also update cycle visibility
+const _origPick = pick;
+function pick(group, val){
+  radioState[group]=val;
+  const opts = group==='gender' ? ['1','2','3'] : ['r','l'];
+  opts.forEach(o=>{ const el=document.getElementById(group+'-'+o); if(el) el.classList.toggle('sel', o===val); });
+  if(group==='gender') updateCycleVisibility();
+  autosave();
 }
 
 // ─── INIT ───
