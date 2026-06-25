@@ -286,7 +286,7 @@ textarea.fi{resize:vertical;min-height:72px}
         <div class="rg"><div class="ro" id="gender-1" onclick="pick('gender','1')"><span id="gm-lbl">M</span></div><div class="ro" id="gender-2" onclick="pick('gender','2')"><span id="gf-lbl">F</span></div><div class="ro" id="gender-3" onclick="pick('gender','3')"><span id="go-lbl">Other</span></div></div>
       </div>
       <div class="field"><label class="lbl" id="l-hand">Dominant Hand</label>
-        <div class="rg"><div class="ro" id="hand-1" onclick="pick('hand','1')" id="hand-1"><span id="hand-r-lbl">R</span></div><div class="ro" id="hand-2" onclick="pick('hand','2')"><span id="hand-l-lbl">L</span></div></div>
+        <div class="rg"><div class="ro" id="hand-1" onclick="pick('hand','1')"><span id="hand-r-lbl">R</span></div><div class="ro" id="hand-2" onclick="pick('hand','2')"><span id="hand-l-lbl">L</span></div></div>
       </div>
       <div class="field"><label class="lbl" id="l-dob">Date of Birth</label><input class="fi" id="i-dob" type="date"></div>
       <div class="field"><label class="lbl" id="l-age">Age</label><input class="fi" id="i-age" type="number" min="16" max="99"></div>
@@ -1124,16 +1124,16 @@ function generateParticipantID(){
 // ─── CONCERNS CHECKLIST (matches PDF exactly) ───
 const CONCERNS = {
   en: {
-    Emotional:   ['Anger','Mood alterations','Stress','Depression, low interest','Self-esteem issues','General anxiety','Nightmares','Fear of driving/as a passenger','Other specific fears','Grief'],
-    Cognitive:   ['Concentration problems','Memory problems','Academic problems','Decision making problems','Self-organization problems','Obsessive thoughts','Suicidal thoughts','Other disturbing thoughts','Confusions','Other:'],
-    Social:      ['Marital tension','Problems at work','Problems at school','Fear of being in public/social setting','Difficulties communicating with people','Social withdrawal','Irritability','Conflict with parents','Conflict with children','Concern about children'],
-    Physical:    ['Pain','Sleep problems','Dizziness','Headaches','Fatigue','Sexual difficulties','Eating disorder','Substance abuse','Mobility problems','Physical or sex abuse']
+    Emotional:   ['Anger','Mood alterations','Stress','Depression, low interest','Self-esteem issues','General anxiety','Nightmares','Fear of driving/as a passenger','Other specific fears','Grief','I am not comfortable answering this'],
+    Cognitive:   ['Concentration problems','Memory problems','Academic problems','Decision making problems','Self-organization problems','Obsessive thoughts','Suicidal thoughts','Other disturbing thoughts','Confusions','Other:','I am not comfortable answering this'],
+    Social:      ['Marital tension','Problems at work','Problems at school','Fear of being in public/social setting','Difficulties communicating with people','Social withdrawal','Irritability','Conflict with parents','Conflict with children','Concern about children','I am not comfortable answering this'],
+    Physical:    ['Pain','Sleep problems','Dizziness','Headaches','Fatigue','Sexual difficulties','Eating disorder','Substance abuse','Mobility problems','Physical or sex abuse','I am not comfortable answering this']
   },
   fa: {
-    Emotional:   ['خشم','تغییرات خلق','استرس','افسردگی، بی‌علاقگی','مشکلات عزت نفس','اضطراب عمومی','کابوس','ترس از رانندگی','ترس‌های خاص','داغداری'],
-    Cognitive:   ['مشکلات تمرکز','مشکلات حافظه','مشکلات تحصیلی','مشکلات تصمیم‌گیری','مشکلات خودسازماندهی','افکار وسواسی','افکار خودکشی','افکار آزاردهنده دیگر','گیجی','سایر:'],
-    Social:      ['تنش زناشویی','مشکلات کاری','مشکلات تحصیلی','ترس از فضای عمومی','مشکل در ارتباط با مردم','انزوای اجتماعی','تحریک‌پذیری','تعارض با والدین','تعارض با فرزندان','نگرانی از فرزندان'],
-    Physical:    ['درد','مشکلات خواب','سرگیجه','سردرد','خستگی','مشکلات جنسی','اختلال خوردن','سوء مصرف مواد','مشکلات حرکتی','سوء استفاده جسمی یا جنسی']
+    Emotional:   ['خشم','تغییرات خلق','استرس','افسردگی، بی‌علاقگی','مشکلات عزت نفس','اضطراب عمومی','کابوس','ترس از رانندگی','ترس‌های خاص','داغداری','ترجیح میدم جواب ندم'],
+    Cognitive:   ['مشکلات تمرکز','مشکلات حافظه','مشکلات تحصیلی','مشکلات تصمیم‌گیری','مشکلات خودسازماندهی','افکار وسواسی','افکار خودکشی','افکار آزاردهنده دیگر','گیجی','سایر:','ترجیح میدم جواب ندم'],
+    Social:      ['تنش زناشویی','مشکلات کاری','مشکلات تحصیلی','ترس از فضای عمومی','مشکل در ارتباط با مردم','انزوای اجتماعی','تحریک‌پذیری','تعارض با والدین','تعارض با فرزندان','نگرانی از فرزندان','ترجیح میدم جواب ندم'],
+    Physical:    ['درد','مشکلات خواب','سرگیجه','سردرد','خستگی','مشکلات جنسی','اختلال خوردن','سوء مصرف مواد','مشکلات حرکتی','سوء استفاده جسمی یا جنسی','ترجیح میدم جواب ندم']
   },
   ar: {
     Emotional:   ['الغضب','تقلبات المزاج','التوتر','الاكتئاب، قلة الاهتمام','مشاكل احترام الذات','القلق العام','الكوابيس','الخوف من القيادة','مخاوف محددة أخرى','الحزن','أفضل عدم الإجابة'],
@@ -1426,6 +1426,7 @@ function pick(group, val){
     const el=document.getElementById(group+'-'+o);
     if(el) el.classList.toggle('sel', o===val);
   });
+  if(group==='gender') updateCycleVisibility();
   autosave();
 }
 
@@ -2168,16 +2169,6 @@ function restoreChildren(val){
 function updateCycleVisibility(){
   const wrap = document.getElementById('cycleWrap');
   if(wrap) wrap.style.display = (radioState.gender==='2') ? 'block' : 'none';
-}
-
-// Override pick to also update cycle visibility
-const _origPick = pick;
-function pick(group, val){
-  radioState[group]=val;
-  const opts = group==='gender' ? ['1','2','3'] : ['r','l'];
-  opts.forEach(o=>{ const el=document.getElementById(group+'-'+o); if(el) el.classList.toggle('sel', o===val); });
-  if(group==='gender') updateCycleVisibility();
-  autosave();
 }
 
 // ─── INIT ───
