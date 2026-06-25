@@ -286,7 +286,7 @@ textarea.fi{resize:vertical;min-height:72px}
         <div class="rg"><div class="ro" id="gender-1" onclick="pick('gender','1')"><span id="gm-lbl">M</span></div><div class="ro" id="gender-2" onclick="pick('gender','2')"><span id="gf-lbl">F</span></div><div class="ro" id="gender-3" onclick="pick('gender','3')"><span id="go-lbl">Other</span></div></div>
       </div>
       <div class="field"><label class="lbl" id="l-hand">Dominant Hand</label>
-        <div class="rg"><div class="ro" id="hand-r" onclick="pick('hand','r')">R</div><div class="ro" id="hand-l" onclick="pick('hand','l')">L</div></div>
+        <div class="rg"><div class="ro" id="hand-1" onclick="pick('hand','1')" id="hand-1"><span id="hand-r-lbl">R</span></div><div class="ro" id="hand-2" onclick="pick('hand','2')"><span id="hand-l-lbl">L</span></div></div>
       </div>
       <div class="field"><label class="lbl" id="l-dob">Date of Birth</label><input class="fi" id="i-dob" type="date"></div>
       <div class="field"><label class="lbl" id="l-age">Age</label><input class="fi" id="i-age" type="number" min="16" max="99"></div>
@@ -498,7 +498,10 @@ textarea.fi{resize:vertical;min-height:72px}
           <option value="6">In transit (hotel / friends / shelter)</option>
         </select>
       </div>
-      <div class="field"><label class="lbl" id="l-edu">Education completed (when, program)</label><input class="fi" id="i-edu" type="text" placeholder="e.g. B.Sc. Psychology, 2022"></div>
+      <div class="field"><label class="lbl" id="l-edu">Education — program &amp; year</label><input class="fi" id="i-edu" type="text" placeholder="e.g. B.Sc. Psychology, 2022"></div>
+      <div class="field"><label class="lbl" id="l-eduYears" style="font-size:.8rem">Years of education <span style="opacity:.6">(13=high school, 14=1yr college, 15=diploma, 16=some univ., 17=bachelor, 19=master, 21=PhD)</span></label>
+        <input class="fi" id="i-eduYears" type="number" min="8" max="25" placeholder="e.g. 17">
+      </div>
       <div class="field"><label class="lbl" id="l-grade1" style="font-size:.8rem">School grades — overall estimate (secondary / high school)</label>
         <select class="fs" id="i-grade1">
           <option value="">Select…</option>
@@ -510,7 +513,7 @@ textarea.fi{resize:vertical;min-height:72px}
           <option value="0">N/A</option>
         </select>
       </div>
-      <div class="field"><label class="lbl" id="l-grade2" style="font-size:.8rem">School grades — sciences &amp; math</label>
+      <div class="field"><label class="lbl" id="l-grade2" style="font-size:.8rem">Math / Science (estimate)</label>
         <select class="fs" id="i-grade2">
           <option value="">Select…</option>
           <option value="5">Excellent (A / 90–100%)</option>
@@ -521,7 +524,7 @@ textarea.fi{resize:vertical;min-height:72px}
           <option value="0">N/A</option>
         </select>
       </div>
-      <div class="field"><label class="lbl" id="l-grade3" style="font-size:.8rem">School grades — humanities &amp; arts</label>
+      <div class="field"><label class="lbl" id="l-grade3" style="font-size:.8rem">Social (estimate)</label>
         <select class="fs" id="i-grade3">
           <option value="">Select…</option>
           <option value="5">Excellent (A / 90–100%)</option>
@@ -1133,16 +1136,16 @@ const CONCERNS = {
     Physical:    ['درد','مشکلات خواب','سرگیجه','سردرد','خستگی','مشکلات جنسی','اختلال خوردن','سوء مصرف مواد','مشکلات حرکتی','سوء استفاده جسمی یا جنسی']
   },
   ar: {
-    Emotional:   ['الغضب','تقلبات المزاج','التوتر','الاكتئاب، قلة الاهتمام','مشاكل احترام الذات','القلق العام','الكوابيس','الخوف من القيادة','مخاوف محددة أخرى','الحزن'],
-    Cognitive:   ['مشاكل التركيز','مشاكل الذاكرة','مشاكل أكاديمية','مشاكل اتخاذ القرار','مشاكل التنظيم الذاتي','أفكار وسواسية','أفكار انتحارية','أفكار مزعجة أخرى','تشوش','أخرى:'],
-    Social:      ['التوتر الزوجي','مشاكل في العمل','مشاكل في المدرسة','الخوف من الأماكن العامة','صعوبة التواصل مع الناس','الانسحاب الاجتماعي','التهيج','صراع مع الوالدين','صراع مع الأبناء','قلق بشأن الأبناء'],
-    Physical:    ['الألم','مشاكل النوم','الدوار','الصداع','الإرهاق','صعوبات جنسية','اضطراب الأكل','إساءة استخدام المواد','مشاكل الحركة','إساءة جسدية أو جنسية']
+    Emotional:   ['الغضب','تقلبات المزاج','التوتر','الاكتئاب، قلة الاهتمام','مشاكل احترام الذات','القلق العام','الكوابيس','الخوف من القيادة','مخاوف محددة أخرى','الحزن','أفضل عدم الإجابة'],
+    Cognitive:   ['مشاكل التركيز','مشاكل الذاكرة','مشاكل أكاديمية','مشاكل اتخاذ القرار','مشاكل التنظيم الذاتي','أفكار وسواسية','أفكار انتحارية','أفكار مزعجة أخرى','تشوش','أخرى:','أفضل عدم الإجابة'],
+    Social:      ['التوتر الزوجي','مشاكل في العمل','مشاكل في المدرسة','الخوف من الأماكن العامة','صعوبة التواصل مع الناس','الانسحاب الاجتماعي','التهيج','صراع مع الوالدين','صراع مع الأبناء','قلق بشأن الأبناء','أفضل عدم الإجابة'],
+    Physical:    ['الألم','مشاكل النوم','الدوار','الصداع','الإرهاق','صعوبات جنسية','اضطراب الأكل','إساءة استخدام المواد','مشاكل الحركة','إساءة جسدية أو جنسية','أفضل عدم الإجابة']
   },
   ru: {
-    Emotional:   ['Гнев','Перепады настроения','Стресс','Депрессия, потеря интереса','Проблемы с самооценкой','Общая тревожность','Кошмары','Страх вождения / езды','Другие специфические страхи','Горе'],
-    Cognitive:   ['Проблемы с концентрацией','Проблемы с памятью','Академические проблемы','Проблемы с принятием решений','Проблемы с самоорганизацией','Навязчивые мысли','Суицидальные мысли','Другие тревожные мысли','Спутанность сознания','Другое:'],
-    Social:      ['Супружеское напряжение','Проблемы на работе','Проблемы в школе','Страх публичных мест','Трудности общения','Социальная изоляция','Раздражительность','Конфликт с родителями','Конфликт с детьми','Беспокойство о детях'],
-    Physical:    ['Боль','Проблемы со сном','Головокружение','Головные боли','Усталость','Сексуальные трудности','Расстройство питания','Злоупотребление веществами','Проблемы с подвижностью','Физическое или сексуальное насилие']
+    Emotional:   ['Гнев','Перепады настроения','Стресс','Депрессия, потеря интереса','Проблемы с самооценкой','Общая тревожность','Кошмары','Страх вождения / езды','Другие специфические страхи','Горе','Предпочитаю не отвечать'],
+    Cognitive:   ['Проблемы с концентрацией','Проблемы с памятью','Академические проблемы','Проблемы с принятием решений','Проблемы с самоорганизацией','Навязчивые мысли','Суицидальные мысли','Другие тревожные мысли','Спутанность сознания','Другое:','Предпочитаю не отвечать'],
+    Social:      ['Супружеское напряжение','Проблемы на работе','Проблемы в школе','Страх публичных мест','Трудности общения','Социальная изоляция','Раздражительность','Конфликт с родителями','Конфликт с детьми','Беспокойство о детях','Предпочитаю не отвечать'],
+    Physical:    ['Боль','Проблемы со сном','Головокружение','Головные боли','Усталость','Сексуальные трудности','Расстройство питания','Злоупотребление веществами','Проблемы с подвижностью','Физическое или сексуальное насилие','Предпочитаю не отвечать']
   }
 };
 
@@ -1257,7 +1260,7 @@ const T = {
 const FIDS = [
   'id','fname','lname','dob','age','pob','nat','langs','immigrated','immigYear','immigFrom','immigAge','birthNat',
   'fatherAge','motherAge','birthNum','sibTotal','fatherProf','motherProf','relParents','relParYou','relParSib','relSibYou',
-  'marital','maritalHow','partnerAge','partnerOcc','pets','numPets','living','edu','grade1','grade2','grade3','hobbyPre','hobbyNow',
+  'marital','maritalHow','partnerAge','partnerOcc','pets','numPets','living','edu','eduYears','grade1','grade2','grade3','hobbyPre','hobbyNow',
   'weight','height','blood','traumas','ses','alcohol','alcoholAmount','smoking','drugs','drugName','drugAmount','drugWhen',
   'diet','meals','breakfastTime','lunchTime','dinnerTime','exercise','testDate','cycleDay',
   'wakeP','wakeA','bedP','bedA','fallAsleep','hoursP','hoursA',
@@ -1355,7 +1358,7 @@ function fillFromSaved(saved){
     if(el&&d[id]!==undefined) el.value=d[id];
   });
   if(saved.radioState?.gender) pick('gender', saved.radioState.gender);
-  if(saved.radioState?.hand) pick('hand', saved.radioState.hand);
+  if(saved.radioState?.hand){ const hv=saved.radioState.hand; pick('hand', hv==='r'?'1':hv==='l'?'2':hv); }
   if(d.langs) restoreLangs(d.langs);
   if(d.smoking !== undefined) restoreSmoke(d.smoking);
   if(d.immigrated !== undefined) restoreImmig(d.immigrated);
@@ -1418,7 +1421,7 @@ function updateProgress(){
 // ─── RADIO ───
 function pick(group, val){
   radioState[group]=val;
-  const opts = group==='gender' ? ['1','2','3'] : ['r','l'];
+  const opts = group==='gender' ? ['1','2','3'] : ['1','2'];
   opts.forEach(o=>{
     const el=document.getElementById(group+'-'+o);
     if(el) el.classList.toggle('sel', o===val);
@@ -1483,14 +1486,14 @@ const LABELS = {
     'l-marital':'Marital Status','l-maritalHow':'If married/common law — how long & partner\'s age/occupation',
         'l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation',
     'l-maritalHow':'Relationship duration (years)',
-    'l-grade1':'School grades — overall (secondary)','l-grade2':'School grades — sciences & math','l-grade3':'School grades — humanities & arts',
+    'l-grade1':'Grades — Athletics / Physical work','l-grade2':'Grades — Math / Science','l-grade3':'Grades — Social',
     'l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)',
     'l-ses':'Socio-economic Status',
     'l-immigrated':'Immigrated?','immig-n-lbl':'No','immig-y-lbl':'Yes',
     'l-immigYear':'Year','l-immigFrom':'From where','l-immigAge':'Age at immigration','l-birthNat':'Birth country nationality',
     'child-n-lbl':'None','child-y-lbl':'Yes',
-    'l-children':'Children','l-grade1':'School grades — overall (secondary)','l-grade2':'School grades — sciences & math','l-grade3':'School grades — humanities & arts','l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation','l-maritalHow':'Relationship duration (if married/common-law)','l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)','l-pets':'Pets?',
-    'l-living':'Living Arrangements','l-edu':'Education completed (when, program)',
+    'l-children':'Children','l-grade1':'Grades — Athletics / Physical work','l-grade2':'Grades — Math / Science','l-grade3':'Grades — Social','l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation','l-maritalHow':'Relationship duration (if married/common-law)','l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)','l-pets':'Pets?',
+    'l-living':'Living Arrangements','l-edu':'Education — program & year','l-eduYears':'Years of education',
     'l-hobbyPre':'Hobby before age 16','l-hobbyNow':'Hobby now',
     'l-weight':'Weight','l-height':'Height','l-blood':'Blood Type',
     'l-traumas':'Traumas / accidents in the past (year)',
@@ -1526,7 +1529,7 @@ const LABELS = {
     'l-relSibYou':'رابطه دوران کودکی — خواهر/برادران و شما',
     'l-marital':'وضعیت تأهل','l-maritalHow':'اگر متأهل/همسر قانونی — چه مدت و سن و شغل همسر',
     'l-children':'فرزندان','child-n-lbl':'هیچ','child-y-lbl':'بله',
-    'l-grade1':'نمرات مدرسه — کلی (متوسطه)','l-grade2':'نمرات مدرسه — علوم و ریاضی','l-grade3':'نمرات مدرسه — انسانی و هنر',
+    'l-grade1':'نمرات — ورزش / کار جسمی','l-grade2':'نمرات — ریاضی / علوم','l-grade3':'نمرات — اجتماعی',
     'l-partnerAge':'سن همسر/شریک','l-partnerOcc':'شغل همسر/شریک',
     'l-maritalHow':'مدت رابطه (اگر متأهل)','l-cycleDay':'سیکل قاعدگی',
     'l-cycleNote':'(فقط زنان — روزهای گذشته از آخرین سیکل؛ ۱۰۰=باردار، ۲۰۰=یائسه)',
@@ -1534,7 +1537,7 @@ const LABELS = {
     'l-immigrated':'مهاجرت کرده‌اید؟','immig-n-lbl':'خیر','immig-y-lbl':'بله',
     'l-immigYear':'سال','l-immigFrom':'از کجا','l-immigAge':'سن موقع مهاجرت','l-birthNat':'ملیت کشور مبدا',
     'l-pets':'حیوان خانگی؟',
-    'l-living':'وضعیت سکونت','l-edu':'تحصیلات تکمیل‌شده (چه زمانی، رشته)',
+    'l-living':'وضعیت سکونت','l-edu':'تحصیلات — رشته و سال','l-eduYears':'سال‌های تحصیل (۱۳=دیپلم، ۱۷=لیسانس، ۱۹=فوق‌لیسانس، ۲۱=دکترا)',
     'l-hobbyPre':'سرگرمی قبل از ۱۶ سالگی','l-hobbyNow':'سرگرمی فعلی',
     'l-weight':'وزن','l-height':'قد','l-blood':'گروه خونی',
     'l-traumas':'تروما / تصادفات گذشته (سال)','l-surgeries':'عمل‌های جراحی گذشته',
@@ -1571,7 +1574,7 @@ const LABELS = {
     'l-relSibYou':'علاقة الطفولة — إخوتك وأنت',
     'l-marital':'الحالة الاجتماعية','l-maritalHow':'إذا متزوج/علاقة قانونية — منذ متى وعمر ومهنة الشريك',
     'l-children':'الأطفال','child-n-lbl':'لا','child-y-lbl':'نعم',
-    'l-grade1':'درجات المدرسة — عام','l-grade2':'درجات المدرسة — علوم ورياضيات','l-grade3':'درجات المدرسة — إنسانيات وفنون',
+    'l-grade1':'الدرجات — الرياضة / العمل الجسدي','l-grade2':'الدرجات — الرياضيات / العلوم','l-grade3':'الدرجات — الاجتماعيات',
     'l-partnerAge':'عمر الشريك','l-partnerOcc':'مهنة الشريك',
     'l-maritalHow':'مدة العلاقة (إذا متزوج)','l-cycleDay':'الدورة الشهرية',
     'l-cycleNote':'(للنساء فقط — أيام منذ آخر دورة؛ 100=حامل، 200=انقطاع الطمث)',
@@ -1579,7 +1582,7 @@ const LABELS = {
     'l-immigrated':'هل هاجرت؟','immig-n-lbl':'لا','immig-y-lbl':'نعم',
     'l-immigYear':'السنة','l-immigFrom':'من أين','l-immigAge':'العمر عند الهجرة','l-birthNat':'جنسية بلد المنشأ',
     'l-pets':'حيوانات أليفة؟',
-    'l-living':'وضع السكن','l-edu':'التعليم المكتمل (متى، البرنامج)',
+    'l-living':'وضع السكن','l-edu':'التعليم — البرنامج والسنة','l-eduYears':'سنوات التعليم (13=ثانوية، 17=بكالوريوس، 19=ماجستير، 21=دكتوراه)',
     'l-hobbyPre':'الهواية قبل سن 16','l-hobbyNow':'الهواية الحالية',
     'l-weight':'الوزن','l-height':'الطول','l-blood':'فصيلة الدم',
     'l-traumas':'الصدمات / الحوادث السابقة (السنة)','l-surgeries':'العمليات الجراحية السابقة',
@@ -1621,14 +1624,14 @@ const LABELS = {
     'l-marital':'Семейное положение','l-maritalHow':'Если в браке/гражданском браке — как долго и возраст/профессия партнёра',
         'l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра',
     'l-maritalHow':'Продолжительность отношений (лет)',
-    'l-grade1':'Оценки — общий балл (средняя школа)','l-grade2':'Оценки — точные науки и математика','l-grade3':'Оценки — гуманитарные и искусство',
+    'l-grade1':'Оценки — Физкультура / Физический труд','l-grade2':'Оценки — Математика / Естественные науки','l-grade3':'Оценки — Социальные науки',
     'l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)',
     'l-ses':'Социально-экономический статус',
     'l-immigrated':'Вы иммигрировали?','immig-n-lbl':'Нет','immig-y-lbl':'Да',
     'l-immigYear':'Год','l-immigFrom':'Откуда','l-immigAge':'Возраст при иммиграции','l-birthNat':'Национальность страны рождения',
     'child-n-lbl':'Нет','child-y-lbl':'Да',
-    'l-children':'Дети','l-grade1':'Оценки — общий балл (средняя школа)','l-grade2':'Оценки — точные науки и математика','l-grade3':'Оценки — гуманитарные и искусство','l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра','l-maritalHow':'Продолжительность отношений','l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)','l-pets':'Домашние животные?',
-    'l-living':'Жилищные условия','l-edu':'Образование (когда, специальность)',
+    'l-children':'Дети','l-grade1':'Оценки — Физкультура / Физический труд','l-grade2':'Оценки — Математика / Естественные науки','l-grade3':'Оценки — Социальные науки','l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра','l-maritalHow':'Продолжительность отношений','l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)','l-pets':'Домашние животные?',
+    'l-living':'Жилищные условия','l-edu':'Образование — специальность и год','l-eduYears':'Лет образования (13=школа, 17=бакалавр, 19=магистр, 21=PhD)',
     'l-hobbyPre':'Хобби до 16 лет','l-hobbyNow':'Хобби сейчас',
     'l-weight':'Вес','l-height':'Рост','l-blood':'Группа крови',
     'l-traumas':'Травмы / несчастные случаи (год)','l-surgeries':'Операции в прошлом',
@@ -1679,8 +1682,8 @@ function applyTranslations(){
   document.getElementById('gender-1').querySelector('span').textContent=t.genderM;
   document.getElementById('gender-2').querySelector('span').textContent=t.genderF;
   if(document.getElementById('gender-3')) document.getElementById('gender-3').querySelector('span').textContent=t.genderO||'Other';
-  document.getElementById('hand-r').textContent=t.handR;
-  document.getElementById('hand-l').textContent=t.handL;
+  const hr=document.getElementById('hand-r-lbl'); if(hr) hr.textContent=t.handR;
+  const hl=document.getElementById('hand-l-lbl'); if(hl) hl.textContent=t.handL;
 
   // ALL field labels from LABELS map
   Object.entries(L).forEach(([id, text])=>{
