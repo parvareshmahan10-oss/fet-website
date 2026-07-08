@@ -332,6 +332,7 @@ textarea.fi{resize:vertical;min-height:72px}
           <div class="fg" style="gap:.6rem">
             <div class="field"><label class="lbl" id="l-immigYear" style="font-size:.8rem">Year</label><input class="fi" id="i-immigYear" type="number" min="1900" max="2026" placeholder="e.g. 2010"></div>
             <div class="field"><label class="lbl" id="l-immigFrom" style="font-size:.8rem">From where</label><input class="fi" id="i-immigFrom" type="text" placeholder="e.g. Iran"></div>
+            <div class="field"><label class="lbl" id="l-immigTo" style="font-size:.8rem">To where</label><input class="fi" id="i-immigTo" type="text" placeholder="e.g. Canada"></div>
             <div class="field"><label class="lbl" id="l-immigAge" style="font-size:.8rem">Age at immigration</label><input class="fi" id="i-immigAge" type="number" min="0" max="100" placeholder="e.g. 22"></div>
             <div class="field full"><label class="lbl" id="l-birthNat" style="font-size:.8rem">Birth country — nationality code</label>
               <select class="fs" id="i-birthNat">
@@ -445,8 +446,8 @@ textarea.fi{resize:vertical;min-height:72px}
         <label class="lbl" id="l-maritalHow">Relationship duration (years)</label>
         <input class="fi" id="i-maritalHow" type="number" min="0" max="80" placeholder="e.g. 3">
       </div>
-      <div class="field"><label class="lbl" id="l-partnerAge">Partner's age</label><input class="fi" id="i-partnerAge" type="number" min="16" max="100" placeholder="years"></div>
-      <div class="field"><label class="lbl" id="l-partnerOcc">Partner's occupation</label>
+      <div class="field" id="partnerAgeWrap"><label class="lbl" id="l-partnerAge">Partner's age</label><input class="fi" id="i-partnerAge" type="number" min="16" max="100" placeholder="years"></div>
+      <div class="field" id="partnerOccWrap"><label class="lbl" id="l-partnerOcc">Partner's occupation</label>
         <select class="fs" id="i-partnerOcc">
           <option value="">Select…</option>
           <option value="1">Art &amp; Design</option>
@@ -1258,7 +1259,7 @@ const T = {
 
 // ─── ALL TEXT FIELD IDs ───
 const FIDS = [
-  'id','fname','lname','dob','age','pob','nat','langs','immigrated','immigYear','immigFrom','immigAge','birthNat',
+  'id','fname','lname','dob','age','pob','nat','langs','immigrated','immigYear','immigFrom','immigTo','immigAge','birthNat',
   'fatherAge','motherAge','birthNum','sibTotal','fatherProf','motherProf','relParents','relParYou','relParSib','relSibYou',
   'marital','maritalHow','partnerAge','partnerOcc','pets','numPets','living','edu','eduYears','grade1','grade2','grade3','hobbyPre','hobbyNow',
   'weight','height','blood','traumas','ses','alcohol','alcoholAmount','smoking','drugs','drugName','drugAmount','drugWhen',
@@ -1478,7 +1479,7 @@ const LABELS = {
     'l-gender':'Gender','l-hand':'Dominant Hand','l-dob':'Date of Birth','l-age':'Age',
     'l-pob':'Place of Birth','l-nat':'Nationality',
     'l-langs':'Languages Spoken',
-    'l-immigrated':'If immigrated — when / from where / at what age',
+    'l-immigrated':'If immigrated — when / from where to where / at what age',
     'l-fatherAge':"Father's age at your birth",'l-motherAge':"Mother's age at your birth",'l-birthNum':'I am child number','l-sibTotal':'Out of (total children)','l-fatherProf':"Father's occupation",'l-motherProf':"Mother's occupation",
     'l-relParents':'Childhood relationship — between parents',
     'l-relParYou':'Childhood relationship — parents and you',
@@ -1491,7 +1492,7 @@ const LABELS = {
     'l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)',
     'l-ses':'Socio-economic Status',
     'l-immigrated':'Immigrated?','immig-n-lbl':'No','immig-y-lbl':'Yes',
-    'l-immigYear':'Year','l-immigFrom':'From where','l-immigAge':'Age at immigration','l-birthNat':'Birth country nationality',
+    'l-immigYear':'Year','l-immigFrom':'From where','l-immigTo':'To where','l-immigAge':'Age at immigration','l-birthNat':'Birth country nationality',
     'child-n-lbl':'None','child-y-lbl':'Yes',
     'l-children':'Children','l-grade1':'Grades — Athletics / Physical work','l-grade2':'Grades — Math / Science','l-grade3':'Grades — Social','l-partnerAge':'Partner\'s age','l-partnerOcc':'Partner\'s occupation','l-maritalHow':'Relationship duration (if married/common-law)','l-cycleDay':'Menstrual cycle','l-cycleNote':'(women only — days since last cycle; 100 = pregnant, 200 = menopause)','l-pets':'Pets?',
     'l-living':'Living Arrangements','l-edu':'Education — program & year','l-eduYears':'Years of education',
@@ -1511,8 +1512,8 @@ const LABELS = {
     'l-fallAsleep':'Time to fall asleep','l-hoursP':'Hours of sleep preferred','l-hoursA':'Hours of sleep actual',
     'l-consciousness':'Did you ever lose consciousness?','consciousness-n-lbl':'No','consciousness-y-lbl':'Yes','l-consciousnessDetails':'When and what happened',
     'l-psychEp':'Episodes with psychologist / psychiatrist?','psychEp-n-lbl':'No','psychEp-y-lbl':'Yes','l-psychEpDetails':'Why and when',
-    'l-famFather':'Father','l-famMother':'Mother','l-famGrand':'Grandparents',
-    'l-famSib':'Brother / Sister','l-famChild':'Children',
+    'l-famFather':'Father','famFather-n-lbl':'No','famFather-y-lbl':'Yes','l-famFatherDetails':'What illness / details','l-famMother':'Mother','famMother-n-lbl':'No','famMother-y-lbl':'Yes','l-famMotherDetails':'What illness / details','l-famGrand':'Grandparents','famGrand-n-lbl':'No','famGrand-y-lbl':'Yes','l-famGrandDetails':'What illness / details',
+    'l-famSib':'Brother / Sister','famSib-n-lbl':'No','famSib-y-lbl':'Yes','l-famSibDetails':'What illness / details','l-famChild':'Children','famChild-n-lbl':'No','famChild-y-lbl':'Yes','l-famChildDetails':'What illness / details',
     'l-workPos':'Work position / title','l-workStart':'Started this work (when)',
     'l-workTasks':'Tasks and responsibilities','l-workPrev':'Jobs before (what and when)',
     'l-n1':'My Number 1 problem is:',
@@ -1522,7 +1523,7 @@ const LABELS = {
     'l-gender':'جنسیت','l-hand':'دست غالب','l-dob':'تاریخ تولد','l-age':'سن',
     'l-pob':'محل تولد','l-nat':'ملیت',
     'l-langs':'زبان‌های گفتاری',
-    'l-immigrated':'اگر مهاجرت کرده‌اید — چه زمانی / از کجا / در چه سنی',
+    'l-immigrated':'اگر مهاجرت کرده‌اید — چه زمانی / از کجا به کجا / در چه سنی',
     'l-fatherAge':'سن پدر هنگام تولد شما','l-motherAge':'سن مادر هنگام تولد شما','l-birthNum':'من فرزند شماره','l-sibTotal':'از (تعداد کل فرزندان)','l-fatherProf':'شغل پدر','l-motherProf':'شغل مادر',
     'l-relParents':'رابطه دوران کودکی — بین والدین',
     'l-relParYou':'رابطه دوران کودکی — والدین و شما',
@@ -1536,7 +1537,7 @@ const LABELS = {
     'l-cycleNote':'(فقط زنان — روزهای گذشته از آخرین سیکل؛ ۱۰۰=باردار، ۲۰۰=یائسه)',
     'l-ses':'وضعیت اقتصادی-اجتماعی',
     'l-immigrated':'مهاجرت کرده‌اید؟','immig-n-lbl':'خیر','immig-y-lbl':'بله',
-    'l-immigYear':'سال','l-immigFrom':'از کجا','l-immigAge':'سن موقع مهاجرت','l-birthNat':'ملیت کشور مبدا',
+    'l-immigYear':'سال','l-immigFrom':'از کجا','l-immigTo':'به کجا','l-immigAge':'سن موقع مهاجرت','l-birthNat':'ملیت کشور مبدا',
     'l-pets':'حیوان خانگی؟',
     'l-living':'وضعیت سکونت','l-edu':'تحصیلات — رشته و سال','l-eduYears':'سال‌های تحصیل (۱۳=دیپلم، ۱۷=لیسانس، ۱۹=فوق‌لیسانس، ۲۱=دکترا)',
     'l-hobbyPre':'سرگرمی قبل از ۱۶ سالگی','l-hobbyNow':'سرگرمی فعلی',
@@ -1556,7 +1557,7 @@ const LABELS = {
     'l-consciousness':'آیا تا به حال بیهوش شده‌اید؟ اگر بله — چه زمانی و چه اتفاقی افتاد',
     'l-psychEp':'آیا دوره‌هایی داشته‌اید که به کمک روانشناس یا روانپزشک نیاز بود؟ (چرا و چه زمانی)',
     'l-famFather':'پدر','famFather-n-lbl':'خیر','famFather-y-lbl':'بله','l-famFatherDetails':'جزئیات','l-famMother':'مادر','famMother-n-lbl':'خیر','famMother-y-lbl':'بله','l-famMotherDetails':'جزئیات','l-famGrand':'پدربزرگ/مادربزرگ','famGrand-n-lbl':'خیر','famGrand-y-lbl':'بله','l-famGrandDetails':'جزئیات',
-    'l-famSib':'برادر / خواهر','l-famChild':'فرزندان','famChild-n-lbl':'خیر','famChild-y-lbl':'بله','l-famChildDetails':'جزئیات',
+    'l-famSib':'برادر / خواهر','famSib-n-lbl':'خیر','famSib-y-lbl':'بله','l-famSibDetails':'جزئیات','l-famChild':'فرزندان','famChild-n-lbl':'خیر','famChild-y-lbl':'بله','l-famChildDetails':'جزئیات',
     'l-workPos':'سمت / عنوان شغلی','l-workStart':'شروع این کار (چه زمانی)',
     'l-workTasks':'وظایف و مسئولیت‌ها','l-workPrev':'مشاغل قبلی (چه کاری و چه زمانی)',
     'l-n1':'مشکل اصلی من:',
@@ -1567,7 +1568,7 @@ const LABELS = {
     'l-gender':'الجنس','l-hand':'اليد المسيطرة','l-dob':'تاريخ الميلاد','l-age':'العمر',
     'l-pob':'مكان الولادة','l-nat':'الجنسية',
     'l-langs':'اللغات المتحدثة',
-    'l-immigrated':'في حال الهجرة — متى / من أين / في أي عمر',
+    'l-immigrated':'في حال الهجرة — متى / من أين إلى أين / في أي عمر',
     'l-fatherAge':'عمر الأب عند ولادتك','l-motherAge':'عمر الأم عند ولادتك','l-birthNum':'أنا الطفل رقم','l-sibTotal':'من (إجمالي الأطفال)','l-fatherProf':'مهنة الأب','l-motherProf':'مهنة الأم',
     'l-relParents':'علاقة الطفولة — بين الوالدين',
     'l-relParYou':'علاقة الطفولة — الوالدان وأنت',
@@ -1581,7 +1582,7 @@ const LABELS = {
     'l-cycleNote':'(للنساء فقط — أيام منذ آخر دورة؛ 100=حامل، 200=انقطاع الطمث)',
     'l-ses':'الوضع الاجتماعي والاقتصادي',
     'l-immigrated':'هل هاجرت؟','immig-n-lbl':'لا','immig-y-lbl':'نعم',
-    'l-immigYear':'السنة','l-immigFrom':'من أين','l-immigAge':'العمر عند الهجرة','l-birthNat':'جنسية بلد المنشأ',
+    'l-immigYear':'السنة','l-immigFrom':'من أين','l-immigTo':'إلى أين','l-immigAge':'العمر عند الهجرة','l-birthNat':'جنسية بلد المنشأ',
     'l-pets':'حيوانات أليفة؟',
     'l-living':'وضع السكن','l-edu':'التعليم — البرنامج والسنة','l-eduYears':'سنوات التعليم (13=ثانوية، 17=بكالوريوس، 19=ماجستير، 21=دكتوراه)',
     'l-hobbyPre':'الهواية قبل سن 16','l-hobbyNow':'الهواية الحالية',
@@ -1613,7 +1614,7 @@ const LABELS = {
     'l-gender':'Пол','l-hand':'Ведущая рука','l-dob':'Дата рождения','l-age':'Возраст',
     'l-pob':'Место рождения','l-nat':'Национальность',
     'l-langs':'Языки общения',
-    'l-immigrated':'Если эмигрировали — когда / откуда / в каком возрасте',
+    'l-immigrated':'Если эмигрировали — когда / откуда куда / в каком возрасте',
     'l-fatherAge':'Возраст отца при вашем рождении','l-motherAge':'Возраст матери при вашем рождении','l-birthNum':'Я ребёнок номер','l-sibTotal':'Из (всего детей)','l-fatherProf':'Профессия отца','l-motherProf':'Профессия матери',
     'l-birthOrder':'Порядок рождения (№ из скольких детей)',
     'l-sibDiff':'Разница в возрасте между вами и братьями/сёстрами',
@@ -1629,7 +1630,7 @@ const LABELS = {
     'l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)',
     'l-ses':'Социально-экономический статус',
     'l-immigrated':'Вы иммигрировали?','immig-n-lbl':'Нет','immig-y-lbl':'Да',
-    'l-immigYear':'Год','l-immigFrom':'Откуда','l-immigAge':'Возраст при иммиграции','l-birthNat':'Национальность страны рождения',
+    'l-immigYear':'Год','l-immigFrom':'Откуда','l-immigTo':'Куда','l-immigAge':'Возраст при иммиграции','l-birthNat':'Национальность страны рождения',
     'child-n-lbl':'Нет','child-y-lbl':'Да',
     'l-children':'Дети','l-grade1':'Оценки — Физкультура / Физический труд','l-grade2':'Оценки — Математика / Естественные науки','l-grade3':'Оценки — Социальные науки','l-partnerAge':'Возраст партнёра','l-partnerOcc':'Профессия партнёра','l-maritalHow':'Продолжительность отношений','l-cycleDay':'Менструальный цикл','l-cycleNote':'(только для женщин — дней с последнего цикла; 100=беременность, 200=менопауза)','l-pets':'Домашние животные?',
     'l-living':'Жилищные условия','l-edu':'Образование — специальность и год','l-eduYears':'Лет образования (13=школа, 17=бакалавр, 19=магистр, 21=PhD)',
@@ -1649,8 +1650,8 @@ const LABELS = {
     'l-fallAsleep':'Время засыпания','l-hoursP':'Желаемое количество часов сна','l-hoursA':'Фактическое количество часов сна',
     'l-consciousness':'Теряли ли вы когда-нибудь сознание? Если да — когда и что произошло',
     'l-psychEp':'Были ли у вас случаи, требовавшие помощи психолога или психиатра? (почему и когда)',
-    'l-famFather':'Отец','famFather-n-lbl':'Нет','famFather-y-lbl':'Да','l-famFatherDetails':'Подробности','l-famMother':'Мать','famMother-n-lbl':'Нет','famMother-y-lbl':'Да','l-famMotherDetails':'Подробности','l-famGrand':'Бабушки/Дедушки',
-    'l-famSib':'Брат / Сестра','l-famChild':'Дети','famChild-n-lbl':'Нет','famChild-y-lbl':'Да','l-famChildDetails':'Подробности',
+    'l-famFather':'Отец','famFather-n-lbl':'Нет','famFather-y-lbl':'Да','l-famFatherDetails':'Подробности','l-famMother':'Мать','famMother-n-lbl':'Нет','famMother-y-lbl':'Да','l-famMotherDetails':'Подробности','l-famGrand':'Бабушки/Дедушки','famGrand-n-lbl':'Нет','famGrand-y-lbl':'Да','l-famGrandDetails':'Подробности',
+    'l-famSib':'Брат / Сестра','famSib-n-lbl':'Нет','famSib-y-lbl':'Да','l-famSibDetails':'Подробности','l-famChild':'Дети','famChild-n-lbl':'Нет','famChild-y-lbl':'Да','l-famChildDetails':'Подробности',
     'l-workPos':'Должность / название','l-workStart':'Начало этой работы (когда)',
     'l-workTasks':'Задачи и обязанности','l-workPrev':'Предыдущие должности (что и когда)',
     'l-n1':'Моя проблема № 1:',
@@ -2028,8 +2029,8 @@ document.addEventListener('click', function(e){
 let smokeState = ''; // 'y' or 'n'
 function pickSmoke(v){
   smokeState = v;
-  document.getElementById('smoke-n').classList.toggle('selected', v==='n');
-  document.getElementById('smoke-y').classList.toggle('selected', v==='y');
+  document.getElementById('smoke-n').classList.toggle('sel', v==='n');
+  document.getElementById('smoke-y').classList.toggle('sel', v==='y');
   const detail = document.getElementById('smoke-detail');
   detail.style.display = v==='y' ? 'block' : 'none';
   if(v==='n'){
@@ -2096,6 +2097,23 @@ function onMaritalChange(){
   } else {
     wrap.style.display = 'none';
     input.value = val === '1' ? '0' : ''; // Single → 0, others → blank
+  }
+  // Partner age & occupation — hidden when Single (no partner)
+  const pAgeWrap = document.getElementById('partnerAgeWrap');
+  const pOccWrap = document.getElementById('partnerOccWrap');
+  const pAge     = document.getElementById('i-partnerAge');
+  const pOcc     = document.getElementById('i-partnerOcc');
+  if(pAgeWrap && pOccWrap){
+    if(val === '1'){ // Single → hide + code 0 (no partner)
+      pAgeWrap.style.display = 'none';
+      pOccWrap.style.display = 'none';
+      if(pAge) pAge.value = '0';
+      if(pOcc) pOcc.value = '';
+    } else {
+      pAgeWrap.style.display = '';
+      pOccWrap.style.display = '';
+      if(pAge && pAge.value === '0') pAge.value = '';
+    }
   }
   autosave();
 }
