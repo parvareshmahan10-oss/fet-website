@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Results — FET</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&family=Noto+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box} html{scroll-behavior:smooth}
+:root,[data-theme="light"]{--bg:#f0ede6;--surface:rgba(255,255,255,.92);--surface-solid:#ffffff;--ink:#0d1b2e;--muted:#2a4838;--line:rgba(30,60,30,.35);--accent:#2a6644;--blue:#0d4a8a;--gold:#b88a00;--red:#b3261e;--track:rgba(30,60,30,.10);--band:rgba(42,102,68,.10);--toggle-bg:rgba(42,102,68,.10);--toggle-border:rgba(42,102,68,.30);--toggle-knob:#2a6644;--shadow:rgba(80,60,20,.12)}
+[data-theme="dark"]{--bg:#0d1b2e;--surface:rgba(18,32,56,.93);--surface-solid:#122038;--ink:#ffffff;--muted:#c9d6e3;--line:rgba(100,180,130,.40);--accent:#4aaa70;--blue:#5090d8;--gold:#d4a830;--red:#ef6b5f;--track:rgba(255,255,255,.08);--band:rgba(74,170,112,.14);--toggle-bg:rgba(74,170,112,.12);--toggle-border:rgba(74,170,112,.32);--toggle-knob:#4aaa70;--shadow:rgba(0,0,0,.35)}
+body{min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;transition:background .4s,color .4s}
+body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(80,60,30,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(80,60,30,.03) 1px,transparent 1px);background-size:42px 42px}
+[dir=rtl] body,[dir=rtl] button,[dir=rtl] select{font-family:'Vazirmatn','Noto Sans Arabic',Arial,sans-serif}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* top bar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:.8rem;padding:.6rem 1.2rem;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--track)}
+.home-link{font-weight:900;letter-spacing:.14em;color:var(--accent);text-decoration:none;font-size:1rem;display:flex;align-items:center;gap:.5rem}
+.home-link span{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.top-right{display:flex;align-items:center;gap:.6rem}
+.lang-pick{border:1px solid var(--toggle-border);background:var(--toggle-bg);color:var(--ink);border-radius:999px;padding:.32rem .7rem;font-size:.8rem;font-weight:700;cursor:pointer;outline:none}
+.theme-toggle{display:flex;align-items:center;gap:.45rem;background:var(--toggle-bg);border:1px solid var(--toggle-border);border-radius:999px;padding:.28rem .55rem .28rem .45rem;cursor:pointer}
+.toggle-icon{width:14px;height:14px;color:var(--accent)}
+.toggle-track{width:30px;height:17px;border-radius:999px;background:var(--surface-solid);border:1px solid var(--line);position:relative}
+.toggle-knob{position:absolute;top:2px;left:2px;width:11px;height:11px;border-radius:50%;background:var(--toggle-knob);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+[data-theme="dark"] .toggle-knob{transform:translateX(13px)}
+
+main{width:min(960px,100%);margin:0 auto;padding:5.2rem 1.2rem 3rem;display:flex;flex-direction:column;align-items:center;gap:1.4rem}
+.head{text-align:center;animation:fadeUp .5s ease both}
+.badge{display:inline-flex;align-items:center;gap:.7rem;font-size:.8rem;letter-spacing:.23em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.6rem}
+.badge:before,.badge:after{content:"";width:22px;height:1px;background:var(--accent)}
+.title{font-weight:900;font-size:clamp(2.2rem,6vw,3.6rem);line-height:1.05}
+.title em{font-style:italic;color:var(--accent)}
+.meta{margin-top:.7rem;font-size:.86rem;color:var(--muted);display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem 1rem}
+.meta b{color:var(--ink)}
+.meta span{unicode-bidi:isolate}
+[dir=rtl] .badge,[dir=rtl] .card-lbl,[dir=rtl] .grp-lbl,[dir=rtl] .tag,[dir=rtl] .legend,[dir=rtl] .btn,[dir=rtl] .home-link span{letter-spacing:0}
+
+.panel{width:100%;border:2px solid var(--line);border-radius:28px;background:var(--surface);box-shadow:0 22px 70px var(--shadow);backdrop-filter:blur(18px);transition:background .4s,border-color .4s}
+
+/* radar */
+.radar-panel{padding:1.2rem 1rem 1rem;animation:fadeUp .55s ease .05s both}
+.radar-box{position:relative;width:min(640px,100%);margin:0 auto}
+.radar-box svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--surface-solid);border:1.5px solid var(--line);border-radius:12px;padding:.45rem .7rem;font-size:.8rem;box-shadow:0 8px 24px var(--shadow);opacity:0;transform:translate(-50%,-115%);transition:opacity .15s;white-space:nowrap;z-index:5}
+.tip b{display:block;font-size:.95rem}
+.legend{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;justify-content:center;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:.3rem}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:.4rem;vertical-align:-1px}
+.legend .band-key{width:16px;background:var(--band);border:1px dashed var(--line)}
+
+/* cards */
+.cards{width:100%;display:grid;grid-template-columns:1.4fr 1fr;gap:1rem}
+.card{padding:1.2rem 1.4rem;border-radius:22px;animation:fadeUp .5s ease both}
+.card-lbl{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:.55rem}
+.lead{font-weight:800;font-size:1.25rem;line-height:1.4}
+.lead span{display:inline-block;margin-inline-end:.7rem}
+.lead b{color:var(--accent);font-size:.78rem;letter-spacing:.1em;margin-inline-start:.3rem}
+.val{display:flex;align-items:center;gap:.8rem}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:var(--vc)}
+.val-txt{font-weight:800;font-size:1.1rem;color:var(--vc)}
+.val-num{margin-inline-start:auto;font-size:.82rem;color:var(--muted);white-space:nowrap;direction:ltr;unicode-bidi:isolate}
+
+/* table */
+.tbl{padding:1.3rem 1.5rem 1rem;animation:fadeUp .55s ease .1s both}
+.tbl-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:.4rem;margin-bottom:.3rem}
+.tbl-title{font-weight:800;font-size:1.2rem}
+.grp{padding:.7rem 0 .35rem}
+.grp+.grp{border-top:1px dashed var(--line)}
+.grp-lbl{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.35rem;display:flex;align-items:center;gap:.6rem}
+.grp-lbl:before{content:"";width:16px;height:1px;background:var(--accent)}
+.row{display:grid;grid-template-columns:minmax(150px,230px) 1fr 104px;align-items:center;gap:1rem;padding:.5rem .45rem;border-radius:12px;opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s,background .2s}
+.row.in{opacity:1;transform:none}
+.row:hover,.row.hl{background:var(--track)}
+.row.top{background:var(--band)}
+.nm{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.ab{font-weight:800;font-size:.95rem;letter-spacing:.04em}
+.ab .star{color:var(--accent);margin-inline-start:.35rem;font-size:.8rem}
+.fn{font-size:.8rem;color:var(--muted)}
+.bar{position:relative;height:14px;border-radius:999px;background:var(--track)}
+.bar .bd{position:absolute;inset-block:0;inset-inline-start:44.44%;width:22.22%;background:var(--band);border-inline:1px dashed var(--line)}
+.bar .fl{position:absolute;inset-block:0;inset-inline-start:0;width:0;border-radius:999px;background:var(--c);transition:width 1.1s cubic-bezier(.22,1,.36,1)}
+.bar .kn{position:absolute;top:50%;inset-inline-start:0;width:18px;height:18px;margin-inline-start:-9px;margin-top:-9px;border-radius:50%;background:var(--surface-solid);border:3px solid var(--c);opacity:0;transition:inset-inline-start 1.1s cubic-bezier(.22,1,.36,1),opacity .3s}
+.row.in .kn{opacity:1}
+.vl{display:flex;align-items:center;justify-content:flex-end;gap:.5rem}
+.num{font-weight:800;font-size:1.15rem;min-width:1.6em;text-align:end;direction:ltr;font-variant-numeric:tabular-nums}
+.tag{font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.25rem .5rem;border-radius:999px;color:var(--c);background:var(--cb);border:1px solid var(--c);white-space:nowrap}
+.ticks-row{display:grid;grid-template-columns:minmax(150px,230px) 1fr 104px;gap:1rem;padding:0 .45rem}
+.ticks{position:relative;height:1.1rem;font-size:.68rem;color:var(--muted)}
+.ticks span{position:absolute;inset-inline-start:var(--p);transform:translateX(-50%)}
+[dir=rtl] .ticks span{transform:translateX(50%)}
+
+/* actions */
+.actions{display:flex;flex-wrap:wrap;gap:.8rem;justify-content:center;animation:fadeUp .5s ease .2s both}
+.btn{display:inline-flex;align-items:center;gap:.6rem;border:2px solid var(--accent);border-radius:999px;background:var(--accent);color:#fff;font:700 .86rem Arial,sans-serif;letter-spacing:.13em;text-transform:uppercase;padding:.95rem 1.6rem;cursor:pointer;transition:opacity .2s,transform .2s;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn[disabled]{opacity:.55;cursor:wait;transform:none}
+.btn svg{width:18px;height:18px}
+[data-theme="dark"] .btn:not(.ghost){color:#0d1b2e}
+.note{font-size:.78rem;color:var(--muted);text-align:center;line-height:1.6;max-width:620px}
+
+/* empty */
+.empty{padding:2.4rem 1.6rem;text-align:center;max-width:560px;animation:fadeUp .5s ease both}
+.empty h2{font-size:1.6rem;font-weight:900;margin-bottom:.6rem}
+.empty p{color:var(--muted);line-height:1.7;margin-bottom:1.4rem}
+
+/* pdf sheet (off-screen, always light) */
+#pdfStage{position:fixed;left:-10000px;top:0;width:794px}
+.pg{width:794px;height:1123px;background:#f0ede6;color:#0d1b2e;padding:48px 52px;display:flex;flex-direction:column;gap:18px;font-family:Arial,Helvetica,sans-serif;position:relative}
+[dir=rtl] .pg{font-family:'Vazirmatn','Noto Sans Arabic',Arial,sans-serif}
+.pg .p-top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #2a6644;padding-bottom:12px}
+.pg .p-brand{font-weight:900;font-size:26px;color:#2a6644;letter-spacing:.12em}
+.pg .p-title{font-weight:900;font-size:30px}
+.pg .p-title em{color:#2a6644}
+.pg .p-meta{font-size:12px;color:#2a4838;line-height:1.7;text-align:end}
+.pg .p-box{background:#fff;border:1.5px solid rgba(30,60,30,.3);border-radius:18px;padding:16px 18px}
+.pg .p-foot{position:absolute;bottom:26px;left:52px;right:52px;display:flex;justify-content:space-between;font-size:10.5px;color:#4a6858;border-top:1px solid rgba(30,60,30,.2);padding-top:8px}
+.pg table{width:100%;border-collapse:collapse;font-size:13px}
+.pg th{font-size:10.5px;text-transform:uppercase;color:#2a4838;text-align:start;padding:7px 8px;border-bottom:1.5px solid rgba(30,60,30,.35)}
+.pg td{padding:8px;border-bottom:1px solid rgba(30,60,30,.12);vertical-align:middle}
+.pg tr.grp-r td{background:rgba(42,102,68,.08);font-weight:700;color:#2a6644;font-size:11px;text-transform:uppercase}
+.pg .pbar{position:relative;height:10px;border-radius:99px;background:rgba(30,60,30,.10);width:230px}
+.pg .pbar i{position:absolute;top:0;bottom:0;inset-inline-start:0;border-radius:99px}
+.pg .pbar u{position:absolute;top:0;bottom:0;inset-inline-start:44.44%;width:22.22%;background:rgba(42,102,68,.14)}
+[dir=rtl] .pg th{letter-spacing:0}
+
+@media(max-width:700px){
+  main{padding:4.6rem 1rem 2.4rem}
+  .cards{grid-template-columns:1fr}
+  .panel{border-radius:20px;border-width:1.5px}
+  .tbl{padding:1.1rem 1rem .9rem}
+  .row{grid-template-columns:1fr auto;gap:.45rem .8rem}
+  .vl{grid-column:2;grid-row:1}
+  .bar{grid-column:1/-1}
+  .ticks-row{grid-template-columns:1fr}.ticks-row>div:not(.ticks){display:none}
+  .home-link span{display:none}
+  .btn{width:100%;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .row,.bar .fl,.bar .kn{transition:none}
+  .head,.radar-panel,.card,.tbl,.actions,.empty{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="home-link" href="index.html">← FET <span id="homeTxt">Home</span></a>
+  <div class="top-right">
+    <select class="lang-pick" id="langPick" aria-label="Language">
+      <option value="en">EN</option><option value="fa">فا</option><option value="ar">ع</option><option value="ru">RU</option>
+    </select>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+      <div class="toggle-track"><div class="toggle-knob"></div></div>
+    </button>
+  </div>
+</div>
+
+<main id="main"></main>
+<div id="pdfStage" aria-hidden="true"></div>
+
+<script>
+/* ============================================================
+   STQ-77 scoring — identical to STQ-77Ru.xls (Summary sheet)
+   ============================================================ */
+const STQ_SCALES = {
+  ERM:{items:[1,14,27,40,53,65],rev:[53]},   TMM:{items:[3,16,29,31,42,55],rev:[]},
+  SS: {items:[9,22,48,54,61,73],rev:[9]},    ERS:{items:[4,17,30,43,56,68],rev:[43,56,68]},
+  TMS:{items:[6,19,32,45,66,70],rev:[45,66,70]}, EMP:{items:[20,35,50,52,63,76],rev:[35,52]},
+  ERI:{items:[12,25,36,38,41,51],rev:[25,41]}, PL:{items:[2,10,23,37,49,69],rev:[37]},
+  PRO:{items:[5,15,44,62,64,75],rev:[5,15]}, SLF:{items:[8,11,18,24,28,57],rev:[11]},
+  IMP:{items:[7,33,46,59,71,74],rev:[]},     NEU:{items:[21,34,47,60,67,72],rev:[]},
+  V:  {items:[13,26,39,58,77],rev:[26,39,58,77]}
+};
+const GROUPS = [['motor',['ERM','TMM','SS']],['social',['ERS','TMS','EMP']],['mental',['ERI','PL','PRO']],['emo',['SLF','IMP','NEU']]];
+const KEYS = GROUPS.flatMap(g=>g[1]);
+const MIN=6, MAX=24, HIGH=18, LOW=14;          // Excel: >18 High, <14 Low
+function clean(v){ const n=Number(v); return Number.isInteger(n)&&n>=1&&n<=4 ? n : null; }
+function score(ans){
+  const o={};
+  for(const [k,s] of Object.entries(STQ_SCALES)){
+    let t=0,n=0; for(const it of s.items){ const v=clean(ans[it-1]); if(v===null) continue; t+=s.rev.includes(it)?5-v:v; n++; }
+    o[k]= n===s.items.length ? t : null;
+  }
+  return o;
+}
+const level = x => x===null?null : x>HIGH?'high' : x<LOW?'low' : 'mid';
+const validity = v => v===null?null : v<15?'ok' : v>20?'check' : 'maybe';   // Excel I44
+function scaleOf(item){ for(const [k,s] of Object.entries(STQ_SCALES)) if(s.items.includes(item)) return [k, s.rev.includes(item)]; return ['',false]; }
+
+/* ============================================================
+   Text
+   ============================================================ */
+const TX = {
+  en:{dir:'ltr',home:'Home',badge:'Your Profile',title:'STQ-77 <em>Results</em>',pid:'ID',date:'Completed',name:'Name',
+      overall:'Overall profile',overallSub:'Each axis runs from 6 (centre) to 24 (edge). The shaded ring is the average range (14–18).',
+      lead:'Leading trait',valid:'Validity index',low:'Low',mid:'Average',high:'High',ok:'Valid',maybe:'May not be valid',check:'Check value',na:'Incomplete',avgBand:'Average range',
+      table:'Scale scores',range:'Range 6–24',
+      g:{motor:'Physical activity',social:'Social activity',mental:'Mental activity',emo:'Emotionality'},
+      pdf:'Download PDF',xlsx:'Download Excel',working:'Preparing…',
+      note:'These results are for research purposes only and are not a clinical diagnosis.',
+      emptyT:'No results yet',emptyP:'Your results will appear here after you complete the STQ-77 questionnaire on this device.',emptyB:'Take the STQ-77 →',
+      partial:'Some answers are missing — incomplete scales are not scored.',
+      cols:{code:'Code',scale:'Scale',score:'Score',level:'Level',item:'Item',answer:'Answer (1–4)',reverse:'Reverse',scored:'Scored value',group:'Group'},
+      sheets:{sum:'Summary',stq:'STQ-77 responses',sep:'SEP-STQ responses'},yes:'Yes',
+      n:{ERM:'Motor Endurance',TMM:'Motor Tempo',SS:'Sensation Seeking',ERS:'Social Endurance',TMS:'Social Tempo',EMP:'Empathy',ERI:'Intellectual Endurance',PL:'Plasticity',PRO:'Probabilistic Thinking',SLF:'Self-confidence',IMP:'Impulsivity',NEU:'Neuroticism',V:'Validity'}},
+  fa:{dir:'rtl',home:'خانه',badge:'نیمرخ شما',title:'نتایج <em>STQ-77</em>',pid:'شناسه',date:'تاریخ تکمیل',name:'نام',
+      overall:'نیمرخ کلی',overallSub:'هر محور از ۶ (مرکز) تا ۲۴ (لبه) است. حلقه‌ی رنگی محدوده‌ی متوسط (۱۴ تا ۱۸) را نشان می‌دهد.',
+      lead:'صفت غالب',valid:'شاخص اعتبار',low:'پایین',mid:'متوسط',high:'بالا',ok:'معتبر',maybe:'ممکن است معتبر نباشد',check:'بررسی شود',na:'ناقص',avgBand:'محدوده‌ی متوسط',
+      table:'نمره‌ی مقیاس‌ها',range:'دامنه ۶ تا ۲۴',
+      g:{motor:'فعالیت جسمی',social:'فعالیت اجتماعی',mental:'فعالیت ذهنی',emo:'هیجان‌پذیری'},
+      pdf:'دانلود PDF',xlsx:'دانلود Excel',working:'در حال آماده‌سازی…',
+      note:'این نتایج فقط برای اهداف پژوهشی است و تشخیص بالینی محسوب نمی‌شود.',
+      emptyT:'هنوز نتیجه‌ای نیست',emptyP:'پس از تکمیل پرسشنامه‌ی STQ-77 روی همین دستگاه، نتایج شما اینجا نمایش داده می‌شود.',emptyB:'شروع STQ-77 ←',
+      partial:'بعضی پاسخ‌ها خالی است — مقیاس‌های ناقص نمره نمی‌گیرند.',
+      cols:{code:'کد',scale:'مقیاس',score:'نمره',level:'سطح',item:'آیتم',answer:'پاسخ (۱–۴)',reverse:'معکوس',scored:'نمره‌ی محاسبه‌شده',group:'گروه'},
+      sheets:{sum:'خلاصه',stq:'پاسخ‌های STQ-77',sep:'پاسخ‌های SEP-STQ'},yes:'بله',
+      n:{ERM:'استقامت حرکتی',TMM:'سرعت حرکتی',SS:'هیجان‌خواهی',ERS:'استقامت اجتماعی',TMS:'سرعت اجتماعی',EMP:'همدلی',ERI:'استقامت ذهنی',PL:'انعطاف‌پذیری',PRO:'تفکر احتمالاتی',SLF:'اعتماد به نفس',IMP:'تکانشگری',NEU:'روان‌رنجوری',V:'اعتبار'}},
+  ar:{dir:'rtl',home:'الرئيسية',badge:'ملفك الشخصي',title:'نتائج <em>STQ-77</em>',pid:'المعرّف',date:'تاريخ الإكمال',name:'الاسم',
+      overall:'الملف العام',overallSub:'يمتد كل محور من 6 (المركز) إلى 24 (الحافة). تشير الحلقة المظللة إلى النطاق المتوسط (14–18).',
+      lead:'السمة الغالبة',valid:'مؤشر الصدق',low:'منخفض',mid:'متوسط',high:'مرتفع',ok:'صالح',maybe:'قد لا يكون صالحاً',check:'تحقق من القيمة',na:'غير مكتمل',avgBand:'النطاق المتوسط',
+      table:'درجات المقاييس',range:'النطاق 6–24',
+      g:{motor:'النشاط الجسدي',social:'النشاط الاجتماعي',mental:'النشاط الذهني',emo:'الانفعالية'},
+      pdf:'تحميل PDF',xlsx:'تحميل Excel',working:'جارٍ التحضير…',
+      note:'هذه النتائج لأغراض بحثية فقط وليست تشخيصاً سريرياً.',
+      emptyT:'لا توجد نتائج بعد',emptyP:'ستظهر نتائجك هنا بعد إكمال استبيان STQ-77 على هذا الجهاز.',emptyB:'ابدأ STQ-77 ←',
+      partial:'بعض الإجابات مفقودة — لا تُحتسب المقاييس غير المكتملة.',
+      cols:{code:'الرمز',scale:'المقياس',score:'الدرجة',level:'المستوى',item:'البند',answer:'الإجابة (1–4)',reverse:'معكوس',scored:'القيمة المحتسبة',group:'المجموعة'},
+      sheets:{sum:'الملخص',stq:'إجابات STQ-77',sep:'إجابات SEP-STQ'},yes:'نعم',
+      n:{ERM:'التحمل الحركي',TMM:'السرعة الحركية',SS:'البحث عن الإثارة',ERS:'التحمل الاجتماعي',TMS:'السرعة الاجتماعية',EMP:'التعاطف',ERI:'التحمل الذهني',PL:'المرونة',PRO:'التفكير الاحتمالي',SLF:'الثقة بالنفس',IMP:'الاندفاعية',NEU:'العصابية',V:'الصدق'}},
+  ru:{dir:'ltr',home:'Главная',badge:'Ваш профиль',title:'Результаты <em>STQ-77</em>',pid:'ID',date:'Дата',name:'Имя',
+      overall:'Общий профиль',overallSub:'Каждая ось — от 6 (центр) до 24 (край). Затенённое кольцо — средний диапазон (14–18).',
+      lead:'Ведущая черта',valid:'Индекс достоверности',low:'Низкий',mid:'Средний',high:'Высокий',ok:'Достоверно',maybe:'Может быть недостоверно',check:'Проверьте значение',na:'Не заполнено',avgBand:'Средний диапазон',
+      table:'Баллы по шкалам',range:'Диапазон 6–24',
+      g:{motor:'Физическая активность',social:'Социальная активность',mental:'Интеллектуальная активность',emo:'Эмоциональность'},
+      pdf:'Скачать PDF',xlsx:'Скачать Excel',working:'Подготовка…',
+      note:'Эти результаты предназначены только для исследования и не являются клиническим диагнозом.',
+      emptyT:'Результатов пока нет',emptyP:'Результаты появятся здесь после прохождения опросника STQ-77 на этом устройстве.',emptyB:'Пройти STQ-77 →',
+      partial:'Некоторые ответы отсутствуют — неполные шкалы не подсчитываются.',
+      cols:{code:'Код',scale:'Шкала',score:'Балл',level:'Уровень',item:'Пункт',answer:'Ответ (1–4)',reverse:'Обратный',scored:'Учтённое значение',group:'Группа'},
+      sheets:{sum:'Сводка',stq:'Ответы STQ-77',sep:'Ответы SEP-STQ'},yes:'Да',
+      n:{ERM:'Физическая выносливость',TMM:'Физический темп',SS:'Поиск острых ощущений',ERS:'Социальная эргичность',TMS:'Социальный темп',EMP:'Эмпатия',ERI:'Интеллектуальная эргичность',PL:'Пластичность',PRO:'Вероятностное мышление',SLF:'Самоуверенность',IMP:'Импульсивность',NEU:'Тревожность',V:'Достоверность'}}
+};
+
+/* ============================================================
+   State
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const LS = { get(k){ try{ const r=localStorage.getItem(k); return r?JSON.parse(r):null; }catch(e){ return null; } },
+             set(k,v){ try{ localStorage.setItem(k,typeof v==='string'?v:JSON.stringify(v)); }catch(e){} } };
+const STQ = LS.get('fet_stq77_result');          // saved by stq77-form.html on finish
+const SEP = LS.get('fet_sep_result');            // saved by sep-stq-form.html on finish
+const PART = LS.get('fet_participant');
+let lang = (new URLSearchParams(location.search).get('lang')) || LS.get('fet_results_lang') || STQ?.lang || PART?.lang || 'en';
+if(!TX[lang]) lang='en';
+
+const PAL = {
+  light:{low:'#0d4a8a',mid:'#2a6644',high:'#b88a00',red:'#b3261e',ink:'#0d1b2e',muted:'#2a4838',grid:'rgba(30,60,30,.22)',sector:['rgba(13,74,138,.045)','rgba(42,102,68,.05)'],band:'rgba(42,102,68,.13)',poly:'#2a6644',polyFill:'rgba(42,102,68,.20)',surface:'#ffffff'},
+  dark: {low:'#5090d8',mid:'#4aaa70',high:'#d4a830',red:'#ef6b5f',ink:'#ffffff',muted:'#c9d6e3',grid:'rgba(255,255,255,.16)',sector:['rgba(80,144,216,.07)','rgba(74,170,112,.07)'],band:'rgba(74,170,112,.18)',poly:'#4aaa70',polyFill:'rgba(74,170,112,.24)',surface:'#122038'}
+};
+const theme = () => document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+const hexA = (hex,a) => { const n=parseInt(hex.slice(1),16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
+const digits = s => lang==='fa' ? String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]) : lang==='ar' ? String(s).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let S=null, LEADS=[];
+function compute(){
+  S = score(STQ.answers||[]);
+  const avail = KEYS.filter(k=>S[k]!==null);
+  const top = avail.length ? Math.max(...avail.map(k=>S[k])) : null;
+  LEADS = top===null ? [] : avail.filter(k=>S[k]===top);
+}
+function info(){
+  const d = STQ?.completedAt ? new Date(STQ.completedAt) : null;
+  const name = [PART?.data?.fname, PART?.data?.lname].filter(Boolean).join(' ');
+  return { pid: STQ?.participantID || PART?.participantID || '—',
+           date: d ? d.toLocaleDateString(lang==='fa'?'fa-IR':lang==='ar'?'ar':lang, {year:'numeric',month:'long',day:'numeric'}) : '—',
+           name };
+}
+
+/* ============================================================
+   Radar (SVG, colours resolved in JS so it also exports cleanly)
+   ============================================================ */
+const RW=680, C=RW/2, R=228, R0=26;
+const rad = v => R0 + (R-R0)*(Math.max(MIN,Math.min(MAX,v))-MIN)/(MAX-MIN);
+const ang = i => (-90 + i*30) * Math.PI/180;
+const pt = (i,r) => [C + r*Math.cos(ang(i)), C + r*Math.sin(ang(i))];
+function arcPath(r,a0,a1){ const [x0,y0]=[C+r*Math.cos(a0),C+r*Math.sin(a0)], [x1,y1]=[C+r*Math.cos(a1),C+r*Math.sin(a1)]; return `M${x0},${y0} A${r},${r} 0 0 1 ${x1},${y1}`; }
+
+function radarSVG(p, t, opts={}){
+  const font = TX[lang].dir==='rtl' ? "Vazirmatn,'Noto Sans Arabic',Arial,sans-serif" : 'Arial,Helvetica,sans-serif';
+  const fs = opts.fs || 1, showDom = fs < 1.3;
+  let s = `<svg viewBox="-70 -70 ${RW+140} ${RW+140}" xmlns="http://www.w3.org/2000/svg" font-family="${font}" role="img" aria-label="${esc(t.overall)}">`;
+  // sectors + domain labels
+  GROUPS.forEach(([g],gi)=>{
+    const a0=ang(gi*3)-Math.PI/12, a1=ang(gi*3+2)+Math.PI/12, ro=R+10;
+    s+=`<path class="rz-sec" d="M${C},${C} L${C+ro*Math.cos(a0)},${C+ro*Math.sin(a0)} A${ro},${ro} 0 0 1 ${C+ro*Math.cos(a1)},${C+ro*Math.sin(a1)} Z" fill="${p.sector[gi%2]}"/>`;
+    if(!showDom) return;
+    const am=(a0+a1)/2, rl=R+104, flip = Math.sin(am)>0.01;  // bottom half → path runs the other way so text stays upright
+    const id='arc'+gi+(opts.idSuffix||'');
+    s+=`<path id="${id}" d="${flip?arcPath(rl,a1,a0).replace(' 0 0 1 ',' 0 0 0 '):arcPath(rl,a0,a1)}" fill="none"/>`;
+    s+=`<text class="rz-lbl" font-size="${15*fs}" font-weight="700" fill="${p.mid}" letter-spacing="${TX[lang].dir==='rtl'?0:2}"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(t.g[g].toUpperCase())}</textPath></text>`;
+  });
+  // average band
+  s+=`<path class="rz-band" d="M${C-rad(18)},${C} a${rad(18)},${rad(18)} 0 1,0 ${2*rad(18)},0 a${rad(18)},${rad(18)} 0 1,0 ${-2*rad(18)},0 M${C-rad(14)},${C} a${rad(14)},${rad(14)} 0 1,1 ${2*rad(14)},0 a${rad(14)},${rad(14)} 0 1,1 ${-2*rad(14)},0" fill="${p.band}" fill-rule="evenodd"/>`;
+  // rings
+  [10,14,18,24].forEach(v=>{ s+=`<circle class="rz-ring" cx="${C}" cy="${C}" r="${rad(v)}" fill="none" stroke="${p.grid}" stroke-width="${v===24?1.6:1}" ${v===14||v===18?'stroke-dasharray="4 4"':''}/>`; });
+  // ring labels
+  [10,14,18,24].forEach(v=>{ s+=`<text x="${C+4}" y="${C-rad(v)-4}" font-size="${11*Math.min(fs,1.4)}" fill="${p.muted}" opacity=".85">${digits(v)}</text>`; });
+  // spokes + axis labels
+  KEYS.forEach((k,i)=>{
+    const [x,y]=pt(i,R); s+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="${p.grid}" stroke-width="1"/>`;
+    const [lx,ly]=pt(i,R+22+10*fs), a=Math.cos(ang(i)), anchor = a>0.3?'start':a<-0.3?'end':'middle';
+    const dy = Math.sin(ang(i))>0.5 ? 12*fs : Math.sin(ang(i))<-0.5 ? -8*fs : 0;
+    const lv=level(S[k]), col = lv?p[lv]:p.muted, isTop=LEADS.includes(k);
+    s+=`<g class="rz-ax" data-k="${k}" style="cursor:pointer">
+          <text x="${lx}" y="${ly+dy}" text-anchor="${anchor}" font-size="${16*fs}" font-weight="800" fill="${p.ink}" direction="ltr">${isTop?'★ ':''}${k}</text>
+          <text class="rz-val" data-k="${k}" x="${lx}" y="${ly+dy+17*fs}" text-anchor="${anchor}" font-size="${14*fs}" font-weight="700" fill="${col}" direction="ltr">${S[k]===null?'—':digits(opts.final?S[k]:0)}</text>
+        </g>`;
+  });
+  // profile
+  s+=`<path id="rzPoly${opts.idSuffix||''}" d="" fill="${p.polyFill}" stroke="${p.poly}" stroke-width="2.6" stroke-linejoin="round"/>`;
+  KEYS.forEach((k,i)=>{
+    const lv=level(S[k]), col=lv?p[lv]:p.muted, isTop=LEADS.includes(k);
+    s+=`<circle class="rz-dot" data-k="${k}" data-i="${i}" cx="${C}" cy="${C}" r="${isTop?8:6}" fill="${col}" stroke="${p.surface}" stroke-width="2.5" style="cursor:pointer"/>`;
+    if(isTop) s+=`<circle class="rz-halo" data-i="${i}" cx="${C}" cy="${C}" r="13" fill="none" stroke="${col}" stroke-width="1.6" opacity=".55"/>`;
+  });
+  s+='</svg>';
+  return s;
+}
+function setRadar(svg, prog, suffix=''){
+  // prog(i) → 0..1 growth for vertex i
+  const poly = svg.querySelector('#rzPoly'+suffix);
+  const pts = KEYS.map((k,i)=> pt(i, R0 + (rad(S[k]??MIN)-R0)*prog(i)));
+  poly.setAttribute('d', 'M'+pts.map(p=>p.join(',')).join(' L')+' Z');
+  svg.querySelectorAll('.rz-dot,.rz-halo').forEach(c=>{ const p=pts[+c.dataset.i]; c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); });
+}
+function animateRadar(svg){
+  const vals = [...svg.querySelectorAll('.rz-val')];
+  const ease = x => 1 - Math.pow(1-x,3);
+  if(reduce){ setRadar(svg,()=>1); vals.forEach(v=>{ const k=v.dataset.k; if(S[k]!==null) v.textContent=digits(S[k]); }); return; }
+  svg.querySelectorAll('.rz-sec,.rz-band,.rz-ring,.rz-lbl,.rz-ax').forEach((el,i)=>{ el.style.opacity=0; el.style.transition=`opacity .6s ease ${0.05+i*0.02}s`; requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.opacity=1)); });
+  const t0 = performance.now()+250, D=1100, STAG=70;
+  const step = now => {
+    const e = now - t0;
+    setRadar(svg, i => ease(Math.max(0,Math.min(1,(e - i*STAG)/D))));
+    vals.forEach((v,i)=>{ const k=v.dataset.k; if(S[k]===null) return; const p=ease(Math.max(0,Math.min(1,(e-i*STAG)/D))); v.textContent=digits(Math.round(S[k]*p)); });
+    if(e < D + STAG*12) requestAnimationFrame(step); else setRadar(svg,()=>1);
+  };
+  setRadar(svg,()=>0);
+  requestAnimationFrame(step);
+}
+
+/* ============================================================
+   Page render
+   ============================================================ */
+function render(){
+  const t = TX[lang];
+  document.documentElement.lang = lang; document.documentElement.dir = t.dir;
+  $('homeTxt').textContent = t.home; $('langPick').value = lang;
+  document.title = (lang==='en'?'My Results':t.badge) + ' — FET';
+
+  if(!STQ || !Array.isArray(STQ.answers)){
+    $('main').innerHTML = `<div class="panel empty"><div class="badge">${t.badge}</div><h2>${t.emptyT}</h2><p>${t.emptyP}</p><a class="btn" href="stq77-form.html">${t.emptyB}</a></div>`;
+    return;
+  }
+  compute();
+  const p = PAL[theme()], I = info(), vk = validity(S.V);
+  const vcol = vk ? {ok:'var(--accent)',maybe:'var(--gold)',check:'var(--red)'}[vk] : 'var(--muted)';
+  const incomplete = Object.values(S).some(v=>v===null);
+  const pct = x => ((x-MIN)/(MAX-MIN)*100).toFixed(2)+'%';
+
+  let rows='';
+  GROUPS.forEach(([g,keys])=>{
+    rows+=`<div class="grp"><div class="grp-lbl">${t.g[g]}</div>`;
+    keys.forEach(k=>{
+      const x=S[k], lv=level(x), c=lv?p[lv]:p.muted, top=LEADS.includes(k);
+      rows+=`<div class="row${top?' top':''}" data-k="${k}" style="--c:${c};--cb:${hexA(c.startsWith('#')?c:'#888888',.12)}" data-w="${x===null?'0%':pct(x)}">
+        <div class="nm"><span class="ab">${k}${top?'<span class="star">★</span>':''}</span><span class="fn">${t.n[k]}</span></div>
+        <div class="bar" role="img" aria-label="${esc(t.n[k])}: ${x??t.na}"><div class="bd"></div><div class="fl"></div><div class="kn"></div></div>
+        <div class="vl"><span class="num" data-n="${x??''}">${x===null?'—':digits(0)}</span><span class="tag">${lv?t[lv]:t.na}</span></div>
+      </div>`;
+    });
+    rows+='</div>';
+  });
+  const ticks=[6,10,14,18,24].map(v=>`<span style="--p:${pct(v)}">${digits(v)}</span>`).join('');
+  const dl = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
+
+  $('main').innerHTML = `
+    <div class="head">
+      <div class="badge">${t.badge}</div>
+      <h1 class="title">${t.title}</h1>
+      <div class="meta">${I.name?`<span>${t.name}: <b>${esc(I.name)}</b></span>`:''}<span>${t.pid}: <b dir="ltr">${esc(I.pid)}</b></span><span>${t.date}: <b>${esc(I.date)}</b></span></div>
+    </div>
+    <section class="panel radar-panel">
+      <div class="radar-box" id="radarBox">${radarSVG(p,t,{fs:radarFS()})}<div class="tip" id="tip"></div></div>
+      <div class="legend"><span><i style="background:${p.low}"></i>${t.low} (≤${digits(13)})</span><span><i style="background:${p.mid}"></i>${t.mid} (${digits(14)}–${digits(18)})</span><span><i style="background:${p.high}"></i>${t.high} (≥${digits(19)})</span><span><i class="band-key"></i>${t.avgBand}</span></div>
+    </section>
+    <div class="cards">
+      <div class="panel card" style="animation-delay:.15s"><div class="card-lbl">${t.lead}</div>
+        <div class="lead">${LEADS.length?LEADS.map(k=>`<span>${t.n[k]}<b>${k}</b></span>`).join(''):'—'}</div></div>
+      <div class="panel card" style="animation-delay:.22s;--vc:${vcol}"><div class="card-lbl">${t.valid}</div>
+        <div class="val"><span class="dot"></span><span class="val-txt">${vk?t[vk]:t.na}</span><span class="val-num">V = ${S.V===null?'—':digits(S.V)} / ${digits(20)}</span></div></div>
+    </div>
+    <section class="panel tbl">
+      <div class="tbl-head"><div class="tbl-title">${t.table}</div><div class="fn">${t.range}</div></div>
+      ${rows}
+      <div class="ticks-row"><div></div><div class="ticks">${ticks}</div><div></div></div>
+    </section>
+    ${incomplete?`<p class="note">${t.partial}</p>`:''}
+    <div class="actions">
+      <button class="btn" id="pdfBtn">${dl}<span>${t.pdf}</span></button>
+      <button class="btn ghost" id="xlsBtn">${dl}<span>${t.xlsx}</span></button>
+    </div>
+    <p class="note">${t.note}</p>`;
+
+  // radar animation + interaction
+  const svg = $('radarBox').querySelector('svg');
+  animateRadar(svg);
+  const tip=$('tip'), box=$('radarBox');
+  const show = (k, ev) => {
+    const lv=level(S[k]); tip.innerHTML=`<b>${k} · ${S[k]===null?'—':digits(S[k])}</b>${t.n[k]} — ${lv?t[lv]:t.na}`;
+    const r=box.getBoundingClientRect(), d=svg.querySelector(`.rz-dot[data-k="${k}"]`).getBoundingClientRect();
+    tip.style.left=(d.left+d.width/2-r.left)+'px'; tip.style.top=(d.top-r.top)+'px'; tip.style.opacity=1;
+    document.querySelectorAll('.row').forEach(rw=>rw.classList.toggle('hl',rw.dataset.k===k));
+  };
+  const hide = () => { tip.style.opacity=0; document.querySelectorAll('.row.hl').forEach(rw=>rw.classList.remove('hl')); };
+  svg.querySelectorAll('.rz-dot,.rz-ax').forEach(el=>{ el.addEventListener('mouseenter',e=>show(el.dataset.k,e)); el.addEventListener('mouseleave',hide); el.addEventListener('click',e=>show(el.dataset.k,e)); });
+  document.querySelectorAll('.row').forEach(rw=>{ rw.addEventListener('mouseenter',()=>show(rw.dataset.k)); rw.addEventListener('mouseleave',hide); });
+
+  // table rows animate when scrolled into view
+  const animRow = (r,i) => setTimeout(()=>{
+    r.classList.add('in'); r.querySelector('.fl').style.width=r.dataset.w; r.querySelector('.kn').style.insetInlineStart=r.dataset.w;
+    const el=r.querySelector('.num'), end=el.dataset.n; if(end==='') return;
+    if(reduce){ el.textContent=digits(end); return; }
+    const t0=performance.now(); const st=now=>{ const q=Math.min(1,(now-t0)/1100); el.textContent=digits(Math.round(end*(1-Math.pow(1-q,3)))); if(q<1) requestAnimationFrame(st); }; requestAnimationFrame(st);
+  }, reduce?0:i*80);
+  const rowsEls=[...document.querySelectorAll('.row')];
+  if('IntersectionObserver' in window && !reduce){
+    const io=new IntersectionObserver(es=>{ if(es.some(e=>e.isIntersecting)){ io.disconnect(); rowsEls.forEach(animRow); } },{threshold:0.05});
+    io.observe(document.querySelector('.tbl'));
+  } else rowsEls.forEach(animRow);
+
+  $('pdfBtn').onclick = () => busy($('pdfBtn'), makePDF);
+  $('xlsBtn').onclick = () => busy($('xlsBtn'), makeXLSX);
+}
+
+function radarFS(){ const w=Math.min(640, (document.documentElement.clientWidth||640)-40); return Math.max(1, Math.min(1.8, 560/w)); }
+let _fsBucket = radarFS()>=1.3;
+addEventListener('resize',()=>{ const b=radarFS()>=1.3; if(b!==_fsBucket){ _fsBucket=b; render(); } });
+async function busy(btn, fn){
+  const lbl=btn.querySelector('span'), old=lbl.textContent;
+  btn.disabled=true; lbl.textContent=TX[lang].working;
+  try{ await fn(); } catch(e){ console.error(e); alert('Download failed: '+e.message); }
+  finally{ btn.disabled=false; lbl.textContent=old; }
+}
+function loadScript(src){ return new Promise((ok,no)=>{ if(document.querySelector(`script[src="${src}"]`)) return ok(); const s=document.createElement('script'); s.src=src; s.onload=ok; s.onerror=()=>no(new Error('Could not load '+src)); document.head.appendChild(s); }); }
+const LIB = {
+  h2c:'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+  jspdf:'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
+};
+function fileBase(){ const I=info(); return 'FET_STQ-77_Results_'+String(I.pid).replace(/[^\w-]+/g,'_'); }
+
+/* ============================================================
+   PDF — two A4 pages rendered from a fixed light layout
+   ============================================================ */
+async function makePDF(){
+  await Promise.all([loadScript(LIB.h2c), loadScript(LIB.jspdf)]);
+  if(document.fonts && document.fonts.ready) await document.fonts.ready;
+  const t=TX[lang], p=PAL.light, I=info(), vk=validity(S.V);
+  const vcol = vk ? {ok:p.mid,maybe:p.high,check:p.red}[vk] : p.muted;
+  const pct = x => ((x-MIN)/(MAX-MIN)*100).toFixed(2)+'%';
+  const top = `<div class="p-top"><div><div class="p-brand">FET</div><div class="p-title">${t.title}</div></div>
+     <div class="p-meta">${I.name?`${t.name}: <b>${esc(I.name)}</b><br>`:''}${t.pid}: <b dir="ltr">${esc(I.pid)}</b><br>${t.date}: <b>${esc(I.date)}</b></div></div>`;
+  const foot = n => `<div class="p-foot"><span>${t.note}</span><span>${digits(n)} / ${digits(2)}</span></div>`;
+
+  let tr='';
+  GROUPS.forEach(([g,keys])=>{
+    tr+=`<tr class="grp-r"><td colspan="5">${t.g[g]}</td></tr>`;
+    keys.forEach(k=>{ const x=S[k], lv=level(x), c=lv?p[lv]:p.muted;
+      tr+=`<tr><td style="font-weight:800" dir="ltr">${LEADS.includes(k)?'★ ':''}${k}</td><td>${t.n[k]}</td>
+        <td><div class="pbar"><u></u><i style="width:${x===null?0:pct(x)};background:${c}"></i></div></td>
+        <td style="font-weight:800;font-size:15px;text-align:center">${x===null?'—':digits(x)}</td>
+        <td><span style="color:${c};font-weight:700;font-size:11px;border:1px solid ${c};border-radius:99px;padding:3px 8px;background:${hexA(c,.10)}">${lv?t[lv]:t.na}</span></td></tr>`; });
+  });
+  tr+=`<tr class="grp-r"><td colspan="5">${t.valid}</td></tr><tr><td style="font-weight:800" dir="ltr">V</td><td>${t.n.V}</td><td></td><td style="font-weight:800;font-size:15px;text-align:center">${S.V===null?'—':digits(S.V)}</td><td><span style="color:${vcol};font-weight:700;font-size:11px">${vk?t[vk]:t.na}</span></td></tr>`;
+
+  const stage=$('pdfStage');
+  stage.setAttribute('dir', t.dir);
+  stage.innerHTML = `
+   <div class="pg" id="pg1">${top}
+     <div style="font-weight:800;font-size:17px">${t.overall}</div>
+     <div class="p-box" style="padding:6px 10px">${radarSVG(p,t,{final:true,idSuffix:'P'})}</div>
+     <div style="display:flex;gap:14px">
+       <div class="p-box" style="flex:1.4"><div style="font-size:10.5px;text-transform:uppercase;color:#2a4838;font-weight:700;margin-bottom:6px">${t.lead}</div>
+         <div style="font-weight:800;font-size:17px">${LEADS.map(k=>`${t.n[k]} <span style="color:#2a6644;font-size:11px" dir="ltr">${k}</span>`).join(' · ')||'—'}</div></div>
+       <div class="p-box" style="flex:1"><div style="font-size:10.5px;text-transform:uppercase;color:#2a4838;font-weight:700;margin-bottom:6px">${t.valid}</div>
+         <div style="font-weight:800;font-size:17px;color:${vcol}">${vk?t[vk]:t.na} <span style="color:#4a6858;font-size:12px;font-weight:400" dir="ltr">V = ${S.V??'—'} / 20</span></div></div>
+     </div>
+     <div style="font-size:11px;color:#2a4838;line-height:1.6">${t.overallSub}</div>
+     ${foot(1)}</div>
+   <div class="pg" id="pg2">${top}
+     <div style="font-weight:800;font-size:17px">${t.table} <span style="font-weight:400;font-size:12px;color:#4a6858">· ${t.range}</span></div>
+     <div class="p-box"><table><thead><tr><th>${t.cols.code}</th><th>${t.cols.scale}</th><th></th><th style="text-align:center">${t.cols.score}</th><th>${t.cols.level}</th></tr></thead><tbody>${tr}</tbody></table></div>
+     <div style="font-size:11px;color:#2a4838;display:flex;gap:16px;flex-wrap:wrap">
+       <span><b style="color:${p.low}">■</b> ${t.low} (≤${digits(13)})</span><span><b style="color:${p.mid}">■</b> ${t.mid} (${digits(14)}–${digits(18)})</span><span><b style="color:${p.high}">■</b> ${t.high} (≥${digits(19)})</span></div>
+     ${foot(2)}</div>`;
+  const svgP = stage.querySelector('svg'); setRadar(svgP, ()=>1, 'P');
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({unit:'pt', format:'a4', orientation:'portrait'});
+  const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
+  for(const [i,id] of ['pg1','pg2'].entries()){
+    const canvas = await html2canvas($(id), {scale:2, backgroundColor:'#f0ede6', useCORS:true, logging:false});
+    if(i) pdf.addPage();
+    pdf.addImage(canvas.toDataURL('image/jpeg', .92), 'JPEG', 0, 0, W, H);
+  }
+  pdf.setProperties({title:'FET STQ-77 Results', subject:String(I.pid)});
+  pdf.save(fileBase()+'.pdf');
+  stage.innerHTML='';
+}
+
+/* ============================================================
+   Excel — Summary + raw responses (STQ-77, SEP-STQ if available)
+   ============================================================ */
+async function makeXLSX(){
+  await loadScript(LIB.xlsx);
+  const t=TX[lang], I=info(), vk=validity(S.V);
+  const sum = [
+    ['FET — STQ-77'],
+    [t.pid, I.pid], ...(I.name?[[t.name, I.name]]:[]), [t.date, I.date], ['Language', lang], [],
+    [t.cols.group, t.cols.code, t.cols.scale, t.cols.score, t.cols.level]
+  ];
+  GROUPS.forEach(([g,keys])=>keys.forEach(k=>{ const lv=level(S[k]); sum.push([t.g[g], k, t.n[k], S[k]??'', lv?t[lv]:t.na]); }));
+  sum.push([], [t.valid, 'V', t.n.V, S.V??'', vk?t[vk]:t.na]);
+  sum.push([t.lead, LEADS.join(', '), LEADS.map(k=>t.n[k]).join(', ')]);
+  sum.push([], ['Scoring: sum of items; reverse items = 5 − answer. High > 18, Low < 14. Validity: < 15 valid, 15–20 may not be valid.']);
+
+  const resp = [[t.cols.item, t.cols.answer, t.cols.code, t.cols.reverse, t.cols.scored]];
+  for(let i=1;i<=77;i++){ const a=clean(STQ.answers[i-1]); const [k,rv]=scaleOf(i); resp.push([i, a??'', k, rv?t.yes:'', a===null?'':(rv?5-a:a)]); }
+
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet(sum); ws1['!cols']=[{wch:24},{wch:12},{wch:30},{wch:10},{wch:22}];
+  const ws2 = XLSX.utils.aoa_to_sheet(resp); ws2['!cols']=[{wch:8},{wch:14},{wch:8},{wch:10},{wch:14}];
+  const rtl = TX[lang].dir==='rtl';
+  if(rtl){ wb.Workbook={Views:[{RTL:true}]}; }
+  XLSX.utils.book_append_sheet(wb, ws1, t.sheets.sum.slice(0,31));
+  XLSX.utils.book_append_sheet(wb, ws2, t.sheets.stq.slice(0,31));
+  if(SEP && SEP.answers){
+    const sep=[[t.cols.item, 'Answer']]; const n = Array.isArray(SEP.answers)?SEP.answers.length:144;
+    for(let i=0;i<Math.max(n,144);i++){ const v=SEP.answers[i]; sep.push([i+1, v===null||v===undefined?'':v]); }
+    const ws3=XLSX.utils.aoa_to_sheet(sep); ws3['!cols']=[{wch:8},{wch:10}];
+    XLSX.utils.book_append_sheet(wb, ws3, t.sheets.sep.slice(0,31));
+  }
+  XLSX.writeFile(wb, fileBase()+'.xlsx');
+}
+
+/* ============================================================
+   Theme + language
+   ============================================================ */
+const SUN=`<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+const MOON=`<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+function applyTheme(th, rerender){ document.documentElement.setAttribute('data-theme',th); LS.set('fet-theme',th); $('toggleIcon').innerHTML = th==='dark'?MOON:SUN; if(rerender) render(); }
+applyTheme((()=>{ try{ return localStorage.getItem('fet-theme')||'light'; }catch(e){ return 'light'; } })(), false);
+$('themeToggle').addEventListener('click',()=>applyTheme(theme()==='dark'?'light':'dark', true));
+$('langPick').addEventListener('change',e=>{ lang=e.target.value; LS.set('fet_results_lang',lang); render(); });
+render();
+</script>
+</body>
+</html>
