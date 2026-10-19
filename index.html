@@ -257,6 +257,7 @@ nav{
   padding:.3rem .7rem;border:1px solid var(--border);border-radius:999px;
   transition:border-color .22s,color .22s;
 }
+.foot-links{display:flex;gap:.6rem;flex-wrap:wrap}
 .foot-ref:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
@@ -267,8 +268,6 @@ nav{
   <a href="#" class="nav-logo">FET</a>
   <div class="nav-right">
     <a href="results.html" class="nav-ref nav-results" id="navResults"><span class="rdot"></span>My Results</a>
-    <a href="background.html" class="nav-ref">Learn More ↗</a>
-    <a href="https://psonline.ca/ira/ira.html" target="_blank" class="nav-ref">References &amp; Publications ↗</a>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
       <svg class="toggle-icon" id="toggleIcon" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -369,6 +368,10 @@ nav{
       <span class="foot-stat"><span class="foot-num">12</span> temperament traits</span>
       <span class="foot-stat"><span class="foot-num">77</span> validated items</span>
       <span class="foot-stat"><span class="foot-num">22</span> languages</span>
+    </div>
+    <div class="foot-links">
+      <a href="background.html" class="foot-ref">Learn More ↗</a>
+      <a href="https://psonline.ca/ira/ira.html" target="_blank" rel="noopener" class="foot-ref">References &amp; Publications ↗</a>
     </div>
   </div>
 
