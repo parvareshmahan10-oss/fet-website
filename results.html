@@ -11,6 +11,7 @@
 [data-theme="dark"]{--bg:#0d1b2e;--surface:rgba(18,32,56,.93);--surface-solid:#122038;--ink:#ffffff;--muted:#c9d6e3;--line:rgba(100,180,130,.40);--accent:#4aaa70;--blue:#5090d8;--gold:#d4a830;--red:#ef6b5f;--track:rgba(255,255,255,.08);--band:rgba(74,170,112,.14);--toggle-bg:rgba(74,170,112,.12);--toggle-border:rgba(74,170,112,.32);--toggle-knob:#4aaa70;--shadow:rgba(0,0,0,.35)}
 body{min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);overflow-x:hidden;transition:background .4s,color .4s}
 body:before{content:"";position:fixed;inset:0;z-index:-1;background-image:linear-gradient(rgba(80,60,30,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(80,60,30,.03) 1px,transparent 1px);background-size:42px 42px}
+#neuro{position:fixed;inset:0;z-index:-1;pointer-events:none}
 [dir=rtl] body,[dir=rtl] button,[dir=rtl] select{font-family:'Vazirmatn','Noto Sans Arabic',Arial,sans-serif}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
@@ -40,9 +41,12 @@ main{width:min(960px,100%);margin:0 auto;padding:5.2rem 1.2rem 3rem;display:flex
 .panel{width:100%;border:2px solid var(--line);border-radius:28px;background:var(--surface);box-shadow:0 22px 70px var(--shadow);backdrop-filter:blur(18px);transition:background .4s,border-color .4s}
 
 /* radar */
-.radar-panel{padding:1.2rem 1rem 1rem;animation:fadeUp .55s ease .05s both}
-.radar-box{position:relative;width:min(640px,100%);margin:0 auto}
+.radar-panel{padding:1.3rem 1.2rem 1rem;animation:fadeUp .55s ease .05s both}
+.chart-title{font-weight:800;font-size:1.2rem;margin:0 .3rem .2rem}
+.chart-sub{font-size:.8rem;color:var(--muted);margin:0 .3rem .6rem;line-height:1.5}
+.radar-box{position:relative;width:100%;margin:0 auto}
 .radar-box svg{display:block;width:100%;height:auto;overflow:visible}
+.ch-col:hover .ch-dot{stroke-width:5}
 .tip{position:absolute;pointer-events:none;background:var(--surface-solid);border:1.5px solid var(--line);border-radius:12px;padding:.45rem .7rem;font-size:.8rem;box-shadow:0 8px 24px var(--shadow);opacity:0;transform:translate(-50%,-115%);transition:opacity .15s;white-space:nowrap;z-index:5}
 .tip b{display:block;font-size:.95rem}
 .legend{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;justify-content:center;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:.3rem}
@@ -157,6 +161,7 @@ main{width:min(960px,100%);margin:0 auto;padding:5.2rem 1.2rem 3rem;display:flex
   </div>
 </div>
 
+<canvas id="neuro" aria-hidden="true"></canvas>
 <main id="main"></main>
 <div id="pdfStage" aria-hidden="true"></div>
 
@@ -193,50 +198,50 @@ function scaleOf(item){ for(const [k,s] of Object.entries(STQ_SCALES)) if(s.item
    Text
    ============================================================ */
 const TX = {
-  en:{dir:'ltr',home:'Home',badge:'Your Profile',title:'STQ-77 <em>Results</em>',pid:'ID',date:'Completed',name:'Name',
-      overall:'Overall profile',overallSub:'Each axis runs from 6 (centre) to 24 (edge). The shaded ring is the average range (14–18).',
+  en:{dir:'ltr',home:'Home',badge:'Your Results',title:'STQ-77 <em>Results</em>',pid:'ID',date:'Completed',name:'Name',
+      overall:'Overall results',overallSub:'Each point is one scale (score 6–24). The shaded band is the average range (14–18).',
       lead:'Leading trait',valid:'Validity index',low:'Low',mid:'Average',high:'High',ok:'Valid',maybe:'May not be valid',check:'Check value',na:'Incomplete',avgBand:'Average range',
       table:'Scale scores',range:'Range 6–24',
       g:{motor:'Physical activity',social:'Social activity',mental:'Mental activity',emo:'Emotionality'},
       pdf:'Download PDF',xlsx:'Download Excel',working:'Preparing…',
       note:'These results are for research purposes only and are not a clinical diagnosis.',
-      emptyT:'No results yet',emptyP:'Your results will appear here after you complete the STQ-77 questionnaire on this device.',emptyB:'Take the STQ-77 →',
+      emptyT:'No results yet',emptyP:'Your results will appear here after you complete the STQ-77 questionnaire on this device.',emptyB:'Take the STQ-77 →',sepT:'One more step',sepP:'Your STQ-77 answers are saved. To view your results, Part 3 (SEP-STQ) must also be completed.',sepB:'Continue to Part 3 (SEP-STQ) →',
       partial:'Some answers are missing — incomplete scales are not scored.',
       cols:{code:'Code',scale:'Scale',score:'Score',level:'Level',item:'Item',answer:'Answer (1–4)',reverse:'Reverse',scored:'Scored value',group:'Group'},
       sheets:{sum:'Summary',stq:'STQ-77 responses',sep:'SEP-STQ responses'},yes:'Yes',
       n:{ERM:'Motor Endurance',TMM:'Motor Tempo',SS:'Sensation Seeking',ERS:'Social Endurance',TMS:'Social Tempo',EMP:'Empathy',ERI:'Intellectual Endurance',PL:'Plasticity',PRO:'Probabilistic Thinking',SLF:'Self-confidence',IMP:'Impulsivity',NEU:'Neuroticism',V:'Validity'}},
-  fa:{dir:'rtl',home:'خانه',badge:'نیمرخ شما',title:'نتایج <em>STQ-77</em>',pid:'شناسه',date:'تاریخ تکمیل',name:'نام',
-      overall:'نیمرخ کلی',overallSub:'هر محور از ۶ (مرکز) تا ۲۴ (لبه) است. حلقه‌ی رنگی محدوده‌ی متوسط (۱۴ تا ۱۸) را نشان می‌دهد.',
+  fa:{dir:'rtl',home:'خانه',badge:'نتایج شما',title:'نتایج <em>STQ-77</em>',pid:'شناسه',date:'تاریخ تکمیل',name:'نام',
+      overall:'نمودار کلی نتایج',overallSub:'هر نقطه یک مقیاس است (نمره‌ی ۶ تا ۲۴). نوار رنگی محدوده‌ی متوسط (۱۴ تا ۱۸) را نشان می‌دهد.',
       lead:'صفت غالب',valid:'شاخص اعتبار',low:'پایین',mid:'متوسط',high:'بالا',ok:'معتبر',maybe:'ممکن است معتبر نباشد',check:'بررسی شود',na:'ناقص',avgBand:'محدوده‌ی متوسط',
       table:'نمره‌ی مقیاس‌ها',range:'دامنه ۶ تا ۲۴',
       g:{motor:'فعالیت جسمی',social:'فعالیت اجتماعی',mental:'فعالیت ذهنی',emo:'هیجان‌پذیری'},
       pdf:'دانلود PDF',xlsx:'دانلود Excel',working:'در حال آماده‌سازی…',
       note:'این نتایج فقط برای اهداف پژوهشی است و تشخیص بالینی محسوب نمی‌شود.',
-      emptyT:'هنوز نتیجه‌ای نیست',emptyP:'پس از تکمیل پرسشنامه‌ی STQ-77 روی همین دستگاه، نتایج شما اینجا نمایش داده می‌شود.',emptyB:'شروع STQ-77 ←',
+      emptyT:'هنوز نتیجه‌ای نیست',emptyP:'پس از تکمیل پرسشنامه‌ی STQ-77 روی همین دستگاه، نتایج شما اینجا نمایش داده می‌شود.',emptyB:'شروع STQ-77 ←',sepT:'یک مرحله‌ی دیگر',sepP:'پاسخ‌های STQ-77 شما ذخیره شد. برای نمایش نتایج، لازم است آزمون سوم (SEP-STQ) هم کامل شود.',sepB:'ادامه به آزمون سوم (SEP-STQ) ←',
       partial:'بعضی پاسخ‌ها خالی است — مقیاس‌های ناقص نمره نمی‌گیرند.',
       cols:{code:'کد',scale:'مقیاس',score:'نمره',level:'سطح',item:'آیتم',answer:'پاسخ (۱–۴)',reverse:'معکوس',scored:'نمره‌ی محاسبه‌شده',group:'گروه'},
       sheets:{sum:'خلاصه',stq:'پاسخ‌های STQ-77',sep:'پاسخ‌های SEP-STQ'},yes:'بله',
       n:{ERM:'استقامت حرکتی',TMM:'سرعت حرکتی',SS:'هیجان‌خواهی',ERS:'استقامت اجتماعی',TMS:'سرعت اجتماعی',EMP:'همدلی',ERI:'استقامت ذهنی',PL:'انعطاف‌پذیری',PRO:'تفکر احتمالاتی',SLF:'اعتماد به نفس',IMP:'تکانشگری',NEU:'روان‌رنجوری',V:'اعتبار'}},
-  ar:{dir:'rtl',home:'الرئيسية',badge:'ملفك الشخصي',title:'نتائج <em>STQ-77</em>',pid:'المعرّف',date:'تاريخ الإكمال',name:'الاسم',
-      overall:'الملف العام',overallSub:'يمتد كل محور من 6 (المركز) إلى 24 (الحافة). تشير الحلقة المظللة إلى النطاق المتوسط (14–18).',
+  ar:{dir:'rtl',home:'الرئيسية',badge:'نتائجك',title:'نتائج <em>STQ-77</em>',pid:'المعرّف',date:'تاريخ الإكمال',name:'الاسم',
+      overall:'النتائج العامة',overallSub:'تمثل كل نقطة مقياساً واحداً (الدرجة 6–24). يشير الشريط المظلل إلى النطاق المتوسط (14–18).',
       lead:'السمة الغالبة',valid:'مؤشر الصدق',low:'منخفض',mid:'متوسط',high:'مرتفع',ok:'صالح',maybe:'قد لا يكون صالحاً',check:'تحقق من القيمة',na:'غير مكتمل',avgBand:'النطاق المتوسط',
       table:'درجات المقاييس',range:'النطاق 6–24',
       g:{motor:'النشاط الجسدي',social:'النشاط الاجتماعي',mental:'النشاط الذهني',emo:'الانفعالية'},
       pdf:'تحميل PDF',xlsx:'تحميل Excel',working:'جارٍ التحضير…',
       note:'هذه النتائج لأغراض بحثية فقط وليست تشخيصاً سريرياً.',
-      emptyT:'لا توجد نتائج بعد',emptyP:'ستظهر نتائجك هنا بعد إكمال استبيان STQ-77 على هذا الجهاز.',emptyB:'ابدأ STQ-77 ←',
+      emptyT:'لا توجد نتائج بعد',emptyP:'ستظهر نتائجك هنا بعد إكمال استبيان STQ-77 على هذا الجهاز.',emptyB:'ابدأ STQ-77 ←',sepT:'خطوة أخرى',sepP:'تم حفظ إجاباتك على STQ-77. لعرض النتائج، يجب إكمال الاختبار الثالث (SEP-STQ) أيضاً.',sepB:'متابعة إلى الجزء الثالث (SEP-STQ) ←',
       partial:'بعض الإجابات مفقودة — لا تُحتسب المقاييس غير المكتملة.',
       cols:{code:'الرمز',scale:'المقياس',score:'الدرجة',level:'المستوى',item:'البند',answer:'الإجابة (1–4)',reverse:'معكوس',scored:'القيمة المحتسبة',group:'المجموعة'},
       sheets:{sum:'الملخص',stq:'إجابات STQ-77',sep:'إجابات SEP-STQ'},yes:'نعم',
       n:{ERM:'التحمل الحركي',TMM:'السرعة الحركية',SS:'البحث عن الإثارة',ERS:'التحمل الاجتماعي',TMS:'السرعة الاجتماعية',EMP:'التعاطف',ERI:'التحمل الذهني',PL:'المرونة',PRO:'التفكير الاحتمالي',SLF:'الثقة بالنفس',IMP:'الاندفاعية',NEU:'العصابية',V:'الصدق'}},
-  ru:{dir:'ltr',home:'Главная',badge:'Ваш профиль',title:'Результаты <em>STQ-77</em>',pid:'ID',date:'Дата',name:'Имя',
-      overall:'Общий профиль',overallSub:'Каждая ось — от 6 (центр) до 24 (край). Затенённое кольцо — средний диапазон (14–18).',
+  ru:{dir:'ltr',home:'Главная',badge:'Ваши результаты',title:'Результаты <em>STQ-77</em>',pid:'ID',date:'Дата',name:'Имя',
+      overall:'Общие результаты',overallSub:'Каждая точка — одна шкала (балл 6–24). Затенённая полоса — средний диапазон (14–18).',
       lead:'Ведущая черта',valid:'Индекс достоверности',low:'Низкий',mid:'Средний',high:'Высокий',ok:'Достоверно',maybe:'Может быть недостоверно',check:'Проверьте значение',na:'Не заполнено',avgBand:'Средний диапазон',
       table:'Баллы по шкалам',range:'Диапазон 6–24',
       g:{motor:'Физическая активность',social:'Социальная активность',mental:'Интеллектуальная активность',emo:'Эмоциональность'},
       pdf:'Скачать PDF',xlsx:'Скачать Excel',working:'Подготовка…',
       note:'Эти результаты предназначены только для исследования и не являются клиническим диагнозом.',
-      emptyT:'Результатов пока нет',emptyP:'Результаты появятся здесь после прохождения опросника STQ-77 на этом устройстве.',emptyB:'Пройти STQ-77 →',
+      emptyT:'Результатов пока нет',emptyP:'Результаты появятся здесь после прохождения опросника STQ-77 на этом устройстве.',emptyB:'Пройти STQ-77 →',sepT:'Ещё один шаг',sepP:'Ваши ответы STQ-77 сохранены. Чтобы увидеть результаты, необходимо также пройти часть 3 (SEP-STQ).',sepB:'Перейти к части 3 (SEP-STQ) →',
       partial:'Некоторые ответы отсутствуют — неполные шкалы не подсчитываются.',
       cols:{code:'Код',scale:'Шкала',score:'Балл',level:'Уровень',item:'Пункт',answer:'Ответ (1–4)',reverse:'Обратный',scored:'Учтённое значение',group:'Группа'},
       sheets:{sum:'Сводка',stq:'Ответы STQ-77',sep:'Ответы SEP-STQ'},yes:'Да',
@@ -256,8 +261,8 @@ let lang = (new URLSearchParams(location.search).get('lang')) || LS.get('fet_res
 if(!TX[lang]) lang='en';
 
 const PAL = {
-  light:{low:'#0d4a8a',mid:'#2a6644',high:'#b88a00',red:'#b3261e',ink:'#0d1b2e',muted:'#2a4838',grid:'rgba(30,60,30,.22)',sector:['rgba(13,74,138,.045)','rgba(42,102,68,.05)'],band:'rgba(42,102,68,.13)',poly:'#2a6644',polyFill:'rgba(42,102,68,.20)',surface:'#ffffff'},
-  dark: {low:'#5090d8',mid:'#4aaa70',high:'#d4a830',red:'#ef6b5f',ink:'#ffffff',muted:'#c9d6e3',grid:'rgba(255,255,255,.16)',sector:['rgba(80,144,216,.07)','rgba(74,170,112,.07)'],band:'rgba(74,170,112,.18)',poly:'#4aaa70',polyFill:'rgba(74,170,112,.24)',surface:'#122038'}
+  light:{low:'#0d4a8a',mid:'#2a6644',high:'#b88a00',red:'#b3261e',ink:'#0d1b2e',muted:'#2a4838',grid:'rgba(30,60,30,.22)',sector:['rgba(13,74,138,.045)','rgba(42,102,68,.05)'],band:'rgba(42,102,68,.13)',line:'#2a6644',surface:'#ffffff'},
+  dark: {low:'#5090d8',mid:'#4aaa70',high:'#d4a830',red:'#ef6b5f',ink:'#ffffff',muted:'#c9d6e3',grid:'rgba(255,255,255,.16)',sector:['rgba(80,144,216,.07)','rgba(74,170,112,.07)'],band:'rgba(74,170,112,.18)',line:'#4aaa70',surface:'#122038'}
 };
 const theme = () => document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
 const hexA = (hex,a) => { const n=parseInt(hex.slice(1),16); return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`; };
@@ -281,76 +286,90 @@ function info(){
 }
 
 /* ============================================================
-   Radar (SVG, colours resolved in JS so it also exports cleanly)
+   Profile chart — line chart (X = scales, Y = score 6–24)
+   Colours are resolved in JS so the SVG also exports cleanly to PDF.
    ============================================================ */
-const RW=680, C=RW/2, R=228, R0=26;
-const rad = v => R0 + (R-R0)*(Math.max(MIN,Math.min(MAX,v))-MIN)/(MAX-MIN);
-const ang = i => (-90 + i*30) * Math.PI/180;
-const pt = (i,r) => [C + r*Math.cos(ang(i)), C + r*Math.sin(ang(i))];
-function arcPath(r,a0,a1){ const [x0,y0]=[C+r*Math.cos(a0),C+r*Math.sin(a0)], [x1,y1]=[C+r*Math.cos(a1),C+r*Math.sin(a1)]; return `M${x0},${y0} A${r},${r} 0 0 1 ${x1},${y1}`; }
-
-function radarSVG(p, t, opts={}){
+function chartW(){ const w=(document.querySelector('main')?.clientWidth||900)-40; return Math.max(340, Math.min(820, w)); }
+function chartSVG(p, t, opts={}){
+  const W = opts.W || chartW(), narrow = W < 560, fin = !!opts.final;
+  const H = opts.H || (narrow ? 390 : 420), padL = narrow?34:48, padR = narrow?18:30, padT = 40, padB = narrow?104:72;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+  const gg = narrow?10:22, edge = narrow?16:28;
+  const step = (plotW - 2*edge - 3*gg)/11;
+  const y = v => padT + (MAX - v)/(MAX-MIN)*plotH, base = y(MIN);
   const font = TX[lang].dir==='rtl' ? "Vazirmatn,'Noto Sans Arabic',Arial,sans-serif" : 'Arial,Helvetica,sans-serif';
-  const fs = opts.fs || 1, showDom = fs < 1.3;
-  let s = `<svg viewBox="-70 -70 ${RW+140} ${RW+140}" xmlns="http://www.w3.org/2000/svg" font-family="${font}" role="img" aria-label="${esc(t.overall)}">`;
-  // sectors + domain labels
-  GROUPS.forEach(([g],gi)=>{
-    const a0=ang(gi*3)-Math.PI/12, a1=ang(gi*3+2)+Math.PI/12, ro=R+10;
-    s+=`<path class="rz-sec" d="M${C},${C} L${C+ro*Math.cos(a0)},${C+ro*Math.sin(a0)} A${ro},${ro} 0 0 1 ${C+ro*Math.cos(a1)},${C+ro*Math.sin(a1)} Z" fill="${p.sector[gi%2]}"/>`;
-    if(!showDom) return;
-    const am=(a0+a1)/2, rl=R+104, flip = Math.sin(am)>0.01;  // bottom half → path runs the other way so text stays upright
-    const id='arc'+gi+(opts.idSuffix||'');
-    s+=`<path id="${id}" d="${flip?arcPath(rl,a1,a0).replace(' 0 0 1 ',' 0 0 0 '):arcPath(rl,a0,a1)}" fill="none"/>`;
-    s+=`<text class="rz-lbl" font-size="${15*fs}" font-weight="700" fill="${p.mid}" letter-spacing="${TX[lang].dir==='rtl'?0:2}"><textPath href="#${id}" startOffset="50%" text-anchor="middle">${esc(t.g[g].toUpperCase())}</textPath></text>`;
-  });
+  const fsS = narrow?10.5:12, fsM = narrow?12:14;
+  const xs = KEYS.map((k,i) => padL + edge + i*step + Math.floor(i/3)*gg);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="${font}" role="img" aria-label="${esc(t.overall)}">`;
   // average band
-  s+=`<path class="rz-band" d="M${C-rad(18)},${C} a${rad(18)},${rad(18)} 0 1,0 ${2*rad(18)},0 a${rad(18)},${rad(18)} 0 1,0 ${-2*rad(18)},0 M${C-rad(14)},${C} a${rad(14)},${rad(14)} 0 1,1 ${2*rad(14)},0 a${rad(14)},${rad(14)} 0 1,1 ${-2*rad(14)},0" fill="${p.band}" fill-rule="evenodd"/>`;
-  // rings
-  [10,14,18,24].forEach(v=>{ s+=`<circle class="rz-ring" cx="${C}" cy="${C}" r="${rad(v)}" fill="none" stroke="${p.grid}" stroke-width="${v===24?1.6:1}" ${v===14||v===18?'stroke-dasharray="4 4"':''}/>`; });
-  // ring labels
-  [10,14,18,24].forEach(v=>{ s+=`<text x="${C+4}" y="${C-rad(v)-4}" font-size="${11*Math.min(fs,1.4)}" fill="${p.muted}" opacity=".85">${digits(v)}</text>`; });
-  // spokes + axis labels
-  KEYS.forEach((k,i)=>{
-    const [x,y]=pt(i,R); s+=`<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" stroke="${p.grid}" stroke-width="1"/>`;
-    const [lx,ly]=pt(i,R+22+10*fs), a=Math.cos(ang(i)), anchor = a>0.3?'start':a<-0.3?'end':'middle';
-    const dy = Math.sin(ang(i))>0.5 ? 12*fs : Math.sin(ang(i))<-0.5 ? -8*fs : 0;
-    const lv=level(S[k]), col = lv?p[lv]:p.muted, isTop=LEADS.includes(k);
-    s+=`<g class="rz-ax" data-k="${k}" style="cursor:pointer">
-          <text x="${lx}" y="${ly+dy}" text-anchor="${anchor}" font-size="${16*fs}" font-weight="800" fill="${p.ink}" direction="ltr">${isTop?'★ ':''}${k}</text>
-          <text class="rz-val" data-k="${k}" x="${lx}" y="${ly+dy+17*fs}" text-anchor="${anchor}" font-size="${14*fs}" font-weight="700" fill="${col}" direction="ltr">${S[k]===null?'—':digits(opts.final?S[k]:0)}</text>
-        </g>`;
+  s += `<rect x="${padL}" y="${y(18)}" width="${plotW}" height="${y(14)-y(18)}" fill="${p.band}"/>`;
+  // horizontal grid + Y labels
+  [6,10,14,18,22].forEach(v=>{
+    const dash = (v===14||v===18) ? 'stroke-dasharray="5 4"' : '';
+    if(v>MIN) s += `<line x1="${padL}" x2="${padL+plotW}" y1="${y(v)}" y2="${y(v)}" stroke="${p.grid}" stroke-width="1" ${dash}/>`;
+    s += `<text x="${padL-9}" y="${y(v)+4}" text-anchor="end" font-size="${fsS}" fill="${p.muted}" direction="ltr">${digits(v)}</text>`;
   });
-  // profile
-  s+=`<path id="rzPoly${opts.idSuffix||''}" d="" fill="${p.polyFill}" stroke="${p.poly}" stroke-width="2.6" stroke-linejoin="round"/>`;
+  // vertical grid
+  xs.forEach(x => { s += `<line x1="${x}" x2="${x}" y1="${padT}" y2="${base}" stroke="${p.grid}" stroke-width="1" opacity=".7"/>`; });
+  // axes with arrowheads
+  const ax = p.ink, aw = 2.6;
+  s += `<line x1="${padL}" y1="${base}" x2="${padL}" y2="${padT-22}" stroke="${ax}" stroke-width="${aw}" opacity=".8"/>`;
+  s += `<path d="M${padL-7},${padT-14} L${padL},${padT-28} L${padL+7},${padT-14} Z" fill="${ax}" opacity=".8"/>`;
+  s += `<line x1="${padL}" y1="${base}" x2="${W-6}" y2="${base}" stroke="${ax}" stroke-width="${aw}" opacity=".8"/>`;
+  s += `<path d="M${W-12},${base-7} L${W+2},${base} L${W-12},${base+7} Z" fill="${ax}" opacity=".8"/>`;
+  // line
+  const pts = KEYS.map((k,i)=> S[k]===null ? null : [xs[i], y(S[k])]);
+  let d='', pen=false; pts.forEach(pt=>{ if(!pt){ pen=false; return; } d += (pen?'L':'M')+pt[0].toFixed(1)+','+pt[1].toFixed(1)+' '; pen=true; });
+  s += `<path class="ch-line" d="${d}" fill="none" stroke="${p.line}" stroke-width="${narrow?3:4}" stroke-linejoin="round" stroke-linecap="round" pathLength="1" ${fin?'':'stroke-dasharray="1" stroke-dashoffset="1"'}/>`;
+  // points, values, labels
   KEYS.forEach((k,i)=>{
-    const lv=level(S[k]), col=lv?p[lv]:p.muted, isTop=LEADS.includes(k);
-    s+=`<circle class="rz-dot" data-k="${k}" data-i="${i}" cx="${C}" cy="${C}" r="${isTop?8:6}" fill="${col}" stroke="${p.surface}" stroke-width="2.5" style="cursor:pointer"/>`;
-    if(isTop) s+=`<circle class="rz-halo" data-i="${i}" cx="${C}" cy="${C}" r="13" fill="none" stroke="${col}" stroke-width="1.6" opacity=".55"/>`;
+    const v=S[k], lv=level(v), col=lv?p[lv]:p.muted, top=LEADS.includes(k), cx=xs[i], cy = v===null ? base : y(v);
+    const hidden = fin ? '' : 'opacity="0"';
+    const pv = i>0 ? S[KEYS[i-1]] : null, nv = i<11 ? S[KEYS[i+1]] : null;
+    const below = v!==null && !top && (pv===null || pv>v) && (nv===null || nv>v) && cy+26 < base;  // local dip → label under the point
+    const ly = below ? cy+fsM+12 : cy-13;
+    s += `<g class="ch-col" data-k="${k}" data-i="${i}" style="cursor:pointer">
+      <rect x="${cx-step/2}" y="${padT}" width="${step}" height="${plotH}" fill="transparent"/>
+      ${v===null?'':`<circle class="ch-dot" cx="${cx}" cy="${cy}" r="${top?(narrow?7:8.5):(narrow?5.5:6.5)}" fill="${p.surface}" stroke="${col}" stroke-width="${narrow?3:3.5}" ${fin?'':'style="transform:scale(0);transform-origin:center;transform-box:fill-box"'}/>`}
+      <text class="ch-val" data-n="${v??''}"  x="${cx}" y="${ly}" text-anchor="middle" font-size="${fsM}" font-weight="800" fill="${col}" stroke="${p.surface}" stroke-width="4.5" stroke-linejoin="round" paint-order="stroke" direction="ltr" ${hidden}>${v===null?'—':digits(fin?v:0)}</text>
+      ${top?`<text class="ch-star" x="${cx}" y="${cy-15-fsM}" text-anchor="middle" font-size="${fsM}" fill="${p.mid}" ${hidden}>★</text>`:''}
+      ${narrow
+        ? `<text x="${cx+3}" y="${base+14}" text-anchor="end" transform="rotate(-55 ${cx+3} ${base+14})" font-size="10.5" font-weight="800" fill="${p.ink}" direction="ltr">${k}</text>`
+        : `<text x="${cx}" y="${base+fsM+9}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${p.ink}" direction="ltr">${k}</text>`}
+    </g>`;
   });
-  s+='</svg>';
-  return s;
+  // group brackets + labels
+  const by = base + (narrow ? 46 : fsM + 20);
+  GROUPS.forEach(([g],gi)=>{
+    const a = xs[gi*3]-step*0.35, b = xs[gi*3+2]+step*0.35, mid=(a+b)/2;
+    s += `<path d="M${a},${by-4} V${by} H${b} V${by-4}" fill="none" stroke="${p.mid}" stroke-width="1.2" opacity=".7"/>`;
+    const words = t.g[g].split(' ');
+    const lines = narrow && words.length>1 ? [words.slice(0,Math.ceil(words.length/2)).join(' '), words.slice(Math.ceil(words.length/2)).join(' ')] : [t.g[g]];
+    lines.forEach((ln,li)=>{ s += `<text x="${mid}" y="${by+fsS+4+li*(fsS+3)}" text-anchor="middle" font-size="${fsS}" font-weight="700" fill="${p.mid}">${esc(ln)}</text>`; });
+  });
+  return s + '</svg>';
 }
-function setRadar(svg, prog, suffix=''){
-  // prog(i) → 0..1 growth for vertex i
-  const poly = svg.querySelector('#rzPoly'+suffix);
-  const pts = KEYS.map((k,i)=> pt(i, R0 + (rad(S[k]??MIN)-R0)*prog(i)));
-  poly.setAttribute('d', 'M'+pts.map(p=>p.join(',')).join(' L')+' Z');
-  svg.querySelectorAll('.rz-dot,.rz-halo').forEach(c=>{ const p=pts[+c.dataset.i]; c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); });
-}
-function animateRadar(svg){
-  const vals = [...svg.querySelectorAll('.rz-val')];
-  const ease = x => 1 - Math.pow(1-x,3);
-  if(reduce){ setRadar(svg,()=>1); vals.forEach(v=>{ const k=v.dataset.k; if(S[k]!==null) v.textContent=digits(S[k]); }); return; }
-  svg.querySelectorAll('.rz-sec,.rz-band,.rz-ring,.rz-lbl,.rz-ax').forEach((el,i)=>{ el.style.opacity=0; el.style.transition=`opacity .6s ease ${0.05+i*0.02}s`; requestAnimationFrame(()=>requestAnimationFrame(()=>el.style.opacity=1)); });
-  const t0 = performance.now()+250, D=1100, STAG=70;
-  const step = now => {
-    const e = now - t0;
-    setRadar(svg, i => ease(Math.max(0,Math.min(1,(e - i*STAG)/D))));
-    vals.forEach((v,i)=>{ const k=v.dataset.k; if(S[k]===null) return; const p=ease(Math.max(0,Math.min(1,(e-i*STAG)/D))); v.textContent=digits(Math.round(S[k]*p)); });
-    if(e < D + STAG*12) requestAnimationFrame(step); else setRadar(svg,()=>1);
-  };
-  setRadar(svg,()=>0);
-  requestAnimationFrame(step);
+function animateChart(svg){
+  const line=svg.querySelector('.ch-line'), dots=[...svg.querySelectorAll('.ch-dot')], vals=[...svg.querySelectorAll('.ch-val')], stars=[...svg.querySelectorAll('.ch-star')];
+  const show = el => { el.style.transition='opacity .35s'; el.setAttribute('opacity',1); };
+  if(reduce){
+    line.removeAttribute('stroke-dasharray'); line.removeAttribute('stroke-dashoffset');
+    dots.forEach(d=>d.style.transform='none'); vals.forEach(v=>{ v.setAttribute('opacity',1); if(v.dataset.n!=='') v.textContent=digits(v.dataset.n); }); stars.forEach(s=>s.setAttribute('opacity',1));
+    return;
+  }
+  const D=1500, T0=300;
+  line.style.transition=`stroke-dashoffset ${D}ms cubic-bezier(.45,.05,.35,1) ${T0}ms`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>line.setAttribute('stroke-dashoffset','0')));
+  [...svg.querySelectorAll('.ch-col')].forEach(g=>{
+    const i=+g.dataset.i, at=T0 + D*(i/11)*0.95;
+    const dot=g.querySelector('.ch-dot'), val=g.querySelector('.ch-val'), star=g.querySelector('.ch-star');
+    if(dot){ dot.style.transition=`transform .45s cubic-bezier(.34,1.56,.64,1) ${at}ms`; requestAnimationFrame(()=>requestAnimationFrame(()=>dot.style.transform='scale(1)')); }
+    setTimeout(()=>{
+      show(val); const end=val.dataset.n; if(end==='') return;
+      const t0=performance.now(); const st=now=>{ const q=Math.min(1,(now-t0)/600); val.textContent=digits(Math.round(end*(1-Math.pow(1-q,3)))); if(q<1) requestAnimationFrame(st); }; requestAnimationFrame(st);
+      if(star) setTimeout(()=>show(star), 450);
+    }, at);
+  });
 }
 
 /* ============================================================
@@ -364,6 +383,10 @@ function render(){
 
   if(!STQ || !Array.isArray(STQ.answers)){
     $('main').innerHTML = `<div class="panel empty"><div class="badge">${t.badge}</div><h2>${t.emptyT}</h2><p>${t.emptyP}</p><a class="btn" href="stq77-form.html">${t.emptyB}</a></div>`;
+    return;
+  }
+  if(!SEP || !SEP.answers){
+    $('main').innerHTML = `<div class="panel empty"><div class="badge">${t.badge}</div><h2>${t.sepT}</h2><p>${t.sepP}</p><a class="btn" href="sep-stq-form.html">${t.sepB}</a></div>`;
     return;
   }
   compute();
@@ -395,7 +418,8 @@ function render(){
       <div class="meta">${I.name?`<span>${t.name}: <b>${esc(I.name)}</b></span>`:''}<span>${t.pid}: <b dir="ltr">${esc(I.pid)}</b></span><span>${t.date}: <b>${esc(I.date)}</b></span></div>
     </div>
     <section class="panel radar-panel">
-      <div class="radar-box" id="radarBox">${radarSVG(p,t,{fs:radarFS()})}<div class="tip" id="tip"></div></div>
+      <div class="chart-title">${t.overall}</div><div class="chart-sub">${t.overallSub}</div>
+      <div class="radar-box" id="radarBox">${chartSVG(p,t)}<div class="tip" id="tip"></div></div>
       <div class="legend"><span><i style="background:${p.low}"></i>${t.low} (≤${digits(13)})</span><span><i style="background:${p.mid}"></i>${t.mid} (${digits(14)}–${digits(18)})</span><span><i style="background:${p.high}"></i>${t.high} (≥${digits(19)})</span><span><i class="band-key"></i>${t.avgBand}</span></div>
     </section>
     <div class="cards">
@@ -418,16 +442,16 @@ function render(){
 
   // radar animation + interaction
   const svg = $('radarBox').querySelector('svg');
-  animateRadar(svg);
+  animateChart(svg);
   const tip=$('tip'), box=$('radarBox');
   const show = (k, ev) => {
     const lv=level(S[k]); tip.innerHTML=`<b>${k} · ${S[k]===null?'—':digits(S[k])}</b>${t.n[k]} — ${lv?t[lv]:t.na}`;
-    const r=box.getBoundingClientRect(), d=svg.querySelector(`.rz-dot[data-k="${k}"]`).getBoundingClientRect();
+    const r=box.getBoundingClientRect(), d=(svg.querySelector(`.ch-col[data-k="${k}"] .ch-dot`)||svg.querySelector(`.ch-col[data-k="${k}"] text`)).getBoundingClientRect();
     tip.style.left=(d.left+d.width/2-r.left)+'px'; tip.style.top=(d.top-r.top)+'px'; tip.style.opacity=1;
     document.querySelectorAll('.row').forEach(rw=>rw.classList.toggle('hl',rw.dataset.k===k));
   };
   const hide = () => { tip.style.opacity=0; document.querySelectorAll('.row.hl').forEach(rw=>rw.classList.remove('hl')); };
-  svg.querySelectorAll('.rz-dot,.rz-ax').forEach(el=>{ el.addEventListener('mouseenter',e=>show(el.dataset.k,e)); el.addEventListener('mouseleave',hide); el.addEventListener('click',e=>show(el.dataset.k,e)); });
+  svg.querySelectorAll('.ch-col').forEach(el=>{ el.addEventListener('mouseenter',e=>show(el.dataset.k,e)); el.addEventListener('mouseleave',hide); el.addEventListener('click',e=>show(el.dataset.k,e)); });
   document.querySelectorAll('.row').forEach(rw=>{ rw.addEventListener('mouseenter',()=>show(rw.dataset.k)); rw.addEventListener('mouseleave',hide); });
 
   // table rows animate when scrolled into view
@@ -447,9 +471,8 @@ function render(){
   $('xlsBtn').onclick = () => busy($('xlsBtn'), makeXLSX);
 }
 
-function radarFS(){ const w=Math.min(640, (document.documentElement.clientWidth||640)-40); return Math.max(1, Math.min(1.8, 560/w)); }
-let _fsBucket = radarFS()>=1.3;
-addEventListener('resize',()=>{ const b=radarFS()>=1.3; if(b!==_fsBucket){ _fsBucket=b; render(); } });
+let _cw = 0, _rt;
+addEventListener('resize',()=>{ clearTimeout(_rt); _rt=setTimeout(()=>{ const w=chartW(); if(Math.abs(w-_cw)>40){ _cw=w; render(); } },250); });
 async function busy(btn, fn){
   const lbl=btn.querySelector('span'), old=lbl.textContent;
   btn.disabled=true; lbl.textContent=TX[lang].working;
@@ -493,7 +516,7 @@ async function makePDF(){
   stage.innerHTML = `
    <div class="pg" id="pg1">${top}
      <div style="font-weight:800;font-size:17px">${t.overall}</div>
-     <div class="p-box" style="padding:6px 10px">${radarSVG(p,t,{final:true,idSuffix:'P'})}</div>
+     <div class="p-box" style="padding:14px 12px 6px">${chartSVG(p,t,{final:true,W:666,H:560})}</div>
      <div style="display:flex;gap:14px">
        <div class="p-box" style="flex:1.4"><div style="font-size:10.5px;text-transform:uppercase;color:#2a4838;font-weight:700;margin-bottom:6px">${t.lead}</div>
          <div style="font-weight:800;font-size:17px">${LEADS.map(k=>`${t.n[k]} <span style="color:#2a6644;font-size:11px" dir="ltr">${k}</span>`).join(' · ')||'—'}</div></div>
@@ -508,7 +531,6 @@ async function makePDF(){
      <div style="font-size:11px;color:#2a4838;display:flex;gap:16px;flex-wrap:wrap">
        <span><b style="color:${p.low}">■</b> ${t.low} (≤${digits(13)})</span><span><b style="color:${p.mid}">■</b> ${t.mid} (${digits(14)}–${digits(18)})</span><span><b style="color:${p.high}">■</b> ${t.high} (≥${digits(19)})</span></div>
      ${foot(2)}</div>`;
-  const svgP = stage.querySelector('svg'); setRadar(svgP, ()=>1, 'P');
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({unit:'pt', format:'a4', orientation:'portrait'});
@@ -568,6 +590,111 @@ applyTheme((()=>{ try{ return localStorage.getItem('fet-theme')||'light'; }catch
 $('themeToggle').addEventListener('click',()=>applyTheme(theme()==='dark'?'light':'dark', true));
 $('langPick').addEventListener('change',e=>{ lang=e.target.value; LS.set('fet_results_lang',lang); render(); });
 render();
+/* ============================================================
+   Background — drifting neurons with neurotransmitters travelling
+   between them. One canvas, no libraries, capped at 30 fps,
+   paused when the tab is hidden, static if reduced motion is on.
+   ============================================================ */
+(function(){
+  const cv = document.getElementById('neuro'); if(!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  const DPR = Math.min(1.5, window.devicePixelRatio || 1);
+  const rnd = (a,b) => a + Math.random()*(b-a);
+  let W=0, H=0, N=[], links=[], pulses=[], lastFrame=0, lastLink=0, lastSpawn=0, raf=0;
+
+  function makeNeuron(){
+    const nd = Math.floor(rnd(4,7));
+    const dend = Array.from({length: nd}, (_,i) => {
+      const a = (i/nd)*Math.PI*2 + rnd(-.35,.35), len = rnd(16,34);
+      return { a, len, br: Array.from({length: Math.floor(rnd(1,3))}, () => ({ t: rnd(.45,.8), a: rnd(-.7,.7), len: rnd(7,15) })) };
+    });
+    return { x: rnd(0,W), y: rnd(0,H), vx: rnd(-7,7), vy: rnd(-7,7), r: rnd(3.2,5.8), rot: rnd(0,6.28), vr: rnd(-.08,.08), dend, glow: 0 };
+  }
+  function resize(){
+    W = innerWidth; H = innerHeight;
+    cv.width = W*DPR; cv.height = H*DPR; cv.style.width = W+'px'; cv.style.height = H+'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    const n = Math.max(8, Math.min(18, Math.round(W*H/85000)));
+    while(N.length < n) N.push(makeNeuron());
+    N.length = n; relink(); pulses = [];
+  }
+  function relink(){
+    links = []; const seen = new Set();
+    N.forEach((a,i) => {
+      N.map((b,j) => [j, Math.hypot(a.x-b.x, a.y-b.y)]).filter(([j,d]) => j!==i && d < 340)
+       .sort((p,q) => p[1]-q[1]).slice(0,2).forEach(([j]) => {
+         const key = i<j ? i+'-'+j : j+'-'+i; if(seen.has(key)) return; seen.add(key);
+         links.push({ a: i, b: j, bend: rnd(-.22,.22) });
+       });
+    });
+  }
+  function ctrl(l){
+    const A=N[l.a], B=N[l.b], mx=(A.x+B.x)/2, my=(A.y+B.y)/2, dx=B.x-A.x, dy=B.y-A.y;
+    return [mx - dy*l.bend, my + dx*l.bend];
+  }
+  function onCurve(l, t){
+    const A=N[l.a], B=N[l.b], [cx,cy]=ctrl(l), u=1-t;
+    return [u*u*A.x + 2*u*t*cx + t*t*B.x, u*u*A.y + 2*u*t*cy + t*t*B.y];
+  }
+  function colours(){
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return dark
+      ? { cell:'rgba(122,216,176,', link:'rgba(122,216,176,.13)', tx:['#d4a830','#5090d8','#7ad8b0'], a:.42 }
+      : { cell:'rgba(42,102,68,',   link:'rgba(42,102,68,.14)',   tx:['#b88a00','#0d4a8a','#2a6644'], a:.38 };
+  }
+  function draw(dt){
+    const c = colours();
+    ctx.clearRect(0,0,W,H);
+    // axons
+    ctx.lineWidth = 1; ctx.strokeStyle = c.link;
+    links.forEach(l => { const A=N[l.a], B=N[l.b], [cx,cy]=ctrl(l); ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.quadraticCurveTo(cx,cy,B.x,B.y); ctx.stroke(); });
+    // neurotransmitters
+    pulses.forEach(p => {
+      for(let k=3; k>=0; k--){
+        const t = Math.max(0, p.t - k*0.025), [x,y] = onCurve(p.l, p.dir>0 ? t : 1-t);
+        ctx.globalAlpha = (k===0 ? .9 : .35 - k*.08);
+        ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(x, y, k===0 ? 2.3 : 1.6, 0, 6.283); ctx.fill();
+      }
+    });
+    ctx.globalAlpha = 1;
+    // neurons
+    N.forEach(n => {
+      ctx.save(); ctx.translate(n.x, n.y); ctx.rotate(n.rot);
+      ctx.strokeStyle = c.cell + (c.a*.75) + ')'; ctx.lineWidth = 1.1; ctx.lineCap = 'round';
+      n.dend.forEach(d => {
+        const ex = Math.cos(d.a)*d.len, ey = Math.sin(d.a)*d.len;
+        ctx.beginPath(); ctx.moveTo(Math.cos(d.a)*n.r, Math.sin(d.a)*n.r); ctx.lineTo(ex, ey); ctx.stroke();
+        d.br.forEach(b => { const bx=ex*b.t, by=ey*b.t, a=d.a+b.a; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+Math.cos(a)*b.len, by+Math.sin(a)*b.len); ctx.stroke(); });
+      });
+      if(n.glow > 0.02){ ctx.fillStyle = c.cell + (n.glow*.22) + ')'; ctx.beginPath(); ctx.arc(0,0,n.r+9*n.glow,0,6.283); ctx.fill(); }
+      ctx.fillStyle = c.cell + (c.a + n.glow*.4) + ')'; ctx.beginPath(); ctx.arc(0,0,n.r,0,6.283); ctx.fill();
+      ctx.restore();
+    });
+  }
+  function step(now){
+    raf = requestAnimationFrame(step);
+    if(now - lastFrame < 33) return;                     // ~30 fps is plenty for a background
+    const dt = Math.min(.1, (now - (lastFrame||now))/1000); lastFrame = now;
+    N.forEach(n => {
+      n.x += n.vx*dt; n.y += n.vy*dt; n.rot += n.vr*dt; n.glow *= .93;
+      if(n.x < -40) n.x = W+40; if(n.x > W+40) n.x = -40;
+      if(n.y < -40) n.y = H+40; if(n.y > H+40) n.y = -40;
+    });
+    if(now - lastLink > 1200){ lastLink = now; relink(); pulses = pulses.filter(p => links.includes(p.l)); }
+    if(now - lastSpawn > 380 && links.length && pulses.length < 14){
+      lastSpawn = now; const c = colours();
+      pulses.push({ l: links[Math.floor(Math.random()*links.length)], t: 0, dir: Math.random()<.5?1:-1, sp: rnd(.28,.5), col: c.tx[Math.floor(Math.random()*3)] });
+    }
+    pulses.forEach(p => { p.t += p.sp*dt; if(p.t >= 1){ N[p.dir>0 ? p.l.b : p.l.a].glow = 1; } });
+    pulses = pulses.filter(p => p.t < 1);
+    draw(dt);
+  }
+  resize();
+  addEventListener('resize', () => { clearTimeout(resize._t); resize._t = setTimeout(resize, 200); });
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){ draw(0); new MutationObserver(()=>draw(0)).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']}); return; }
+  document.addEventListener('visibilitychange', () => { if(document.hidden){ cancelAnimationFrame(raf); raf=0; } else if(!raf){ lastFrame=0; raf=requestAnimationFrame(step); } });
+  raf = requestAnimationFrame(step);
+})();
 </script>
 </body>
 </html>

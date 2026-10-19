@@ -417,7 +417,7 @@ const html=document.documentElement,btn=document.getElementById('themeToggle'),i
 const saved=localStorage.getItem('fet-theme');
 if(saved)apply(saved);
 btn.addEventListener('click',()=>apply(html.getAttribute('data-theme')==='dark'?'light':'dark'));
-try{ if(localStorage.getItem('fet_stq77_result')) document.getElementById('navResults').classList.add('has'); }catch(e){}
+try{ if(localStorage.getItem('fet_stq77_result') && localStorage.getItem('fet_sep_result')) document.getElementById('navResults').classList.add('has'); }catch(e){}
 function apply(t){html.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);icon.innerHTML=t==='dark'?MOON:SUN;}
 </script>
 </body>
