@@ -532,7 +532,7 @@ body::before {
 <div class="thankyou" id="thankYou">
   <h1 class="ty-title">Thank<br><em>You</em></h1>
   <p class="ty-body" id="tyBody">Your responses have been recorded and will contribute to ongoing research at McMaster University. Thank you for your time and participation.</p>
-  <button class="ty-btn" onclick="downloadCSV()">Download My Responses (CSV)</button>
+  <a class="ty-btn" id="resultsBtn" href="results.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:.5rem">View My Results →</a>
 </div>
 
 <script>
@@ -1789,6 +1789,12 @@ function submitSEPToSheets(){
     testDurationMin: durationMin,
     submittedAt: new Date().toISOString()
   };
+  // Keep the finished answers in this browser for results.html
+  try{
+    localStorage.setItem('fet_sep_result', JSON.stringify({
+      participantID, lang, answers, completedAt: payload.submittedAt, durationMin
+    }));
+  }catch(e){}
   const body = new URLSearchParams();
   body.append('payload', JSON.stringify(payload));
   try {
@@ -1823,30 +1829,16 @@ function showThankYou() {
   document.getElementById('qContainer').classList.remove('active');
   const ty = document.getElementById('thankYou');
   const t = T[lang];
-  ty.querySelector('.ty-title').innerHTML = lang === 'en' ? 'Thank<br><em>You</em>' : lang === 'ar' ? '<em>شكراً</em><br>لك' : 'ممنون<br><em>از شما</em>';
+  ty.querySelector('.ty-title').innerHTML = ({en:'Thank<br><em>You</em>', ar:'<em>شكراً</em><br>لك', fa:'ممنون<br><em>از شما</em>', ru:'Спасибо<br><em>Вам</em>'})[lang] || 'Thank<br><em>You</em>';
   ty.querySelector('.ty-body').textContent = t.tyBody;
-  ty.querySelector('.ty-btn').textContent = t.downloadBtn;
+  const rb = document.getElementById('resultsBtn');
+  rb.textContent = ({en:'View My Results →', fa:'مشاهده‌ی نتایج من ←', ar:'عرض نتائجي ←', ru:'Посмотреть мои результаты →'})[lang] || 'View My Results →';
+  rb.href = 'results.html?lang=' + encodeURIComponent(lang);
   ty.classList.add('active');
   document.getElementById('progressFill').style.width = '100%';
   document.getElementById('progressInfo').textContent = '✓';
 }
 
-function downloadCSV() {
-  const questions = QUESTIONS[lang];
-  let csv = 'Field,Value\n';
-  Object.entries(demographics).forEach(([k,v]) => { csv += `"${k}","${v}"\n`; });
-  csv += '\nQ#,Section,Question,Answer\n';
-  questions.forEach((q, i) => {
-    const ans = answers[i] !== undefined ? answers[i] : '';
-    csv += `${i+1},"${q.s}","${q.q.replace(/"/g,'""')}","${ans}"\n`;
-  });
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'SEP-STQ-' + lang + '-' + Date.now() + '.csv';
-  a.click();
-  clearProgress();
-}
 
 checkSaved();
 </script>

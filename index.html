@@ -71,6 +71,13 @@ nav{
   transition:color .22s,border-color .22s,background .22s,transform .18s,box-shadow .18s;
   display:inline-flex;align-items:center;gap:.3rem;
 }
+.nav-results{color:#fff;background:var(--accent);border-color:var(--accent);position:relative}
+.nav-results:hover{color:#fff;background:var(--accent);opacity:.9}
+[data-theme="dark"] .nav-results,[data-theme="dark"] .nav-results:hover{color:#0d1b2e}
+.nav-results .rdot{width:7px;height:7px;border-radius:50%;background:#d4a830;display:none;animation:rdp 2s infinite}
+.nav-results.has .rdot{display:inline-block}
+@keyframes rdp{0%,100%{opacity:1}50%{opacity:.35}}
+@media(max-width:700px){.nav-right{gap:.5rem}.nav-ref{font-size:.72rem;padding:.28rem .6rem;letter-spacing:.08em}}
 .nav-ref:hover{
   color:var(--accent);
   border-color:var(--accent);
@@ -259,6 +266,7 @@ nav{
 <nav>
   <a href="#" class="nav-logo">FET</a>
   <div class="nav-right">
+    <a href="results.html" class="nav-ref nav-results" id="navResults"><span class="rdot"></span>My Results</a>
     <a href="background.html" class="nav-ref">Learn More ↗</a>
     <a href="https://psonline.ca/ira/ira.html" target="_blank" class="nav-ref">References &amp; Publications ↗</a>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
@@ -409,6 +417,7 @@ const html=document.documentElement,btn=document.getElementById('themeToggle'),i
 const saved=localStorage.getItem('fet-theme');
 if(saved)apply(saved);
 btn.addEventListener('click',()=>apply(html.getAttribute('data-theme')==='dark'?'light':'dark'));
+try{ if(localStorage.getItem('fet_stq77_result')) document.getElementById('navResults').classList.add('has'); }catch(e){}
 function apply(t){html.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);icon.innerHTML=t==='dark'?MOON:SUN;}
 </script>
 </body>
