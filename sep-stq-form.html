@@ -1517,12 +1517,10 @@ function restoreProgress(){
     document.documentElement.setAttribute('dir', T[lang]?.dir||'ltr');
     document.getElementById('langOverlay').style.display='none';
     // Resume straight into the questions (the old in-page demographic form is no longer used)
-    if(DEV_MODE || hasParticipantInfo() || Object.keys(answers).length){
+    if(!orderRedirect(lang)){
       document.getElementById('qContainer').classList.add('active');
       renderQuestion();
-    } else {
-      window.location.href='participant-info.html?lang='+lang+'&return=sep-stq-form.html'; return;
-    }
+    } else { return; }
     updateProgressBar();
   } catch(e){}
 }
@@ -1544,13 +1542,10 @@ function startForm(selectedLang) {
   document.getElementById('langOverlay').style.display = 'none';
   applyDemoTranslations();
   loadParticipantIntoDemographics();
-  if(DEV_MODE || hasParticipantInfo()){
-    // DEV_MODE or participant info on file — go straight to questions
+  if(!orderRedirect(lang)){
+    // Parts 1 and 2 done — go straight to questions
     document.getElementById('qContainer').classList.add('active');
     renderQuestion();
-  } else {
-    // No participant info — redirect with return URL
-    window.location.href='participant-info.html?lang='+lang+'&return=sep-stq-form.html';
   }
 }
 
@@ -1841,7 +1836,21 @@ function showThankYou() {
 }
 
 
-checkSaved();
+// Parts must be taken in order: Part 1 → Part 2 → Part 3
+function stqDoneForSession(){
+  try{
+    const s=JSON.parse(localStorage.getItem('fet_active_session')||'null');
+    const r=JSON.parse(localStorage.getItem('fet_stq77_result')||'null');
+    return !!(r && (!s || !s.participantID || r.participantID===s.participantID));
+  }catch(e){ return false; }
+}
+function orderRedirect(l){
+  const q=l?'lang='+l+'&':'';
+  if(!hasParticipantInfo()){ window.location.replace('participant-info.html?'+q+'return=stq77-form.html'); return true; }
+  if(!stqDoneForSession()){ window.location.replace('stq77-form.html'+(l?'?lang='+l:'')); return true; }
+  return false;
+}
+if(!orderRedirect(new URLSearchParams(location.search).get('lang')||'')) checkSaved();
 </script>
 </body>
 </html>

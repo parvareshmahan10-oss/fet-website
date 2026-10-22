@@ -1914,6 +1914,9 @@ function saveAndProceed(){
   const saved = getSaved();
   const pid  = saved?.participantID || '';
   try {
+    // A different person than the last session → drop the previous person's half-finished answers too
+    const _old = JSON.parse(localStorage.getItem('fet_active_session')||'null');
+    if(!_old || _old.participantID !== pid){ localStorage.removeItem('stq77_progress'); localStorage.removeItem('sep_stq_progress'); }
     localStorage.setItem('fet_active_session', JSON.stringify({ participantID: pid, lang }));
     localStorage.removeItem(PARTICIPANT_KEY);
     // New participant on this device → don't leave the previous person's results behind

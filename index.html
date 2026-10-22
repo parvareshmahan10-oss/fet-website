@@ -228,6 +228,10 @@ nav{
   margin-top:auto;
 }
 .card-btn:hover{opacity:.88;transform:translateY(-1px);gap:.9rem;}
+/* locked = previous part not finished yet */
+.card.locked > *:not(.card-head):not(.card-btn){opacity:.45}
+.card-btn.is-locked{background:var(--surface2)!important;color:var(--muted)!important;border:1.5px dashed var(--border-s);cursor:not-allowed;pointer-events:none;letter-spacing:.06em;text-transform:none;font-size:1.05rem}
+.lock-chip{font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .65rem;border-radius:999px;background:var(--surface2);color:var(--muted)}
 .btn-green{background:var(--accent);color:#fff;}
 .btn-gold{background:var(--gold);color:#fff;}
 .btn-arrow{font-size:1.2rem;}
@@ -459,6 +463,13 @@ function fetJourney(){
   const done = {info: j.step!=='none' && j.step!=='info', stq: j.step==='sep'||j.step==='done', sep: j.step==='done'};
   Object.entries(done).forEach(([k,v])=>{ if(!v) return; const a=document.querySelector('[data-part="'+k+'"]'); if(!a) return;
     const head=a.closest('.card').querySelector('.card-head'); const c=document.createElement('span'); c.className='done-chip'; c.textContent='✓ Done'; head.appendChild(c); });
+  // Parts must be taken in order: lock Part 2 until Part 1 is done, Part 3 until Part 2 is done
+  const locked = {stq: !done.info, sep: !done.stq};
+  const need = {stq:'Complete Part 1 first', sep:'Complete Part 2 first'};
+  Object.entries(locked).forEach(([k,isLocked])=>{ if(!isLocked) return; const a=document.querySelector('[data-part="'+k+'"]'); if(!a) return;
+    const card=a.closest('.card'); card.classList.add('locked');
+    a.classList.add('is-locked'); a.removeAttribute('href'); a.setAttribute('aria-disabled','true'); a.innerHTML='🔒 '+need[k];
+    const chip=document.createElement('span'); chip.className='lock-chip'; chip.textContent='Locked'; card.querySelector('.card-head').appendChild(chip); });
   const box=document.getElementById('resume'); if(!box) return;
   const M = {
     info:{main:'Continue Part 1 — Participant Information', sub:'Your answers so far are saved on this device.', href:'participant-info.html', btn:'Continue'},

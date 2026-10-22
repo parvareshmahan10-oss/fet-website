@@ -275,7 +275,7 @@ function restoreProgress(){
     document.documentElement.lang=lang; document.documentElement.dir=u.dir;
     $('langOverlay').style.display='none';
     // Resume straight into the questions (the old in-page demographic form is no longer used)
-    if(DEV_MODE || hasParticipantInfo() || s.answers.some(v=>v!==null)){
+    if(hasParticipantInfo()){
       $('qContainer').classList.add('active');
       renderQuestion();
     } else {
@@ -299,8 +299,8 @@ function startForm(l){
   if(tw) tw.textContent = timeWarnT[l] || timeWarnT.en;
   $('langOverlay').style.display='none';
   loadParticipantIntoDemo();
-  if(DEV_MODE || hasParticipantInfo()){
-    // DEV_MODE or participant info on file — go straight to questions
+  if(hasParticipantInfo()){
+    // participant info on file — go straight to questions
     $('qContainer').classList.add('active'); renderQuestion(); updateProgress(); saveProgress();
   } else {
     // No participant info yet — fill Part 1 first (the old in-page demographic form is no longer used)
@@ -371,7 +371,13 @@ const _saved = localStorage.getItem('fet-theme');
 if (_saved) _applyTheme(_saved);
 _btn.addEventListener('click', () => _applyTheme(_html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
 function _applyTheme(t) { _html.setAttribute('data-theme', t); localStorage.setItem('fet-theme', t); _icon.innerHTML = t === 'dark' ? MOON : SUN; }
-checkSaved();
+// Parts must be taken in order: Part 1 → Part 2 → Part 3
+if(!hasParticipantInfo()){
+  const _l=(new URLSearchParams(location.search).get('lang'))||'';
+  window.location.replace('participant-info.html?'+(_l?'lang='+_l+'&':'')+'return=stq77-form.html');
+} else {
+  checkSaved();
+}
 document.addEventListener('keydown',e=>{ if(['1','2','3','4'].includes(e.key) && $('qContainer').classList.contains('active')){answers[current]=Number(e.key); renderQuestion(); saveProgress();} });
 </script>
 </body>
