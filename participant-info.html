@@ -234,6 +234,12 @@ textarea.fi{resize:vertical;min-height:72px}
 }
 .smoke-detail label{font-size:.78rem;color:var(--muted);display:block;margin-bottom:.3rem;}
 
+
+/* ── mobile fixes ── */
+html,body{overflow-x:hidden;max-width:100%}
+@media(max-width:650px){
+  input,select,textarea{font-size:16px!important} /* stops iOS from zooming in on focus */
+}
 </style>
 </head>
 <body>
