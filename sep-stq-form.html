@@ -1426,6 +1426,11 @@ const TOTAL = 144;
 const PARTICIPANT_KEY = 'fet_participant';
 const DEV_MODE = true; // ← set false before going live
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAL92zy9aSMeQwrbAeloaQCjyOOA5Fz4cZ4SxODjhPxGouuRhQNQ0k48URW2XTfSjlMw/exec";
+// Part 1 done? participant-info.html clears fet_participant on submit and keeps only fet_active_session
+function hasParticipantInfo(){
+  const p=getParticipant(); if(p&&p.data&&p.data.fname) return true;
+  try{ const s=JSON.parse(localStorage.getItem('fet_active_session')||'null'); return !!(s&&s.participantID); }catch(e){ return false; }
+}
 function getParticipant(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return r?JSON.parse(r):null; }catch(e){return null;} }
 function loadParticipantIntoDemographics(){
   const p=getParticipant();
@@ -1444,7 +1449,7 @@ function saveProgress(){
   const p=getParticipant();
   const mergedDemo = p&&p.data ? Object.assign({},demographics,p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand}) : demographics;
   localStorage.setItem(SEP_KEY, JSON.stringify({
-    lang, currentQ, answers, demographics: mergedDemo,
+    lang, currentQ, answers, demographics: mergedDemo, sepStartTime,
     radioSelections, checkedConcerns: [...checkedConcerns],
     phase: document.getElementById('qContainer').classList.contains('active') ? 'q' : 'demo'
   }));
@@ -1502,6 +1507,7 @@ function restoreProgress(){
   try {
     const s = JSON.parse(localStorage.getItem(SEP_KEY));
     lang=s.lang; currentQ=s.currentQ||0; answers=s.answers||{};
+    sepStartTime = s.sepStartTime || Date.now();
     demographics=s.demographics||{}; radioSelections=s.radioSelections||{gender:'',hand:''};
     checkedConcerns=new Set(s.checkedConcerns||[]);
     // Merge latest participant info on top
@@ -1510,17 +1516,12 @@ function restoreProgress(){
     document.documentElement.setAttribute('lang', lang);
     document.documentElement.setAttribute('dir', T[lang]?.dir||'ltr');
     document.getElementById('langOverlay').style.display='none';
-    if(s.phase==='q'){
+    // Resume straight into the questions (the old in-page demographic form is no longer used)
+    if(DEV_MODE || hasParticipantInfo() || Object.keys(answers).length){
       document.getElementById('qContainer').classList.add('active');
       renderQuestion();
     } else {
-      if(p&&p.data){
-        document.getElementById('qContainer').classList.add('active');
-        renderQuestion();
-      } else {
-        document.getElementById('demoContainer').classList.add('active');
-        applyDemoTranslations();
-      }
+      window.location.href='participant-info.html?lang='+lang+'&return=sep-stq-form.html'; return;
     }
     updateProgressBar();
   } catch(e){}
@@ -1543,7 +1544,7 @@ function startForm(selectedLang) {
   document.getElementById('langOverlay').style.display = 'none';
   applyDemoTranslations();
   loadParticipantIntoDemographics();
-  if(DEV_MODE || (getParticipant()&&getParticipant().data&&getParticipant().data.fname)){
+  if(DEV_MODE || hasParticipantInfo()){
     // DEV_MODE or participant info on file — go straight to questions
     document.getElementById('qContainer').classList.add('active');
     renderQuestion();
@@ -1722,7 +1723,7 @@ function renderQuestion() {
   // Nav buttons
   document.getElementById('btnBack').disabled = currentQ === 0;
   document.getElementById('btnBack').textContent = t.btnBack;
-  document.getElementById('btnNext').textContent = currentQ === questions.length - 1 ? (lang === 'en' ? 'Submit ✓' : lang === 'ar' ? 'إرسال ✓' : 'ارسال ✓') : t.btnNext;
+  document.getElementById('btnNext').textContent = currentQ === questions.length - 1 ? (({en:'Submit ✓', ar:'إرسال ✓', fa:'ارسال ✓', ru:'Отправить ✓'})[lang] || 'Submit ✓') : t.btnNext;
   document.getElementById('skipNote').textContent = t.skipNote;
   // Progress
   const pct = Math.round((currentQ / TOTAL) * 100);

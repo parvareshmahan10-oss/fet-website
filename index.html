@@ -240,6 +240,25 @@ nav{
   .cards{grid-template-columns:1fr;}
 }
 
+/* ── RESUME BANNER ── */
+.resume{display:none;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  padding:.9rem 1.2rem;border:2px solid var(--accent);border-radius:16px;background:var(--al);animation:rsIn .5s ease}
+.resume.show{display:flex}
+.screen.has-resume{grid-template-rows:auto auto 1fr auto}
+@keyframes rsIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.rs-txt{display:flex;flex-direction:column;gap:.2rem}
+.rs-kick{font-size:.82rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);display:flex;align-items:center;gap:.5rem}
+.rs-kick:before{content:'';width:8px;height:8px;border-radius:50%;background:var(--accent);animation:rdp 2s infinite}
+.rs-main{font-size:1.15rem;font-weight:700;color:var(--text)}
+.rs-sub{font-size:.92rem;color:var(--muted)}
+.rs-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.3rem;border-radius:999px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:.95rem;white-space:nowrap;transition:opacity .2s,transform .2s}
+.rs-btn:hover{opacity:.9;transform:translateY(-1px)}
+[data-theme="dark"] .rs-btn{color:#0d1b2e}
+.rs-bar{height:5px;border-radius:99px;background:var(--border);overflow:hidden;width:min(320px,100%);margin-top:.35rem}
+.rs-bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.done-chip{font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.22rem .65rem;border-radius:999px;background:var(--accent);color:#fff}
+[data-theme="dark"] .done-chip{color:#0d1b2e}
+
 /* ── FOOTER STRIP ── */
 .foot{
   display:flex;align-items:center;justify-content:space-between;
@@ -295,6 +314,9 @@ nav{
 
   </div>
 
+  <!-- RESUME (filled by script when a participant has unfinished parts) -->
+  <div class="resume" id="resume"></div>
+
   <!-- CARDS -->
   <div class="cards">
 
@@ -313,7 +335,7 @@ nav{
         <div class="info-row" style="background:rgba(13,74,138,.07);"><span class="info-dot" style="background:var(--blue)"></span><span>Family history · health · lifestyle · work · sleep pattern</span></div>
         <div class="info-row" style="background:rgba(13,74,138,.07);"><span class="info-dot" style="background:var(--blue)"></span><span>Filled <strong>once</strong> — applies to both STQ-77 and SEP-STQ</span></div>
       </div>
-      <a href="participant-info.html" class="card-btn" style="background:var(--blue);color:#fff;">Fill in Info <span class="btn-arrow">→</span></a>
+      <a href="participant-info.html" data-part="info" class="card-btn" style="background:var(--blue);color:#fff;">Fill in Info <span class="btn-arrow">→</span></a>
     </div>
 
     <!-- STQ-77 -->
@@ -331,7 +353,7 @@ nav{
         <div class="info-row"><span class="info-dot"></span><span>How long you sustain effort · how fast you integrate info · where attention orients</span></div>
         <div class="info-row"><span class="info-dot"></span><span>Maps neurochemical systems to <strong>12 formal-dynamical traits</strong> — see Background for full detail</span></div>
       </div>
-      <a href="stq77-form.html" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
+      <a href="stq77-form.html" data-part="stq" class="card-btn btn-green">Take the STQ-77 <span class="btn-arrow">→</span></a>
     </div>
 
     <!-- SEP-STQ -->
@@ -357,7 +379,7 @@ nav{
           <span class="tr" style="color:var(--gold)">🌍 Culture</span>
         </div>
       </div>
-      <a href="sep-stq-form.html" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
+      <a href="sep-stq-form.html" data-part="sep" class="card-btn btn-gold">Take the SEP-STQ <span class="btn-arrow">→</span></a>
     </div>
 
   </div>
@@ -420,7 +442,37 @@ const html=document.documentElement,btn=document.getElementById('themeToggle'),i
 const saved=localStorage.getItem('fet-theme');
 if(saved)apply(saved);
 btn.addEventListener('click',()=>apply(html.getAttribute('data-theme')==='dark'?'light':'dark'));
-try{ if(localStorage.getItem('fet_stq77_result') && localStorage.getItem('fet_sep_result')) document.getElementById('navResults').classList.add('has'); }catch(e){}
+function fetJourney(){
+  const J=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+  const sess=J('fet_active_session'), part=J('fet_participant'), stq=J('fet_stq77_result'), sep=J('fet_sep_result');
+  const sp=J('stq77_progress'), ep=J('sep_stq_progress');
+  const stqDone = !!(stq && (!sess || stq.participantID===sess.participantID));
+  const sepDone = !!(stqDone && sep && sep.participantID===stq.participantID);
+  const pid = sess?.participantID || stq?.participantID || part?.participantID || '';
+  if(sepDone) return {step:'done', pid};
+  if(stqDone) return {step:'sep', pid, n: ep ? Object.keys(ep.answers||{}).length : 0, total:144};
+  if(sess)    return {step:'stq', pid, n: sp && Array.isArray(sp.answers) ? sp.answers.filter(v=>v!==null).length : 0, total:77};
+  if(part && part.data) return {step:'info', pid};
+  return {step:'none', pid:''};
+}
+(function(){
+  let j; try{ j=fetJourney(); }catch(e){ return; }
+  if(j.step==='done') document.getElementById('navResults').classList.add('has');
+  // mark finished parts
+  const done = {info: j.step!=='none' && j.step!=='info', stq: j.step==='sep'||j.step==='done', sep: j.step==='done'};
+  Object.entries(done).forEach(([k,v])=>{ if(!v) return; const a=document.querySelector('[data-part="'+k+'"]'); if(!a) return;
+    const head=a.closest('.card').querySelector('.card-head'); const c=document.createElement('span'); c.className='done-chip'; c.textContent='✓ Done'; head.appendChild(c); });
+  const box=document.getElementById('resume'); if(!box) return;
+  const M = {
+    info:{main:'Continue Part 1 — Participant Information', sub:'Your answers so far are saved on this device.', href:'participant-info.html', btn:'Continue'},
+    stq: {main:'Continue Part 2 — STQ-77', sub:j.n?('You have answered '+j.n+' of 77 questions.'):'Part 1 is complete. Next: the STQ-77 questionnaire.', href:'stq77-form.html', btn:j.n?'Continue':'Start Part 2'},
+    sep: {main:'Continue Part 3 — SEP-STQ', sub:(j.n?('You have answered '+j.n+' of 144 questions. '):'')+'Complete Part 3 to see your results.', href:'sep-stq-form.html', btn:j.n?'Continue':'Start Part 3'}
+  }[j.step];
+  if(!M) return;
+  const pct = j.total ? Math.round(j.n/j.total*100) : 0;
+  box.innerHTML = '<div class="rs-txt"><span class="rs-kick">Welcome back'+(j.pid?' · '+j.pid:'')+'</span><span class="rs-main">'+M.main+'</span><span class="rs-sub">'+M.sub+'</span>'+(j.total?'<div class="rs-bar"><i style="width:'+pct+'%"></i></div>':'')+'</div><a class="rs-btn" href="'+M.href+'">'+M.btn+' →</a>';
+  box.classList.add('show'); box.parentElement.classList.add('has-resume');
+})();
 function apply(t){html.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);icon.innerHTML=t==='dark'?MOON:SUN;}
 </script>
 </body>

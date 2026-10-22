@@ -199,13 +199,18 @@ const UI = {
 let lang='en', current=0, answers=Array(77).fill(null), demo={};
 const PARTICIPANT_KEY = 'fet_participant';
 const DEV_MODE = true; // ← set false before going live
+// Part 1 done? participant-info.html clears fet_participant on submit and keeps only fet_active_session
+function hasParticipantInfo(){
+  const p=getParticipant(); if(p&&p.data&&p.data.fname) return true;
+  try{ const s=JSON.parse(localStorage.getItem('fet_active_session')||'null'); return !!(s&&s.participantID); }catch(e){ return false; }
+}
 function getParticipant(){ try{ const r=localStorage.getItem(PARTICIPANT_KEY); return r?JSON.parse(r):null; }catch(e){return null;} }
 function loadParticipantIntoDemo(){ const p=getParticipant(); if(p&&p.data){ demo=Object.assign({},p.data,{gender:p.radioState?.gender,hand:p.radioState?.hand}); } }
 
 /* ── SAVE / RESTORE ── */
 const STQ_KEY = 'stq77_progress';
 function saveProgress(){
-  localStorage.setItem(STQ_KEY, JSON.stringify({ lang, current, answers, demo,
+  localStorage.setItem(STQ_KEY, JSON.stringify({ lang, current, answers, demo, testStartTime,
     phase: $('qContainer').classList.contains('active') ? 'q' : 'demo' }));
 }
 function clearProgress(){ localStorage.removeItem(STQ_KEY); }
@@ -264,23 +269,17 @@ function restoreProgress(){
   try {
     const s = JSON.parse(localStorage.getItem(STQ_KEY));
     lang=s.lang; current=s.current; answers=s.answers; demo=s.demo||{};
+    testStartTime = s.testStartTime || Date.now();   // keep the original start so duration stays honest
     loadParticipantIntoDemo(); // override with latest participant info if available
     const u=UI[lang];
     document.documentElement.lang=lang; document.documentElement.dir=u.dir;
     $('langOverlay').style.display='none';
-    if(s.phase==='q'){
+    // Resume straight into the questions (the old in-page demographic form is no longer used)
+    if(DEV_MODE || hasParticipantInfo() || s.answers.some(v=>v!==null)){
       $('qContainer').classList.add('active');
       renderQuestion();
     } else {
-      if(getParticipant()&&getParticipant().data){
-        $('qContainer').classList.add('active'); renderQuestion();
-      } else {
-        $('demoContainer').classList.add('active');
-        $('demoBadge').textContent=u.badge; $('demoTitle').innerHTML=u.title;
-        $('demoSec1').textContent=u.sec; $('beginBtn').textContent=u.begin;
-        $('demoNotice').textContent=u.notice;
-        renderDemo();
-      }
+      window.location.href='participant-info.html?lang='+lang+'&return=stq77-form.html'; return;
     }
     updateProgress();
   } catch(e){}
@@ -300,16 +299,12 @@ function startForm(l){
   if(tw) tw.textContent = timeWarnT[l] || timeWarnT.en;
   $('langOverlay').style.display='none';
   loadParticipantIntoDemo();
-  if(DEV_MODE || (getParticipant()&&getParticipant().data&&getParticipant().data.fname)){
+  if(DEV_MODE || hasParticipantInfo()){
     // DEV_MODE or participant info on file — go straight to questions
     $('qContainer').classList.add('active'); renderQuestion(); updateProgress(); saveProgress();
   } else {
-    // No participant info — show demo form first
-    $('demoContainer').classList.add('active');
-    $('demoBadge').textContent=u.badge; $('demoTitle').innerHTML=u.title;
-    $('demoSec1').textContent=u.sec; $('beginBtn').textContent=u.begin;
-    $('demoNotice').textContent=u.notice;
-    renderDemo();
+    // No participant info yet — fill Part 1 first (the old in-page demographic form is no longer used)
+    window.location.href='participant-info.html?lang='+l+'&return=stq77-form.html';
   }
 }
 function renderDemo(){const grid=$('demoGrid'); grid.innerHTML=''; UI[lang].fields.forEach(([id,label,type])=>{ const wrap=document.createElement('div'); wrap.className='demo-field'; const lab=document.createElement('label'); lab.className='demo-label'; lab.textContent=label; wrap.appendChild(lab); if(type.startsWith('radio:')){ const group=document.createElement('div'); group.className='demo-radio-group'; type.slice(6).split('|').forEach(opt=>{ const b=document.createElement('div'); b.className='demo-radio'; b.textContent=opt; b.onclick=()=>{demo[id]=opt; group.querySelectorAll('.demo-radio').forEach(x=>x.classList.remove('selected')); b.classList.add('selected')}; group.appendChild(b); }); wrap.appendChild(group); } else { const inp=document.createElement('input'); inp.className='demo-input'; inp.type=type; inp.id='demo-'+id; inp.oninput=()=>demo[id]=inp.value; wrap.appendChild(inp); } grid.appendChild(wrap); });}

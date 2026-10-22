@@ -53,6 +53,12 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;
 .lang-intro{font-size:.93rem;color:var(--ink);line-height:1.7;margin-bottom:1.8rem;padding:.9rem 1.1rem;background:rgba(42,102,68,.07);border-radius:12px;border-left:3px solid var(--accent);text-align:left}
 [dir=rtl] .lang-intro{border-left:none;border-right:3px solid var(--accent);text-align:right}
 .lang-options{display:flex;flex-direction:column;gap:0}
+.resume-block{margin-bottom:1.1rem;padding:1.2rem 1.4rem;border:2px solid var(--accent);border-radius:18px;background:rgba(42,102,68,.07);text-align:left}
+[dir=rtl] .resume-block{text-align:right}
+.resume-badge{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:.45rem}
+.resume-progress{font-size:1.02rem;font-weight:800;color:var(--ink,var(--text));margin-bottom:.85rem;line-height:1.4}
+.resume-btn{display:flex;align-items:center;justify-content:center;width:100%;background:var(--accent);color:#fff;border:none;border-radius:999px;font:700 .95rem Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;text-decoration:none}
+.resume-divider{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .8rem;text-align:center}
 .lang-select{width:100%;border:2px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:500 1.1rem Arial,Helvetica,sans-serif;padding:1rem 1.2rem;cursor:pointer;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232a6644' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.8rem;transition:.25s}
 .lang-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(42,102,68,.08)}
 .lang-confirm{display:block;width:100%;background:var(--accent);color:#fff;border:none;border-radius:999px;font:700 .95rem Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;padding:1rem 1.5rem;cursor:pointer;margin-top:.65rem;transition:opacity .2s,transform .2s}
@@ -1910,6 +1916,11 @@ function saveAndProceed(){
   try {
     localStorage.setItem('fet_active_session', JSON.stringify({ participantID: pid, lang }));
     localStorage.removeItem(PARTICIPANT_KEY);
+    // New participant on this device → don't leave the previous person's results behind
+    ['fet_stq77_result','fet_sep_result'].forEach(k=>{
+      const r=JSON.parse(localStorage.getItem(k)||'null');
+      if(r && r.participantID !== pid) localStorage.removeItem(k);
+    });
   } catch(e){}
 
   // Update texts based on language
@@ -2226,6 +2237,46 @@ const _h=document.documentElement,_b=document.getElementById('themeToggle'),_i=d
 const _s=localStorage.getItem('fet-theme'); if(_s) _at(_s);
 _b.addEventListener('click',()=>_at(_h.getAttribute('data-theme')==='dark'?'light':'dark'));
 function _at(t){_h.setAttribute('data-theme',t);localStorage.setItem('fet-theme',t);_i.innerHTML=t==='dark'?MOON:SUN;}
+
+function fetJourney(){
+  const J=k=>{ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+  const sess=J('fet_active_session'), part=J('fet_participant'), stq=J('fet_stq77_result'), sep=J('fet_sep_result');
+  const sp=J('stq77_progress'), ep=J('sep_stq_progress');
+  const stqDone = !!(stq && (!sess || stq.participantID===sess.participantID));
+  const sepDone = !!(stqDone && sep && sep.participantID===stq.participantID);
+  const pid = sess?.participantID || stq?.participantID || part?.participantID || '';
+  if(sepDone) return {step:'done', pid};
+  if(stqDone) return {step:'sep', pid, n: ep ? Object.keys(ep.answers||{}).length : 0, total:144};
+  if(sess)    return {step:'stq', pid, n: sp && Array.isArray(sp.answers) ? sp.answers.filter(v=>v!==null).length : 0, total:77};
+  if(part && part.data) return {step:'info', pid};
+  return {step:'none', pid:''};
+}
+
+// Part 1 already submitted on this device → offer to continue instead of creating a new participant ID
+(function(){
+  let j; try{ j=fetJourney(); }catch(e){ return; }
+  const modal=document.querySelector('.lang-modal'); if(!modal) return;
+  if(j.step==='info'){
+    // half-filled Part 1 → pre-select its language and offer to pick up where they left off
+    const sv=getSaved(), sl=sv&&sv.lang, sel=document.getElementById('langSelect');
+    if(sl && sel) sel.value=sl;
+    const filled = sv&&sv.data ? Object.entries(sv.data).filter(([k,v])=>k!=='id'&&k!=='testDate'&&v!==''&&v!=null).length : 0;
+    if(!sl || !filled) return;
+    const box=document.createElement('div');
+    box.innerHTML='<div class="resume-block"><div class="resume-badge">Saved session'+(j.pid?' · '+j.pid:'')+'</div>'+
+      '<div class="resume-progress">Your answers so far are saved ('+filled+' fields filled)</div>'+
+      '<button class="resume-btn" onclick="startForm(\''+sl+'\')">Continue →</button></div><div class="resume-divider">— or change language below —</div>';
+    modal.insertBefore(box, modal.querySelector('.lang-options'));
+    return;
+  }
+  if(!['stq','sep'].includes(j.step)) return;
+  const next = j.step==='stq' ? {t:'Part 2 — STQ-77', h:'stq77-form.html'} : {t:'Part 3 — SEP-STQ', h:'sep-stq-form.html'};
+  const box=document.createElement('div');
+  box.innerHTML='<div class="resume-block"><div class="resume-badge">Your information is already saved'+(j.pid?' · '+j.pid:'')+'</div>'+
+    '<div class="resume-progress">Continue with '+next.t+(j.n?' ('+j.n+' / '+j.total+' answered)':'')+'</div>'+
+    '<a class="resume-btn" href="'+next.h+'">Continue →</a></div><div class="resume-divider">— or register a new participant —</div>';
+  modal.insertBefore(box, modal.querySelector('.lang-options'));
+})();
 </script>
 </body>
 </html>

@@ -385,7 +385,9 @@ function render(){
     $('main').innerHTML = `<div class="panel empty"><div class="badge">${t.badge}</div><h2>${t.emptyT}</h2><p>${t.emptyP}</p><a class="btn" href="stq77-form.html">${t.emptyB}</a></div>`;
     return;
   }
-  if(!SEP || !SEP.answers){
+  const sameRun = SEP && SEP.answers && (!STQ.participantID || !SEP.participantID || STQ.participantID==='UNKNOWN' || SEP.participantID===STQ.participantID)
+                  && (!SEP.completedAt || !STQ.completedAt || SEP.completedAt >= STQ.completedAt);
+  if(!sameRun){
     $('main').innerHTML = `<div class="panel empty"><div class="badge">${t.badge}</div><h2>${t.sepT}</h2><p>${t.sepP}</p><a class="btn" href="sep-stq-form.html">${t.sepB}</a></div>`;
     return;
   }
